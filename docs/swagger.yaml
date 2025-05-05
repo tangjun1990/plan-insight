@@ -1,0 +1,543 @@
+basePath: /
+definitions:
+  domain.SensitiveCheckReq:
+    properties:
+      content:
+        description: 待检测内容文本
+        type: string
+      mode:
+        description: 检测模式：replace 将敏感词替换为*，remove 将敏感词去掉，findOne 查找并返回第一个敏感词，findAll
+          查找并返回全部敏感词
+        type: string
+    type: object
+  domain.SensitiveWordAlarmCreate:
+    properties:
+      companyId:
+        description: 公司ID
+        type: integer
+      ext:
+        description: 扩展信息
+        type: string
+      mode:
+        description: 类型【0 IM 1 语音】
+        type: integer
+      status:
+        description: 状态【0已出发1已告警】
+        type: integer
+      targetId:
+        description: 触发方ID(访客ID/座席ID)
+        type: string
+      type:
+        description: 触发方【0访客 1座席】
+        type: integer
+      words:
+        description: 敏感词数组
+        items:
+          type: string
+        type: array
+    type: object
+  domain.SensitiveWordAlarmEntity:
+    properties:
+      companyId:
+        description: 公司ID
+        type: integer
+      createTime:
+        description: 创建时间
+        type: string
+      ext:
+        description: 扩展信息
+        type: string
+      id:
+        description: id
+        type: integer
+      isDeleted:
+        description: 是否删除
+        type: integer
+      mode:
+        description: 类型【0 IM 1 语音】
+        type: integer
+      status:
+        description: 状态【0已出发1已告警】
+        type: integer
+      targetId:
+        description: 触发方ID(访客ID/座席ID)
+        type: string
+      type:
+        description: 触发方【0访客 1座席】
+        type: integer
+      updateTime:
+        description: 修改时间
+        type: string
+      word:
+        description: 敏感词
+        type: string
+      wordId:
+        description: 敏感词ID
+        type: string
+    type: object
+  domain.SensitiveWordAlarmPage:
+    properties:
+      list:
+        description: 列表
+        items:
+          $ref: '#/definitions/domain.SensitiveWordAlarmEntity'
+        type: array
+      page:
+        allOf:
+        - $ref: '#/definitions/response.Page'
+        description: page
+    type: object
+  domain.SensitiveWordAlarmUpdate:
+    properties:
+      companyId:
+        description: 公司ID
+        type: integer
+      ext:
+        description: 扩展信息
+        type: string
+      id:
+        description: id
+        type: integer
+      mode:
+        description: 类型【0 IM 1 语音】
+        type: integer
+      status:
+        description: 状态【0已出发1已告警】
+        type: integer
+      targetId:
+        description: 触发方ID(访客ID/座席ID)
+        type: string
+      type:
+        description: 触发方【0访客 1座席】
+        type: integer
+      word:
+        description: 敏感词
+        type: string
+      wordId:
+        description: 敏感词ID
+        type: string
+    type: object
+  domain.SensitiveWordCreate:
+    properties:
+      status:
+        description: 状态【0未开启 1开启】
+        type: integer
+      word:
+        description: 敏感词
+        type: string
+    type: object
+  domain.SensitiveWordEntity:
+    properties:
+      count:
+        description: 触发次数
+        type: integer
+      createId:
+        description: 创建者ID
+        type: integer
+      createTime:
+        description: 创建时间
+        type: string
+      id:
+        description: id
+        type: integer
+      isDeleted:
+        description: 是否删除
+        type: integer
+      status:
+        description: 状态【0未开启 1开启】
+        type: integer
+      updateId:
+        description: 修改者ID
+        type: integer
+      updateTime:
+        description: 修改时间
+        type: string
+      word:
+        description: 敏感词
+        type: string
+    type: object
+  domain.SensitiveWordPage:
+    properties:
+      list:
+        description: 列表
+        items:
+          $ref: '#/definitions/domain.SensitiveWordEntity'
+        type: array
+      page:
+        allOf:
+        - $ref: '#/definitions/response.Page'
+        description: page
+    type: object
+  domain.SensitiveWordUpdate:
+    properties:
+      id:
+        description: id
+        type: integer
+      status:
+        description: 状态【0未开启 1开启】
+        type: integer
+      word:
+        description: 敏感词
+        type: string
+    type: object
+  response.Page:
+    properties:
+      pageNum:
+        description: 分页-页码
+        type: integer
+      pageSize:
+        description: 分页-页数
+        type: integer
+      totalCount:
+        description: 总数
+        type: integer
+    type: object
+host: 127.0.0.1:9009
+info:
+  contact:
+    email: feige@feige.cn
+    name: 飞鸽
+    url: http://www.swagger.io/support
+  description: 描述
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: 飞鸽传书公共API服务
+  version: 1.0.1 版本
+paths:
+  /sensitive/alarm/create:
+    post:
+      consumes:
+      - application/json
+      description: post 创建敏感词告警
+      parameters:
+      - description: 敏感词实体
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SensitiveWordAlarmCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 创建敏感词告警
+      tags:
+      - SensitiveWordAlarm
+  /sensitive/alarm/delete:
+    delete:
+      consumes:
+      - application/json
+      description: post 删除敏感词告警
+      parameters:
+      - description: 敏感词告警ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 删除敏感词告警
+      tags:
+      - SensitiveWordAlarm
+  /sensitive/alarm/info:
+    get:
+      consumes:
+      - application/json
+      description: get 查询敏感词告警信息
+      parameters:
+      - description: 敏感词ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 查询敏感词告警信息
+      tags:
+      - SensitiveWordAlarm
+  /sensitive/alarm/list:
+    get:
+      consumes:
+      - application/json
+      description: get 获取敏感词告警列表
+      parameters:
+      - description: 开始时间
+        in: query
+        name: beginTime
+        type: string
+      - description: 公司ID
+        in: query
+        name: companyId
+        type: integer
+      - description: 结束时间
+        in: query
+        name: endTime
+        type: string
+      - description: id
+        in: query
+        name: id
+        type: integer
+      - description: 类型【0 IM 1 语音】
+        in: query
+        name: mode
+        type: integer
+      - description: 分页-页码
+        in: query
+        name: pageNum
+        type: integer
+      - description: 分页-页数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 状态【0已出发1已告警】
+        in: query
+        name: status
+        type: integer
+      - description: 触发方ID(访客ID/座席ID)
+        in: query
+        name: targetId
+        type: string
+      - description: 触发方【0访客 1座席】
+        in: query
+        name: type
+        type: integer
+      - description: 敏感词
+        in: query
+        name: word
+        type: string
+      - description: 敏感词ID
+        in: query
+        name: wordId
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SensitiveWordAlarmPage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 敏感词告警列表
+      tags:
+      - SensitiveWordAlarm
+  /sensitive/alarm/update:
+    post:
+      consumes:
+      - application/json
+      description: post 更新敏感词告警
+      parameters:
+      - description: 敏感词实体
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SensitiveWordAlarmUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 更新敏感词告警
+      tags:
+      - SensitiveWordAlarm
+  /sensitive/check:
+    post:
+      consumes:
+      - application/json
+      description: get 敏感词检查
+      parameters:
+      - description: domain
+        in: body
+        name: domain
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SensitiveCheckReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 敏感词检查
+      tags:
+      - SensitiveWord
+  /sensitive/delete:
+    delete:
+      consumes:
+      - application/json
+      description: post 删除敏感词
+      parameters:
+      - description: 敏感词ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 删除敏感词
+      tags:
+      - SensitiveWord
+  /sensitive/info:
+    get:
+      consumes:
+      - application/json
+      description: get 查询敏感词告警信息
+      parameters:
+      - description: 敏感词ID
+        in: query
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SensitiveWordAlarmEntity'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 查询敏感词信息
+      tags:
+      - SensitiveWord
+  /sensitive/list:
+    get:
+      consumes:
+      - application/json
+      description: get 获取敏感词列表
+      parameters:
+      - description: 分页-页码
+        in: query
+        name: pageNum
+        type: integer
+      - description: 分页-页数
+        in: query
+        name: pageSize
+        type: integer
+      - description: 状态【0未开启 1开启】
+        in: query
+        name: status
+        type: integer
+      - description: 敏感词
+        in: query
+        name: word
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.SensitiveWordPage'
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 敏感词列表
+      tags:
+      - SensitiveWord
+  /sensitive/save:
+    post:
+      consumes:
+      - application/json
+      description: post 创建敏感词
+      parameters:
+      - description: 敏感词实体
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SensitiveWordCreate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 创建敏感词
+      tags:
+      - SensitiveWord
+  /sensitive/update:
+    post:
+      consumes:
+      - application/json
+      description: post 更新敏感词
+      parameters:
+      - description: 敏感词实体
+        in: body
+        name: word
+        required: true
+        schema:
+          $ref: '#/definitions/domain.SensitiveWordUpdate'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 更新敏感词
+      tags:
+      - SensitiveWord
+swagger: "2.0"

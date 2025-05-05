@@ -1,0 +1,805 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "描述",
+        "title": "飞鸽传书公共API服务",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "飞鸽",
+            "url": "http://www.swagger.io/support",
+            "email": "feige@feige.cn"
+        },
+        "license": {
+            "name": "Apache 2.0",
+            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+        },
+        "version": "1.0.1 版本"
+    },
+    "host": "127.0.0.1:9009",
+    "basePath": "/",
+    "paths": {
+        "/sensitive/alarm/create": {
+            "post": {
+                "description": "post 创建敏感词告警",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWordAlarm"
+                ],
+                "summary": "创建敏感词告警",
+                "parameters": [
+                    {
+                        "description": "敏感词实体",
+                        "name": "word",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordAlarmCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/alarm/delete": {
+            "delete": {
+                "description": "post 删除敏感词告警",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWordAlarm"
+                ],
+                "summary": "删除敏感词告警",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "敏感词告警ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/alarm/info": {
+            "get": {
+                "description": "get 查询敏感词告警信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWordAlarm"
+                ],
+                "summary": "查询敏感词告警信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "敏感词ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/alarm/list": {
+            "get": {
+                "description": "get 获取敏感词告警列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWordAlarm"
+                ],
+                "summary": "敏感词告警列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "开始时间",
+                        "name": "beginTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "公司ID",
+                        "name": "companyId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "结束时间",
+                        "name": "endTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "类型【0 IM 1 语音】",
+                        "name": "mode",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分页-页码",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分页-页数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "状态【0已出发1已告警】",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "触发方ID(访客ID/座席ID)",
+                        "name": "targetId",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "触发方【0访客 1座席】",
+                        "name": "type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "敏感词",
+                        "name": "word",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "敏感词ID",
+                        "name": "wordId",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordAlarmPage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/alarm/update": {
+            "post": {
+                "description": "post 更新敏感词告警",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWordAlarm"
+                ],
+                "summary": "更新敏感词告警",
+                "parameters": [
+                    {
+                        "description": "敏感词实体",
+                        "name": "word",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordAlarmUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/check": {
+            "post": {
+                "description": "get 敏感词检查",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWord"
+                ],
+                "summary": "敏感词检查",
+                "parameters": [
+                    {
+                        "description": "domain",
+                        "name": "domain",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveCheckReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/delete": {
+            "delete": {
+                "description": "post 删除敏感词",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWord"
+                ],
+                "summary": "删除敏感词",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "敏感词ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/info": {
+            "get": {
+                "description": "get 查询敏感词告警信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWord"
+                ],
+                "summary": "查询敏感词信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "敏感词ID",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordAlarmEntity"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/list": {
+            "get": {
+                "description": "get 获取敏感词列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWord"
+                ],
+                "summary": "敏感词列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分页-页码",
+                        "name": "pageNum",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "分页-页数",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "状态【0未开启 1开启】",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "敏感词",
+                        "name": "word",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordPage"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/save": {
+            "post": {
+                "description": "post 创建敏感词",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWord"
+                ],
+                "summary": "创建敏感词",
+                "parameters": [
+                    {
+                        "description": "敏感词实体",
+                        "name": "word",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/sensitive/update": {
+            "post": {
+                "description": "post 更新敏感词",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SensitiveWord"
+                ],
+                "summary": "更新敏感词",
+                "parameters": [
+                    {
+                        "description": "敏感词实体",
+                        "name": "word",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/domain.SensitiveWordUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "domain.SensitiveCheckReq": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "待检测内容文本",
+                    "type": "string"
+                },
+                "mode": {
+                    "description": "检测模式：replace 将敏感词替换为*，remove 将敏感词去掉，findOne 查找并返回第一个敏感词，findAll 查找并返回全部敏感词",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SensitiveWordAlarmCreate": {
+            "type": "object",
+            "properties": {
+                "companyId": {
+                    "description": "公司ID",
+                    "type": "integer"
+                },
+                "ext": {
+                    "description": "扩展信息",
+                    "type": "string"
+                },
+                "mode": {
+                    "description": "类型【0 IM 1 语音】",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态【0已出发1已告警】",
+                    "type": "integer"
+                },
+                "targetId": {
+                    "description": "触发方ID(访客ID/座席ID)",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "触发方【0访客 1座席】",
+                    "type": "integer"
+                },
+                "words": {
+                    "description": "敏感词数组",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "domain.SensitiveWordAlarmEntity": {
+            "type": "object",
+            "properties": {
+                "companyId": {
+                    "description": "公司ID",
+                    "type": "integer"
+                },
+                "createTime": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "ext": {
+                    "description": "扩展信息",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "id",
+                    "type": "integer"
+                },
+                "isDeleted": {
+                    "description": "是否删除",
+                    "type": "integer"
+                },
+                "mode": {
+                    "description": "类型【0 IM 1 语音】",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态【0已出发1已告警】",
+                    "type": "integer"
+                },
+                "targetId": {
+                    "description": "触发方ID(访客ID/座席ID)",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "触发方【0访客 1座席】",
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "description": "修改时间",
+                    "type": "string"
+                },
+                "word": {
+                    "description": "敏感词",
+                    "type": "string"
+                },
+                "wordId": {
+                    "description": "敏感词ID",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SensitiveWordAlarmPage": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SensitiveWordAlarmEntity"
+                    }
+                },
+                "page": {
+                    "description": "page",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.Page"
+                        }
+                    ]
+                }
+            }
+        },
+        "domain.SensitiveWordAlarmUpdate": {
+            "type": "object",
+            "properties": {
+                "companyId": {
+                    "description": "公司ID",
+                    "type": "integer"
+                },
+                "ext": {
+                    "description": "扩展信息",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "id",
+                    "type": "integer"
+                },
+                "mode": {
+                    "description": "类型【0 IM 1 语音】",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态【0已出发1已告警】",
+                    "type": "integer"
+                },
+                "targetId": {
+                    "description": "触发方ID(访客ID/座席ID)",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "触发方【0访客 1座席】",
+                    "type": "integer"
+                },
+                "word": {
+                    "description": "敏感词",
+                    "type": "string"
+                },
+                "wordId": {
+                    "description": "敏感词ID",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SensitiveWordCreate": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "description": "状态【0未开启 1开启】",
+                    "type": "integer"
+                },
+                "word": {
+                    "description": "敏感词",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SensitiveWordEntity": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "description": "触发次数",
+                    "type": "integer"
+                },
+                "createId": {
+                    "description": "创建者ID",
+                    "type": "integer"
+                },
+                "createTime": {
+                    "description": "创建时间",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "id",
+                    "type": "integer"
+                },
+                "isDeleted": {
+                    "description": "是否删除",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态【0未开启 1开启】",
+                    "type": "integer"
+                },
+                "updateId": {
+                    "description": "修改者ID",
+                    "type": "integer"
+                },
+                "updateTime": {
+                    "description": "修改时间",
+                    "type": "string"
+                },
+                "word": {
+                    "description": "敏感词",
+                    "type": "string"
+                }
+            }
+        },
+        "domain.SensitiveWordPage": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "description": "列表",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/domain.SensitiveWordEntity"
+                    }
+                },
+                "page": {
+                    "description": "page",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.Page"
+                        }
+                    ]
+                }
+            }
+        },
+        "domain.SensitiveWordUpdate": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "id",
+                    "type": "integer"
+                },
+                "status": {
+                    "description": "状态【0未开启 1开启】",
+                    "type": "integer"
+                },
+                "word": {
+                    "description": "敏感词",
+                    "type": "string"
+                }
+            }
+        },
+        "response.Page": {
+            "type": "object",
+            "properties": {
+                "pageNum": {
+                    "description": "分页-页码",
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "description": "分页-页数",
+                    "type": "integer"
+                },
+                "totalCount": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

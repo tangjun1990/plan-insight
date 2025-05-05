@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>登录 - 审美数据分析系统</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            font-family: Arial, sans-serif;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 300px;
+        }
+        .login-container h2 {
+            margin: 0 0 20px;
+            text-align: center;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-btn:hover {
+            background-color: #0056b3;
+        }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>审美数据分析系统</h2>
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+            <div class="form-group">
+                <label for="phone">手机号</label>
+                <input type="text" id="phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-btn">登录</button>
+            <div id="errorMessage" class="error-message">登录失败，请检查手机号和密码</div>
+        </form>
+    </div>
+    <script>
+        function handleLogin(event) {
+            event.preventDefault();
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // 显示加载状态
+            const loginButton = document.querySelector('.login-btn');
+            loginButton.disabled = true;
+            loginButton.textContent = '登录中...';
+            errorMessage.style.display = 'none';
+            
+            // 调用管理员鉴权接口
+            fetch('/admin/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone: phone,
+                    password: password
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loginButton.disabled = false;
+                loginButton.textContent = '登录';
+                
+                if (data.code === 0) {
+                    // 登录成功，将登录状态和token存储到 localStorage
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('adminToken', data.data.token);
+                    localStorage.setItem('tokenExpire', Date.now() + (data.data.expires_in * 1000));
+                    
+                    // 跳转到用户管理页面
+                    window.location.href = 'users';
+                } else {
+                    // 显示错误信息
+                    errorMessage.textContent = data.message || '登录失败，请检查手机号和密码';
+                    errorMessage.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('登录请求出错:', error);
+                loginButton.disabled = false;
+                loginButton.textContent = '登录';
+                errorMessage.textContent = '网络错误，请稍后重试';
+                errorMessage.style.display = 'block';
+            });
+        }
+
+        // 修改检查登录状态的逻辑
+        window.onload = function() {
+            // 检查token是否过期
+            const tokenExpire = localStorage.getItem('tokenExpire');
+            const isTokenValid = tokenExpire && (parseInt(tokenExpire) > Date.now());
+            
+            if (isTokenValid) {
+                // token有效，直接跳转到用户页面
+                window.location.href = 'users';
+            } else {
+                // token无效或过期，清除登录状态
+                localStorage.removeItem('isLoggedIn');
+                localStorage.removeItem('adminToken');
+                localStorage.removeItem('tokenExpire');
+            }
+            
+            // 重置表单
+            document.getElementById('loginForm').reset();
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,2335 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审美测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f7f7f7;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+        }
+
+        /* 导航栏样式 */
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            max-width: 375px;
+            height: 44px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            font-size: 17px;
+            font-weight: 500;
+            border-bottom: 1px solid #eee;
+            z-index: 100;
+        }
+
+        .nav-bar .nav-left {
+            position: absolute;
+            left: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .nav-bar .back {
+            color: #576b95;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav-bar .prev {
+            color: #576b95;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        #page-title {
+            text-align: center;
+            flex: 1;
+        }
+
+        /* 进度条样式 */
+        .progress-bar {
+            position: fixed;
+            top: 44px;
+            width: 100%;
+            max-width: 375px;
+            height: 2px;
+            background: #eee;
+            z-index: 99;
+        }
+
+        .progress {
+            height: 100%;
+            background: #07c160;
+            width: 25%;
+            transition: width 0.3s;
+        }
+
+        /* 主页面样式 */
+        .page {
+            padding: 60px 16px 16px;
+            display: none;
+            padding-bottom: 80px;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 15px;
+            background: #fff;
+        }
+
+        /* 表单验证样式 */
+        .form-error {
+            color: #ff4d4f;
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .form-input.error {
+            border-color: #ff4d4f;
+        }
+
+        .form-input.error:focus {
+            border-color: #ff4d4f;
+            box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+        }
+
+        /* 颜色选择器样式 */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .color-item {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            z-index: 1;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            margin: 5px;
+        }
+
+        .color-item.selected-like {
+            border-color: #07c160;
+            box-shadow: 0 0 15px #07c160, 0 0 20px #07c160 !important;
+            z-index: 5;
+        }
+
+        .color-item.selected-dislike {
+            border-color: #ff4d4f;
+            box-shadow: 0 0 15px #ff4d4f, 0 0 20px #ff4d4f !important;
+            z-index: 5;
+        }
+
+        .color-item:hover::before {
+            
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .color-item:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -48px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 10px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        /* 形容词选择器样式 */
+        .adjective-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .adjective-item {
+            padding: 8px 16px;
+            background: #f7f7f7;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .adjective-item.selected {
+            background: #07c160;
+            color: #fff;
+        }
+
+        /* 图片选择器样式 */
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 4px;
+        }
+
+        .image-item {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item.selected {
+            border-color: #07c160;
+        }
+
+        .image-item:hover .image-preview-btn {
+            opacity: 1;
+        }
+
+        .image-preview-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        .btn-primary {
+            background: #07c160;
+            color: #fff;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: #f7f7f7;
+            color: #07c160;
+            border: none;
+        }
+
+        /* 底部导航栏样式 */
+        .tab-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            max-width: 375px;
+            height: 50px;
+            background: #fff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid #eee;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #999;
+            font-size: 10px;
+        }
+
+        .tab-item.active {
+            color: #07c160;
+        }
+
+        .tab-item i {
+            font-size: 24px;
+            margin-bottom: 2px;
+        }
+
+        /* 报告页面样式 */
+        .report-section {
+            padding: 0 16px;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding: 16px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .user-meta {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .report-date {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .report-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .report-card-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #07c160;
+        }
+
+        .report-card-content {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .color-analysis {
+            margin-bottom: 20px;
+        }
+
+        .analysis-section {
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 12px;
+            font-weight: 500;
+        }
+
+        .color-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .color-tag {
+            padding: 6px 12px;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 13px;
+        }
+
+        .style-analysis {
+            margin-bottom: 20px;
+        }
+
+        .selected-adjectives {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .adjective-tag {
+            padding: 6px 12px;
+            background: #f0f9eb;
+            color: #07c160;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .visual-analysis {
+            margin-bottom: 20px;
+        }
+
+        .selected-images {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .image-preview {
+            text-align: center;
+        }
+
+        .image-preview img {
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+
+        .image-label {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .summary-points .point img {
+            width: 100%;
+            aspect-ratio: 1;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .point {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .point i {
+            color: #07c160;
+        }
+
+        .analysis-text {
+            line-height: 1.6;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            margin-bottom: 32px;
+        }
+
+        .report-actions .btn {
+            flex: 1;
+            margin: 0;
+        }
+
+        /* 颜色筛选样式 */
+        .color-filter {
+            margin-bottom: 16px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 12px 8px 36px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .color-categories {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-tag {
+            padding: 4px 12px;
+            background: #f7f7f7;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .category-tag.active {
+            background: #07c160;
+            color: #fff;
+        }
+
+        /* 颜色选择区域样式 */
+        .color-selection-area {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 16px;
+            -webkit-overflow-scrolling: touch;
+            position: relative;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+
+        .color-grid {
+            display: block;
+            position: relative;
+            height: auto;
+            min-height: 300px;
+            padding: 20px;
+            background: #f7f7f7;
+        }
+
+        .color-item {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            z-index: 1;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
+            margin: 5px;
+        }
+
+        .color-item:hover {
+            transform: scale(1.5);
+            z-index: 10;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .color-item.selected-like {
+            border-color: #07c160;
+            box-shadow: 0 0 5px #07c160 !important;
+            z-index: 5;
+        }
+
+        .color-item.selected-dislike {
+            border-color: #ff4d4f;
+            box-shadow: 0 0 5px #ff4d4f !important;
+            z-index: 5;
+        }
+
+        .color-item:hover::after {
+            content: attr(data-name);
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 10px;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        /* 已选颜色展示样式 */
+        .selected-colors {
+            background: #f7f7f7;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .selected-colors-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .selected-colors-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .selected-color-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            background: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .selected-color-preview {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+
+        .remove-color {
+            color: #999;
+            cursor: pointer;
+        }
+
+        /* 图片类别选择样式 */
+        .image-categories {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .category-tab {
+            padding: 8px 16px;
+            background: #f7f7f7;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #666;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .category-tab.active {
+            background: #07c160;
+            color: #fff;
+        }
+
+        /* 图片选择区域样式 */
+        .image-selection-area {
+            margin-bottom: 16px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+            padding: 4px;
+        }
+
+        .image-item {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-item.selected {
+            border-color: #07c160;
+        }
+
+        .image-item:hover .image-preview-btn {
+            opacity: 1;
+        }
+
+        .image-preview-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 12px;
+        }
+
+        /* 已选图片展示样式 */
+        .selected-images-summary {
+            background: #f7f7f7;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .selected-images-title {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .selected-images-list {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .selected-image-item {
+            flex: 0 0 80px;
+            position: relative;
+        }
+
+        .selected-image-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .selected-image-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            background: #ff4d4f;
+            border-radius: 10px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* 按钮组样式 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
+            margin: 0;
+        }
+
+        /* 报告页面中的图片展示样式 */
+        .visual-analysis {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        .visual-analysis .image-preview {
+            width: 100%;
+            aspect-ratio: 1;
+            text-align: center;
+            padding: 0;
+            margin: 0;
+        }
+
+        .visual-analysis .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .visual-analysis .image-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+            word-break: keep-all;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 2px;
+        }
+
+        /* 报告动画区域样式 */
+        .report-animation {
+            width: 100%;
+            height: 250px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        #color-animation-container {
+            width: 100%;
+            height: 100%;
+            background-color: #f0f0f0;
+        }
+
+        .animation-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            color: #07c160;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <div class="nav-bar">
+            <div class="nav-left">
+                <span class="back" id="back-btn" style="display: none;">返回</span>
+                <span class="prev" id="prev-btn" style="display: none;">上一步</span>
+            </div>
+            <span id="page-title">审美测试</span>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <!-- 步骤1：个人信息 -->
+        <div class="page active" id="step1-page">
+            <div class="page-title">第一步：填写个人信息</div>
+            <div class="page-subtitle">请填写您的基本信息，帮助我们更好地了解您</div>
+            <div class="form-group">
+                <label class="form-label">姓名</label>
+                <input type="text" class="form-input" id="name-input" placeholder="请输入姓名">
+                <div class="form-error" id="name-error">请输入姓名</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">性别</label>
+                <select class="form-input" id="gender-select">
+                    <option value="">请选择性别</option>
+                    <option value="male">男</option>
+                    <option value="female">女</option>
+                </select>
+                <div class="form-error" id="gender-error">请选择性别</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">年龄</label>
+                <input type="number" class="form-input" id="age-input" placeholder="请输入年龄">
+                <div class="form-error" id="age-error">请输入1-120之间的年龄</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">所在城市</label>
+                <select class="form-input" id="city-select">
+                    <option value="">请选择所在城市</option>
+                    <option value="北京">北京</option>
+                    <option value="上海">上海</option>
+                    <option value="广州">广州</option>
+                    <option value="深圳">深圳</option>
+                    <option value="成都">成都</option>
+                    <option value="杭州">杭州</option>
+                    <option value="武汉">武汉</option>
+                    <option value="西安">西安</option>
+                    <option value="南京">南京</option>
+                    <option value="长沙">长沙</option>
+                    <option value="重庆">重庆</option>
+                    <option value="青岛">青岛</option>
+                    <option value="沈阳">沈阳</option>
+                    <option value="大连">大连</option>
+                    <option value="厦门">厦门</option>
+                    <option value="苏州">苏州</option>
+                    <option value="天津">天津</option>
+                    <option value="长春">长春</option>
+                    <option value="济南">济南</option>
+                </select>
+                <div class="form-error" id="city-error">请选择所在城市</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">手机号</label>
+                <input type="tel" class="form-input" id="phone-input" placeholder="请输入手机号">
+                <div class="form-error" id="phone-error">请输入正确的手机号</div>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()" style="display: none;">上一步</button>
+                <button class="btn btn-primary" onclick="validateAndNextStep(1)">下一步</button>
+            </div>
+        </div>
+
+        <!-- 步骤2：颜色选择 -->
+        <div class="page" id="step2-page">
+            <div class="page-title">第二步：选择颜色偏好</div>
+            <div class="page-subtitle">左键选择您喜欢的颜色（最多10种），右键选择您讨厌的颜色（最多5种）</div>
+            
+
+            <!-- 颜色选择区域 -->
+            <div class="color-selection-area">
+                <div class="color-grid">
+                    {{range $i, $v := .color_map}}
+                    <div class="color-item" style="background: {{$v.RGB}};" data-category="红色系" data-name="{{$v.Name}}"></div>
+                    {{end}}
+                </div>
+            </div>
+
+            <!-- 已选颜色展示 -->
+            <div class="selected-colors">
+                <div class="selected-colors-title">喜欢的颜色 <span id="liked-count">0</span>/10</div>
+                <div class="selected-colors-list" id="liked-colors-list">
+                    <!-- 已选颜色会动态添加到这里 -->
+                </div>
+            </div>
+
+            <!-- 不喜欢的颜色展示 -->
+            <div class="selected-colors" style="margin-top: 16px;">
+                <div class="selected-colors-title">讨厌的颜色 <span id="disliked-count">0</span>/5</div>
+                <div class="selected-colors-list" id="disliked-colors-list">
+                    <!-- 不喜欢的颜色会动态添加到这里 -->
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="nextStep(2)">下一步</button>
+            </div>
+        </div>
+
+        <!-- 步骤3：形容词选择 -->
+        <div class="page" id="step3-page">
+            <div class="page-title">第三步：选择风格偏好</div>
+            <div class="page-subtitle">请选择您喜欢的形容词（最多10个）</div>
+            <div class="adjective-list">
+                {{range $i, $v := .word_map}}
+                <div class="adjective-item" data-name="{{$v}}">{{$v}}</div>
+                {{end}}
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="nextStep(3)">下一步</button>
+            </div>
+        </div>
+
+        <!-- 步骤4：图片选择 -->
+        <div class="page" id="step4-page">
+            <div class="page-title">第四步：选择图片偏好</div>
+            <div class="page-subtitle">请从每个类别中选择一张最喜欢的图片</div>
+            
+            <!-- 图片类别选择 -->
+            <div class="image-categories">
+                <div class="category-tab active" data-category="clothing">服装</div>
+                <div class="category-tab" data-category="car">汽车</div>
+                <div class="category-tab" data-category="living">座椅</div>
+                <div class="category-tab" data-category="life">生活方式</div>
+                <div class="category-tab" data-category="keting">客厅</div>
+                <div class="category-tab" data-category="canting">餐厅</div>
+                <div class="category-tab" data-category="woshi">卧室</div>
+                <div class="category-tab" data-category="weishengjian">卫生间</div>
+                <div class="category-tab" data-category="chufang">厨房</div>
+                <div class="category-tab" data-category="xiyifang">洗衣房</div>
+            </div>
+
+            <!-- 图片展示区域 -->
+            <div class="image-selection-area">
+                <div class="image-grid">
+                    <!-- 图片项会动态添加到这里 -->
+                </div>
+            </div>
+
+            <!-- 已选图片展示 -->
+            <div class="selected-images-summary">
+                <div class="selected-images-title">已选择</div>
+                <div class="selected-images-list">
+                    <!-- 已选图片会动态添加到这里 -->
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="prevStep()">上一步</button>
+                <button class="btn btn-primary" onclick="generateReport()">生成报告</button>
+            </div>
+        </div>
+
+        <!-- 报告页面 -->
+        <div class="page" id="report-page">         
+            <div class="report-section">
+                <div class="report-header">
+                    <div class="user-info">
+                        <div class="user-name">张先生</div>
+                        <div class="user-meta">28岁 · 北京</div>
+                    </div>
+                    <div class="report-date">2024-03-21</div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <i class="fas fa-palette"></i>
+                        色彩偏好
+                    </div>
+                    <div class="report-card-content">
+                        <div class="color-analysis">
+                            <div class="analysis-section">
+                                <div class="section-title">喜欢的颜色</div>
+                                <div class="color-list">
+                                    <div class="color-tag" style="background: #FF3B30;">红色</div>
+                                    <div class="color-tag" style="background: #FF9500;">橙色</div>
+                                    <div class="color-tag" style="background: #FFCC00;">黄色</div>
+                                </div>
+                            </div>
+                            <div class="analysis-section">
+                                <div class="section-title">讨厌的颜色</div>
+                                <div class="color-list">
+                                    <div class="color-tag" style="background: #4CD964;">绿色</div>
+                                    <div class="color-tag" style="background: #5AC8FA;">蓝色</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="analysis-text">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <i class="fas fa-paint-brush"></i>
+                        形容词偏好
+                    </div>
+                    <div class="report-card-content">
+                        <div class="style-analysis">
+                            <div class="selected-adjectives">
+                                <div class="adjective-tag">简约</div>
+                                <div class="adjective-tag">现代</div>
+                                <div class="adjective-tag">科技</div>
+                            </div>
+                        </div>
+                        <div class="analysis-text">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <i class="fas fa-images"></i>
+                        色彩分析
+                    </div>
+                    <div class="report-card-content">
+                        <div class="visual-analysis">
+                            <div class="selected-images">
+                                
+                            </div>
+                        </div>
+                        <div class="analysis-text">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <i class="fas fa-lightbulb"></i>
+                        坐标分析
+                    </div>
+                    <div class="report-card-content">
+                        <div class="summary-analysis">
+                            <div class="summary-points">
+                                <div class="point">
+                                    <i class="fas fa-check-circle"></i>
+                                    
+                                </div>
+                                <div class="point">
+                                    <i class="fas fa-check-circle"></i>
+                                    
+                                </div>
+                                <div class="point">
+                                    <i class="fas fa-check-circle"></i>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                        <div class="analysis-text">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-card">
+                    <div class="report-card-title">
+                        <i class="fas fa-images"></i>
+                        评价总结
+                    </div>
+                    <div class="report-card-content">
+                        <div class="analysis-text" id="ana-comment">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="report-actions">
+                    <button class="btn btn-primary" onclick="saveReport()">查看历史</button>
+                    <button class="btn btn-secondary" onclick="shareReport()">继续测试</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 我的页面 -->
+        <div class="page" id="profile-page">
+            <div class="page-title">我的</div>
+            <div class="form-group">
+                <div style="text-align: center; padding: 32px 0;">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=800&auto=format&fit=crop" alt="头像" style="width: 80px; height: 80px; border-radius: 40px; object-fit: cover;">
+                    <div style="margin-top: 8px; font-size: 18px; font-weight: 500;">用户名</div>
+                    <div style="color: #999; font-size: 14px;">138****8888</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-label">历史记录</div>
+                <div style="background: #f7f7f7; border-radius: 4px; padding: 12px;">
+                    <div style="padding: 12px 0; border-bottom: 1px solid #eee;">
+                        <div style="font-weight: 500;">2024-03-20</div>
+                        <div style="color: #999; font-size: 14px;">审美偏好报告</div>
+                    </div>
+                    <div style="padding: 12px 0;">
+                        <div style="font-weight: 500;">2024-03-19</div>
+                        <div style="color: #999; font-size: 14px;">审美偏好报告</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-secondary">退出登录</button>
+        </div>
+
+        <!-- 底部导航栏 -->
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <i class="fas fa-home"></i>
+                <span>主页</span>
+            </div>
+            <div class="tab-item">
+                <i class="fas fa-user"></i>
+                <span>我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // 更新导航栏
+        function updateNavigation() {
+            const backBtn = document.getElementById('back-btn');
+            const prevBtn = document.getElementById('prev-btn');
+            const pageTitle = document.getElementById('page-title');
+            
+            if (document.getElementById('report-page').classList.contains('active')) {
+                backBtn.style.display = 'block';
+                prevBtn.style.display = 'none';
+                pageTitle.textContent = '审美报告';
+            } else if (currentStep === 1) {
+                backBtn.style.display = 'none';
+                prevBtn.style.display = 'none';
+                pageTitle.textContent = '审美测试';
+                // 隐藏第一步的上一步按钮
+                document.querySelector('#step1-page .btn-secondary').style.display = 'none';
+            } else {
+                backBtn.style.display = 'none';
+                prevBtn.style.display = 'none';
+                pageTitle.textContent = '审美测试';
+                // 显示当前步骤的上一步按钮
+                document.querySelector(`#step${currentStep}-page .btn-secondary`).style.display = 'block';
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = document.getElementById('progress');
+            progress.style.width = `${(currentStep / totalSteps) * 100}%`;
+        }
+
+        // 下一步
+        function nextStep(step) {
+            if (step < totalSteps) {
+                document.getElementById(`step${step}-page`).classList.remove('active');
+                document.getElementById(`step${step + 1}-page`).classList.add('active');
+                currentStep = step + 1;
+                updateProgress();
+                updateNavigation();
+                
+                // 如果进入颜色选择页面，重新随机分布颜色
+                if (currentStep === 2) {
+                    setTimeout(randomizeVisibleColors, 50);
+                }
+            } else {
+                // 生成报告
+                document.getElementById(`step${step}-page`).classList.remove('active');
+                document.getElementById('report-page').classList.add('active');
+                updateNavigation();
+            }
+        }
+
+        // 上一步
+        function prevStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}-page`).classList.remove('active');
+                document.getElementById(`step${currentStep - 1}-page`).classList.add('active');
+                currentStep--;
+                updateProgress();
+                updateNavigation();
+                
+                // 如果回到了颜色选择页面，重新随机分布颜色
+                if (currentStep === 2) {
+                    setTimeout(randomizeVisibleColors, 50);
+                }
+            }
+        }
+
+        // 返回按钮
+        document.getElementById('back-btn').addEventListener('click', () => {
+            if (document.getElementById('report-page').classList.contains('active')) {
+                document.getElementById('report-page').classList.remove('active');
+                document.getElementById('step4-page').classList.add('active');
+                currentStep = 4;
+                updateProgress();
+                updateNavigation();
+            }
+        });
+
+        // 上一步按钮
+        document.getElementById('prev-btn').addEventListener('click', prevStep);
+
+        // 页面切换逻辑
+        const tabItems = document.querySelectorAll('.tab-item');
+        const pages = document.querySelectorAll('.page');
+
+        tabItems.forEach((tab, index) => {
+            tab.addEventListener('click', () => {
+                // 更新标签状态
+                tabItems.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // 更新页面显示
+                pages.forEach(p => p.classList.remove('active'));
+                if (index === 0) {
+                    document.getElementById('step1-page').classList.add('active');
+                    currentStep = 1;
+                    updateProgress();
+                    updateNavigation();
+                } else {
+                    document.getElementById('profile-page').classList.add('active');
+                    document.getElementById('page-title').textContent = '我的';
+                }
+            });
+        });
+
+        // 颜色选择相关逻辑
+        let likedColors = new Set();
+        let dislikedColors = new Set();
+
+        // 获取颜色名称
+        function getColorName(color) {
+            // 尝试获取颜色名称
+            for (let item of document.querySelectorAll('.color-item')) {
+                let itemStyle = item.getAttribute('style') || '';
+                let styleColor = itemStyle.match(/background:\s*([^;]+)/);
+                
+                if (styleColor && styleColor[1]) {
+                    // 使用style属性中的颜色值比较
+                    if (color.includes(styleColor[1]) || styleColor[1].includes(color)) {
+                        return item.dataset.name || '未知颜色';
+                    }
+                }
+                
+                // 后备方案：使用计算后的样式
+                let itemColor = getComputedStyle(item).backgroundColor;
+                if (itemColor === color) {
+                    return item.dataset.name || '未知颜色';
+                }
+            }
+            return '未知颜色';
+        }
+
+        // 颜色选择
+        function initColorSelection() {
+        document.querySelectorAll('.color-item').forEach(item => {
+                // 移除旧的事件监听器（防止重复绑定）
+                item.removeEventListener('click', handleColorClick);
+                item.removeEventListener('contextmenu', handleColorRightClick);
+                
+            // 左键点击选择喜欢的颜色
+                item.addEventListener('click', handleColorClick);
+                
+                // 右键点击选择不喜欢的颜色
+                item.addEventListener('contextmenu', handleColorRightClick);
+            });
+        }
+        
+        // 处理颜色左键点击
+        function handleColorClick(e) {
+            const item = e.currentTarget;
+            const originalBackground = item.style.background || '';
+            let color = originalBackground;
+            
+            // 如果没有直接获取到背景色，使用计算样式
+            if (!color) {
+                color = getComputedStyle(item).backgroundColor;
+            }
+                
+                if (likedColors.has(color)) {
+                    likedColors.delete(color);
+                    item.classList.remove('selected-like');
+                } else if (dislikedColors.has(color)) {
+                    alert('该颜色已被选为讨厌的颜色');
+                } else if (likedColors.size < 10) {
+                    // 存储颜色值和名称
+                    likedColors.add(color);
+                    item.classList.add('selected-like');
+                } else {
+                    alert('最多只能选择10种喜欢的颜色');
+                }
+                
+                updateSelectedColors();
+        }
+
+        // 处理颜色右键点击
+        function handleColorRightClick(e) {
+                e.preventDefault(); // 阻止默认右键菜单
+                
+            const item = e.currentTarget;
+            const originalBackground = item.style.background || '';
+            let color = originalBackground;
+            
+            // 如果没有直接获取到背景色，使用计算样式
+            if (!color) {
+                color = getComputedStyle(item).backgroundColor;
+            }
+                
+                if (dislikedColors.has(color)) {
+                    dislikedColors.delete(color);
+                    item.classList.remove('selected-dislike');
+                } else if (likedColors.has(color)) {
+                    alert('该颜色已被选为喜欢的颜色');
+                } else if (dislikedColors.size < 5) {
+                    // 存储颜色值和名称
+                    dislikedColors.add(color);
+                    item.classList.add('selected-dislike');
+                } else {
+                    alert('最多只能选择5种讨厌的颜色');
+                }
+                
+                updateSelectedColors();
+        }
+
+        // 添加星星闪烁效果
+        function addTwinkleEffect() {
+            const colorItems = document.querySelectorAll('.color-item');
+            
+            colorItems.forEach(item => {
+                // 随机设置闪烁间隔
+                const twinkleInterval = 3000 + Math.random() * 7000; // 3-10秒
+                
+                // 闪烁动画 - 简单的透明度变化
+                setInterval(() => {
+                    item.style.opacity = '0.7';
+                    setTimeout(() => {
+                        item.style.opacity = '1';
+                    }, 300);
+                }, twinkleInterval);
+            });
+        }
+
+        // 颜色分类切换
+        document.querySelectorAll('.category-tag').forEach(tag => {
+            tag.addEventListener('click', () => {
+                document.querySelectorAll('.category-tag').forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+                filterColors(tag.textContent);
+                // 应用随机分布于可见颜色
+                setTimeout(randomizeVisibleColors, 50);
+            });
+        });
+
+
+        // 以星空风格随机分布所有颜色项
+        function randomizeColorItems() {
+            const container = document.querySelector('.color-grid');
+            const colorItems = document.querySelectorAll('.color-item');
+            const containerWidth = container.offsetWidth || 300; // 提供默认宽度
+            
+            // 初始化自适应高度
+            container.style.height = 'auto';
+            
+            // 创建星空分布
+            const totalItems = colorItems.length;
+            const cellSize = 46; // 增加15%的距离
+            const rows = Math.ceil(Math.sqrt(totalItems * 2)); // 创建更宽松的分布
+            let containerHeight = rows * cellSize * 1.5;
+            
+            // 用于检测碰撞的函数
+            function isOverlapping(x, y, radius, positions) {
+                for (let pos of positions) {
+                    const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+                    if (distance < (radius + pos.radius + 5)) { // 增加5px间距
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // 生成星星位置
+            const positions = [];
+            const minRadius = 18;
+            const maxRadius = 22;
+            
+            // 分区域布局增加星团效果
+            const numClusters = 5;
+            const clusterCenters = [];
+            
+            // 创建星团中心点
+            for (let i = 0; i < numClusters; i++) {
+                clusterCenters.push({
+                    x: Math.random() * containerWidth,
+                    y: Math.random() * containerHeight,
+                    strength: 0.5 + Math.random() * 0.5 // 星团引力强度
+                });
+            }
+            
+            // 为每个颜色项分配位置
+            colorItems.forEach((item, index) => {
+                // 随机大小变化
+                const sizeVariation = 0.85 + Math.random() * 0.3; // 0.85-1.15倍大小
+                const radius = Math.round(minRadius + Math.random() * (maxRadius - minRadius));
+                const size = Math.round(radius * 2 * sizeVariation);
+                
+                // 尝试找到不重叠的位置
+                let x, y;
+                let maxAttempts = 100;
+                let attempts = 0;
+                let validPosition = false;
+                
+                while (!validPosition && attempts < maxAttempts) {
+                    attempts++;
+                    
+                    // 随机选择是在星团附近还是在随机位置
+                    const useCluster = Math.random() < 0.7; // 70%概率使用星团
+                    
+                    if (useCluster) {
+                        // 选择一个星团
+                        const cluster = clusterCenters[Math.floor(Math.random() * numClusters)];
+                        // 在星团附近生成位置，距离越远概率越小
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = Math.random() * Math.random() * containerWidth * 0.4 * cluster.strength;
+                        x = cluster.x + Math.cos(angle) * distance;
+                        y = cluster.y + Math.sin(angle) * distance;
+                    } else {
+                        // 完全随机位置
+                        x = Math.random() * (containerWidth - size);
+                        y = Math.random() * containerHeight;
+                    }
+                    
+                    // 确保在容器内
+                    x = Math.max(radius, Math.min(containerWidth - radius, x));
+                    y = Math.max(radius, Math.min(containerHeight - radius, y));
+                    
+                    // 检查是否与其他项重叠
+                    validPosition = !isOverlapping(x, y, radius, positions);
+                }
+                
+                // 如果找不到不重叠的位置，就增加高度再试
+                if (!validPosition) {
+                    y = containerHeight + radius + Math.random() * 50;
+                    x = Math.random() * (containerWidth - size);
+                    containerHeight = y + radius + 20;
+                }
+                
+                // 保存位置
+                positions.push({ x, y, radius });
+                
+                // 设置项的大小
+                item.style.width = `${size}px`;
+                item.style.height = `${size}px`;
+                
+                // 添加更大的随机旋转效果，20-40度
+                const randomRotate = 20 + Math.random() * 20; // 20-40度旋转
+                const randomDirection = Math.random() > 0.5 ? 1 : -1;
+                
+                // 设置位置
+                item.style.left = (x - radius) + 'px';
+                item.style.top = (y - radius) + 'px';
+                item.style.transform = `rotate(${randomRotate * randomDirection}deg)`;
+            });
+            
+            // 设置容器高度
+            container.style.height = (containerHeight + 20) + 'px';
+        }
+
+        // 以星空风格随机分布可见的颜色项
+        function randomizeVisibleColors() {
+            const container = document.querySelector('.color-grid');
+            const colorItems = document.querySelectorAll('.color-item:not([style*="display: none"])');
+            const containerWidth = container.offsetWidth || 300; // 提供默认宽度
+            
+            // 初始化自适应高度
+            container.style.height = 'auto';
+            
+            // 创建星空分布
+            const totalItems = colorItems.length;
+            const cellSize = 46; // 增加15%的距离
+            const rows = Math.ceil(Math.sqrt(totalItems * 2)); // 创建更宽松的分布
+            let containerHeight = rows * cellSize * 1.5;
+            
+            // 用于检测碰撞的函数
+            function isOverlapping(x, y, radius, positions) {
+                for (let pos of positions) {
+                    const distance = Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2));
+                    if (distance < (radius + pos.radius + 5)) { // 增加5px间距
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // 生成星星位置
+            const positions = [];
+            const minRadius = 18;
+            const maxRadius = 22;
+            
+            // 分区域布局增加星团效果
+            const numClusters = 5;
+            const clusterCenters = [];
+            
+            // 创建星团中心点
+            for (let i = 0; i < numClusters; i++) {
+                clusterCenters.push({
+                    x: Math.random() * containerWidth,
+                    y: Math.random() * containerHeight,
+                    strength: 0.5 + Math.random() * 0.5 // 星团引力强度
+                });
+            }
+            
+            // 为每个颜色项分配位置
+            colorItems.forEach((item, index) => {
+                // 随机大小变化
+                const sizeVariation = 0.85 + Math.random() * 0.3; // 0.85-1.15倍大小
+                const radius = Math.round(minRadius + Math.random() * (maxRadius - minRadius));
+                const size = Math.round(radius * 2 * sizeVariation);
+                
+                // 尝试找到不重叠的位置
+                let x, y;
+                let maxAttempts = 100;
+                let attempts = 0;
+                let validPosition = false;
+                
+                while (!validPosition && attempts < maxAttempts) {
+                    attempts++;
+                    
+                    // 随机选择是在星团附近还是在随机位置
+                    const useCluster = Math.random() < 0.7; // 70%概率使用星团
+                    
+                    if (useCluster) {
+                        // 选择一个星团
+                        const cluster = clusterCenters[Math.floor(Math.random() * numClusters)];
+                        // 在星团附近生成位置，距离越远概率越小
+                        const angle = Math.random() * Math.PI * 2;
+                        const distance = Math.random() * Math.random() * containerWidth * 0.4 * cluster.strength;
+                        x = cluster.x + Math.cos(angle) * distance;
+                        y = cluster.y + Math.sin(angle) * distance;
+                    } else {
+                        // 完全随机位置
+                        x = Math.random() * (containerWidth - size);
+                        y = Math.random() * containerHeight;
+                    }
+                    
+                    // 确保在容器内
+                    x = Math.max(radius, Math.min(containerWidth - radius, x));
+                    y = Math.max(radius, Math.min(containerHeight - radius, y));
+                    
+                    // 检查是否与其他项重叠
+                    validPosition = !isOverlapping(x, y, radius, positions);
+                }
+                
+                // 如果找不到不重叠的位置，就增加高度再试
+                if (!validPosition) {
+                    y = containerHeight + radius + Math.random() * 50;
+                    x = Math.random() * (containerWidth - size);
+                    containerHeight = y + radius + 20;
+                }
+                
+                // 保存位置
+                positions.push({ x, y, radius });
+                
+                // 设置项的大小
+                item.style.width = `${size}px`;
+                item.style.height = `${size}px`;
+                
+                // 添加更大的随机旋转效果，20-40度
+                const randomRotate = 20 + Math.random() * 20; // 20-40度旋转
+                const randomDirection = Math.random() > 0.5 ? 1 : -1;
+                
+                // 设置位置
+                item.style.left = (x - radius) + 'px';
+                item.style.top = (y - radius) + 'px';
+                item.style.transform = `rotate(${randomRotate * randomDirection}deg)`;
+            });
+            
+            // 设置容器高度
+            container.style.height = (containerHeight + 20) + 'px';
+        }
+
+        // 页面加载后初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 使用setTimeout延迟执行复杂操作，避免阻塞页面加载
+                setTimeout(() => {
+                    randomizeColorItems();
+                    initColorSelection();
+                    initImageSelection();
+                }, 100);
+            } catch (error) {
+                console.error('初始化出错:', error);
+                // 即使出错也确保UI可用
+                initColorSelection();
+                initImageSelection();
+            }
+        });
+
+        // 表单验证函数
+        function validateForm() {
+            let isValid = true;
+            const nameInput = document.getElementById('name-input');
+            const genderSelect = document.getElementById('gender-select');
+            const ageInput = document.getElementById('age-input');
+            const citySelect = document.getElementById('city-select');
+            const phoneInput = document.getElementById('phone-input');
+
+            // 姓名验证
+            if (!nameInput.value.trim()) {
+                showError(nameInput, 'name-error', '请输入姓名');
+                isValid = false;
+            } else {
+                hideError(nameInput, 'name-error');
+            }
+
+            // 性别验证
+            if (!genderSelect.value) {
+                showError(genderSelect, 'gender-error', '请选择性别');
+                isValid = false;
+            } else {
+                hideError(genderSelect, 'gender-error');
+            }
+
+            // 年龄验证
+            const age = parseInt(ageInput.value);
+            if (!ageInput.value || isNaN(age) || age < 1 || age > 120) {
+                showError(ageInput, 'age-error', '请输入1-120之间的年龄');
+                isValid = false;
+            } else {
+                hideError(ageInput, 'age-error');
+            }
+
+            // 城市验证
+            if (!citySelect.value) {
+                showError(citySelect, 'city-error', '请选择所在城市');
+                isValid = false;
+            } else {
+                hideError(citySelect, 'city-error');
+            }
+
+            // 手机号验证
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (!phoneInput.value.trim()) {
+                showError(phoneInput, 'phone-error', '请输入手机号');
+                isValid = false;
+            } else if (!phoneRegex.test(phoneInput.value)) {
+                showError(phoneInput, 'phone-error', '请输入正确的手机号');
+                isValid = false;
+            } else {
+                hideError(phoneInput, 'phone-error');
+            }
+
+            return isValid;
+        }
+
+        // 显示错误信息
+        function showError(input, errorId, message) {
+            input.classList.add('error');
+            const errorElement = document.getElementById(errorId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        // 隐藏错误信息
+        function hideError(input, errorId) {
+            input.classList.remove('error');
+            document.getElementById(errorId).style.display = 'none';
+        }
+
+        // 验证并进入下一步
+        function validateAndNextStep(step) {
+            if (step === 1 && !validateForm()) {
+                return;
+            }
+            nextStep(step);
+        }
+
+        // 添加输入框实时验证
+        document.getElementById('name-input').addEventListener('input', function() {
+            if (this.value.trim()) {
+                hideError(this, 'name-error');
+            }
+        });
+
+        document.getElementById('gender-select').addEventListener('change', function() {
+            if (this.value) {
+                hideError(this, 'gender-error');
+            }
+        });
+
+        document.getElementById('age-input').addEventListener('input', function() {
+            const age = parseInt(this.value);
+            if (this.value && !isNaN(age) && age >= 1 && age <= 120) {
+                hideError(this, 'age-error');
+            }
+        });
+
+        document.getElementById('city-select').addEventListener('change', function() {
+            if (this.value) {
+                hideError(this, 'city-error');
+            }
+        });
+
+        document.getElementById('phone-input').addEventListener('input', function() {
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            if (this.value.trim() && phoneRegex.test(this.value)) {
+                hideError(this, 'phone-error');
+            }
+        });
+
+        // 更新已选颜色展示
+        function updateSelectedColors() {
+            const likedContainer = document.getElementById('liked-colors-list');
+            const dislikedContainer = document.getElementById('disliked-colors-list');
+            const likedCount = document.getElementById('liked-count');
+            const dislikedCount = document.getElementById('disliked-count');
+            
+            // 更新喜欢的颜色
+            likedContainer.innerHTML = '';
+            likedCount.textContent = likedColors.size;
+            
+            likedColors.forEach(color => {
+                const colorName = getColorName(color);
+                const item = document.createElement('div');
+                item.className = 'selected-color-item';
+                item.innerHTML = `
+                    <div class="selected-color-preview" style="background: ${color}"></div>
+                    <span>${colorName}</span>
+                    <i class="fas fa-times remove-color"></i>
+                `;
+                
+                item.querySelector('.remove-color').addEventListener('click', () => {
+                    likedColors.delete(color);
+                    const colorItem = document.querySelector(`.color-item[style*="${color}"]`);
+                    if (colorItem) {
+                        colorItem.classList.remove('selected-like');
+                    }
+                    updateSelectedColors();
+                });
+                
+                likedContainer.appendChild(item);
+            });
+
+            // 更新不喜欢的颜色
+            dislikedContainer.innerHTML = '';
+            dislikedCount.textContent = dislikedColors.size;
+            
+            dislikedColors.forEach(color => {
+                const colorName = getColorName(color);
+                const item = document.createElement('div');
+                item.className = 'selected-color-item';
+                item.innerHTML = `
+                    <div class="selected-color-preview" style="background: ${color}"></div>
+                    <span>${colorName}</span>
+                    <i class="fas fa-times remove-color"></i>
+                `;
+                
+                item.querySelector('.remove-color').addEventListener('click', () => {
+                    dislikedColors.delete(color);
+                    const colorItem = document.querySelector(`.color-item[style*="${color}"]`);
+                    if (colorItem) {
+                        colorItem.classList.remove('selected-dislike');
+                    }
+                    updateSelectedColors();
+                });
+                
+                dislikedContainer.appendChild(item);
+            });
+        }
+
+        // 生成报告
+        function generateReport() {
+            // 收集表单数据
+            const formData = {
+                    name: document.getElementById('name-input').value,
+                    gender: document.getElementById('gender-select').value || '',
+                    age: parseInt(document.getElementById('age-input').value) || 0,
+                    city: document.getElementById('city-select').value,
+                    phone: document.getElementById('phone-input').value,
+                    liked_colors: Array.from(likedColors.keys()),
+                    disliked_colors: Array.from(dislikedColors.keys()),
+                    liked_adjectives: Array.from(selectedAdjectives.values()),
+                    liked_images: Array.from(selectedImages.keys())
+                };
+            
+            // 表单验证
+            //if (!validateFormData(formData)) {
+            //   return;
+            //}
+            // 提交数据到服务器
+            submitToServer(formData);
+
+            document.getElementById('step4-page').classList.remove('active');
+            document.getElementById('report-page').classList.add('active');
+            document.getElementById('back-btn').style.display = 'block';
+            document.getElementById('page-title').textContent = '审美报告';
+
+            // 更新用户信息
+            const nameInput = document.getElementById('name-input');
+            const ageInput = document.getElementById('age-input');
+            const citySelect = document.getElementById('city-select');
+            const genderSelect = document.getElementById('gender-select');
+
+            const userName = nameInput.value || '用户';
+            const userAge = ageInput.value || '25';
+            const userCity = citySelect.value || '未知城市';
+            const userGender = genderSelect.value === 'male' ? '先生' : genderSelect.value === 'female' ? '女士' : '';
+
+            document.querySelector('.user-name').textContent = userName + (userGender ? userGender : '');
+            document.querySelector('.user-meta').textContent = `${userAge}岁 · ${userCity}`;
+
+            // 更新报告日期
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+            document.querySelector('.report-date').textContent = dateStr;
+
+            // 更新报告中的颜色分析
+            const colorList = document.querySelector('.color-analysis .color-list');
+            const dislikedColorList = document.querySelector('.color-analysis .analysis-section:nth-child(2) .color-list');
+            
+            // 清空现有的颜色标签
+            colorList.innerHTML = '';
+            dislikedColorList.innerHTML = '';
+            
+            // 添加喜欢的颜色
+            likedColors.forEach(color => {
+                const colorName = getColorName(color);
+                const colorTag = document.createElement('div');
+                colorTag.className = 'color-tag';
+                colorTag.style.background = color;
+                colorTag.textContent = colorName;
+                colorList.appendChild(colorTag);
+            });
+            
+            // 添加不喜欢的颜色
+            dislikedColors.forEach(color => {
+                const colorName = getColorName(color);
+                const colorTag = document.createElement('div');
+                colorTag.className = 'color-tag';
+                colorTag.style.background = color;
+                colorTag.textContent = colorName;
+                dislikedColorList.appendChild(colorTag);
+            });
+
+            // 更新报告中的形容词分析
+            const adjectiveList = document.querySelector('.style-analysis .selected-adjectives');
+            adjectiveList.innerHTML = '';
+            
+            // 添加选中的形容词
+            selectedAdjectives.forEach(adjective => {
+                const adjectiveTag = document.createElement('div');
+                adjectiveTag.className = 'adjective-tag';
+                adjectiveTag.textContent = adjective;
+                adjectiveList.appendChild(adjectiveTag);
+            });
+
+            // 更新形容词分析文本
+            /*let styleAnalysisText = '您偏好';
+            const adjectiveArray = Array.from(selectedAdjectives);
+            if (adjectiveArray.length > 0) {
+                styleAnalysisText += adjectiveArray.slice(0, -1).join('、');
+                if (adjectiveArray.length > 1) {
+                    styleAnalysisText += '和' + adjectiveArray[adjectiveArray.length - 1];
+                } else {
+                    styleAnalysisText += adjectiveArray[0];
+                }
+                styleAnalysisText += '的风格。这反映出您是一个具有独特审美品味的人。';
+            } else {
+                styleAnalysisText = '您尚未选择任何风格偏好。';
+            }
+            document.querySelector('.style-analysis + .analysis-text').textContent = styleAnalysisText;*/
+
+            // 更新报告中的图片展示
+            const visualAnalysis = document.querySelector('.visual-analysis .selected-images');
+            visualAnalysis.innerHTML = '';
+            
+            // 添加选中的图片到报告中
+            /*selectedImages.forEach((image) => {
+                const imagePreview = document.createElement('div');
+                imagePreview.className = 'image-preview';
+                imagePreview.innerHTML = `
+                    <img src="${image.url}" alt="${image.categoryName}">
+                    <div class="image-label">${image.categoryName}选择</div>
+                `;
+                visualAnalysis.appendChild(imagePreview);
+            });*/
+
+            // 更新审美测试总结
+            /*const summaryPoints = document.querySelector('.summary-points');
+            summaryPoints.innerHTML = '';
+
+            // 根据颜色偏好生成总结点
+            if (likedColors.size > 0) {
+                const colorPoint = document.createElement('div');
+                colorPoint.className = 'point';
+                // 您偏好${Array.from(likedColors).map(color => getColorName(color)).join('、')}等颜色
+                colorPoint.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    抽屉图
+                `;
+                summaryPoints.appendChild(colorPoint);
+            }*/
+
+            // 根据形容词选择生成总结点
+            /*if (selectedAdjectives.size > 0) {
+                const stylePoint = document.createElement('div');
+                stylePoint.className = 'point';
+                // 您喜欢${Array.from(selectedAdjectives).join('、')}的风格
+                stylePoint.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    色彩
+                `;
+                summaryPoints.appendChild(stylePoint);
+            }*/
+
+            // 根据图片选择生成总结点
+            /*if (selectedImages.size > 0) {
+                const imagePoint = document.createElement('div');
+                imagePoint.className = 'point';
+                // 您选择了${Array.from(selectedImages.values()).map(img => img.categoryName).join('、')}等类别的图片
+                imagePoint.innerHTML = `
+                    <i class="fas fa-check-circle"></i>
+                    形容词
+                `;
+                summaryPoints.appendChild(imagePoint);
+            }*/
+
+            // 更新总结分析文本
+            /*let summaryText = '综合来看，';
+            if (selectedAdjectives.size > 0) {
+                summaryText += `您的审美偏好呈现出${Array.from(selectedAdjectives).join('、')}的特点。`;
+            }
+            if (likedColors.size > 0) {
+                summaryText += `您偏好${Array.from(likedColors).map(color => getColorName(color)).join('、')}等颜色。`;
+            }
+            if (selectedImages.size > 0) {
+                summaryText += `在图片选择上，您倾向于${Array.from(selectedImages.values()).map(img => img.categoryName).join('、')}等风格。`;
+            }
+            summaryText += '这些选择反映出您独特的审美品味和个性特征。';
+            
+            document.querySelector('.summary-analysis .analysis-text').textContent = summaryText;*/
+
+            // 延迟初始化3D动画，确保DOM已完全加载
+            setTimeout(() => {
+                initColorAnimation();
+            }, 300);
+        }
+
+        // 验证表单数据
+        function validateFormData(data) {
+            if (!data.name) {
+                alert('请输入姓名');
+                return false;
+            }
+            
+            if (!data.gender) {
+                alert('请选择性别');
+                return false;
+            }
+            
+            if (!data.age || data.age < 1 || data.age > 120) {
+                alert('请输入有效的年龄(1-120)');
+                return false;
+            }
+            
+            if (!data.city) {
+                alert('请输入所在城市');
+                return false;
+            }
+            
+            if (!data.phone) {
+                alert('请输入手机号码');
+                return false;
+            }
+            
+            if (!data.liked_colors || data.liked_colors.length < 1) {
+                alert('请至少选择1个喜欢的颜色');
+                return false;
+            }
+            
+            if (!data.disliked_colors || data.disliked_colors.length < 1) {
+                alert('请至少选择1个讨厌的颜色');
+                return false;
+            }
+            
+            if (!data.liked_adjectives || data.liked_adjectives.length < 1) {
+                alert('请至少选择1个喜欢的形容词');
+                return false;
+            }
+            
+            if (!data.liked_images || data.liked_images.length < 1) {
+                alert('请至少选择1张喜欢的图片');
+                return false;
+            }
+            
+            return true;
+        }
+
+        // 提交数据到服务器
+        async function submitToServer(formData) {
+            // 获取token，如果没有则请求登录
+            let token = localStorage.getItem('aesthetic_token');
+            if (!token) {
+                await handleLogin();
+                token = localStorage.getItem('aesthetic_token');
+                if (!token) return; // 如果用户取消登录，则终止提交
+            }
+            
+            try {
+                const response = await fetch('/api/aesthetic/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                if (result.code === 0) {
+                    console.log('数据提交成功');
+                    //alert('审美数据已成功提交至服务器！');
+                    // 更新报告中的图片展示
+                    const visualAnalysis = document.querySelector('.visual-analysis');
+                    visualAnalysis.innerHTML = '';
+                    
+                    const imagePreview = document.createElement('div');
+                    imagePreview.className = 'image-preview';
+                    imagePreview.innerHTML = `
+                        <img src="${result.data.color_explor_image}">
+                    `;
+                    visualAnalysis.appendChild(imagePreview);
+
+                    const summaryPoints = document.querySelector('.summary-points');
+                    summaryPoints.innerHTML = '';
+
+                    // 根据颜色偏好生成总结点
+                    const colorPoint = document.createElement('div');
+                    colorPoint.className = 'point';
+                    colorPoint.innerHTML = `
+                        <img src="${result.data.box_explor_image}">
+                    `;
+                    summaryPoints.appendChild(colorPoint);
+
+                    //comment
+                    const commentPoints = document.querySelector('#ana-comment');
+                    commentPoints.innerHTML = '';
+
+                    //遍历result.data.comment
+                    for (let i = 0; i < result.data.comment.length; i++) {
+                        const commentPoint = document.createElement('div');
+                        commentPoint.className = 'point';
+                        commentPoint.innerHTML = `
+                            <i>${result.data.comment[i]}</i>
+                        `;
+                        commentPoints.appendChild(commentPoint);
+                    }
+                } else if (result.code === 401) {
+                    // token过期或无效，需要重新登录
+                    localStorage.removeItem('aesthetic_token');
+                    await handleLogin();
+                    // 重新尝试提交
+                    await submitToServer(formData);
+                } else {
+                    console.error('提交失败:', result.message);
+                    alert('提交失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error('提交请求错误:', error);
+                alert('提交数据时发生错误，请检查网络连接后重试');
+            }
+        }
+
+        // 处理登录流程
+        async function handleLogin() {
+            const phone = prompt('请输入手机号码进行登录：');
+            if (!phone) return;
+            
+            try {
+                const response = await fetch('/api/wx/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: 'mock_web_code', // 网页版使用mock code
+                        phone: phone
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.code === 0 && result.data && result.data.token) {
+                    localStorage.setItem('aesthetic_token', result.data.token);
+                    localStorage.setItem('aesthetic_token_expires', Date.now() + result.data.expires_in * 1000);
+                return true;
+                } else {
+                    alert('登录失败: ' + (result.message || '未知错误'));
+                    return false;
+                }
+            } catch (error) {
+                console.error('登录请求错误:', error);
+                alert('登录过程中发生错误，请检查网络连接后重试');
+                return false;
+            }
+        }
+
+        // 保存报告
+        function saveReport() {
+            alert('报告已保存');
+        }
+
+        // 分享报告
+        function shareReport() {
+            alert('分享功能开发中');
+        }
+
+        // 图片数据
+        {{ .image_string }}
+
+        let currentCategory = 'clothing';
+        let selectedImages = new Map();
+
+        // 初始化图片选择页面
+        function initImageSelection() {
+            updateCategoryTabs();
+            updateImageGrid();
+            updateSelectedImages();
+        }
+
+        // 更新类别标签
+        function updateCategoryTabs() {
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.category === currentCategory);
+            });
+        }
+
+        // 更新图片网格
+        function updateImageGrid() {
+            const grid = document.querySelector('.image-grid');
+            const images = imageData[currentCategory];
+            
+            grid.innerHTML = images.map(image => `
+                <div class="image-item ${selectedImages.get(image.id) ? 'selected' : ''}" data-id="${image.id}">
+                    <img src="${image.url}" alt="${image.categoryName}">
+                    <div class="image-preview-btn">
+                        <i class="fas fa-search-plus"></i>
+                    </div>
+                </div>
+            `).join('');
+
+            // 添加点击事件
+            grid.querySelectorAll('.image-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const imageId = item.dataset.id;
+                    const image = imageData[currentCategory].find(img => img.id === imageId);
+                    
+                    if (selectedImages.has(imageId)) {
+                        selectedImages.delete(imageId);
+                        item.classList.remove('selected');
+                    } else {
+                        // 移除同一类别的其他选择
+                        imageData[currentCategory].forEach(img => {
+                            if (selectedImages.has(img.id)) {
+                                selectedImages.delete(img.id);
+                                document.querySelector(`.image-item[data-id="${img.id}"]`)?.classList.remove('selected');
+                            }
+                        });
+                        
+                        selectedImages.set(imageId, image);
+                        item.classList.add('selected');
+                    }
+                    
+                    updateSelectedImages();
+                });
+            });
+        }
+
+        // 更新已选图片展示
+        function updateSelectedImages() {
+            const container = document.querySelector('.selected-images-list');
+            container.innerHTML = '';
+            
+            selectedImages.forEach((image, id) => {
+                const item = document.createElement('div');
+                item.className = 'selected-image-item';
+                item.innerHTML = `
+                    <img src="${image.url}" alt="${image.categoryName}">
+                    <div class="selected-image-label">${image.categoryName}</div>
+                    <div class="remove-image" data-id="${id}">
+                        <i class="fas fa-times"></i>
+                    </div>
+                `;
+                
+                item.querySelector('.remove-image').addEventListener('click', () => {
+                    selectedImages.delete(id);
+                    updateImageGrid();
+                    updateSelectedImages();
+                });
+                
+                container.appendChild(item);
+            });
+        }
+
+        // 事件监听
+        document.querySelectorAll('.category-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                currentCategory = tab.dataset.category;
+                updateCategoryTabs();
+                updateImageGrid();
+            });
+        });
+
+        // 初始化页面
+        initImageSelection();
+
+        // 形容词选择逻辑
+        let selectedAdjectives = new Set();
+
+        // 初始化形容词选择
+        document.querySelectorAll('.adjective-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const name = item.dataset.name;
+                
+                if (selectedAdjectives.has(name)) {
+                    selectedAdjectives.delete(name);
+                    item.classList.remove('selected');
+                } else if (selectedAdjectives.size < 10) {
+                    selectedAdjectives.add(name);
+                    item.classList.add('selected');
+                } else {
+                    alert('最多只能选择10个形容词');
+                }
+            });
+        });
+
+        // 在适当的地方添加星星闪烁效果
+        //setTimeout(addTwinkleEffect, 1000);
+    </script>
+</body>
+</html>
