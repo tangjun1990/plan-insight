@@ -13,19 +13,89 @@
         }
         .filter-section {
             margin-bottom: 20px;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 5px;
+            padding: 24px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+        }
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            min-width: 180px;
+        }
+        .filter-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        .filter-select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f7f7f7;
+            color: #333;
+            transition: all 0.2s ease;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 30px;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+            background-color: #fff;
+        }
+        .filter-button {
+            background-color: #0071e3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            align-self: flex-end;
+        }
+        .filter-button:hover {
+            background-color: #0058b0;
+        }
+        .filter-button:active {
+            transform: scale(0.98);
         }
         .data-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
         .data-table th, .data-table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+            border: none;
+            border-bottom: 1px solid #eee;
+            padding: 12px 16px;
             text-align: left;
+        }
+        .data-table th {
+            background-color: #f7f7f7;
+            font-weight: 500;
+            color: #333;
+        }
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        .data-table tbody tr:hover {
+            background-color: #f9f9f9;
         }
         .charts-container {
             display: flex;
@@ -81,6 +151,50 @@
         }
         .logout-btn:hover {
             background-color: #c0392b;
+        }
+        /* 添加图片预览相关样式 */
+        .image-preview-trigger {
+            color: #0071e3;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .image-preview-container {
+            position: absolute;
+            display: none;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            width: 320px;
+            left: 0;
+            top: 100%;
+        }
+        
+        .image-preview-trigger:hover .image-preview-container {
+            display: block;
+        }
+        
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        
+        .preview-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .image-preview-title {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-align: center;
         }
         .page-layout {
             display: flex;
@@ -145,28 +259,39 @@
                     <button class="logout-btn" onclick="handleLogout()">退出登录</button>
                 </div>
                 <div class="filter-section">
-                    <label>年龄范围：
-                        <select id="ageRange">
+                    <div class="filter-item">
+                        <label class="filter-label">年龄范围</label>
+                        <select id="ageRange" class="filter-select">
                             <option value="">全部</option>
                             <option value="0-18">18岁以下</option>
                             <option value="19-30">19-30岁</option>
                             <option value="31-50">31-50岁</option>
                             <option value="50+">50岁以上</option>
                         </select>
-                    </label>
-                    <label>性别：
-                        <select id="gender">
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">性别</label>
+                        <select id="gender" class="filter-select">
                             <option value="">全部</option>
-                            <option value="男">男</option>
-                            <option value="女">女</option>
+                            <option value="male">男</option>
+                            <option value="female">女</option>
                         </select>
-                    </label>
-                    <label>地区：
-                        <select id="city">
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">地区</label>
+                        <select id="city" class="filter-select">
                             <option value="">全部</option>
                         </select>
-                    </label>
-                    <button onclick="applyFilters()">筛选</button>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">TopN</label>
+                        <select id="topN" class="filter-select">
+                            <option value="5">Top 5</option>
+                            <option value="10" selected>Top 10</option>
+                            <option value="20">Top 20</option>
+                        </select>
+                    </div>
+                    <button class="filter-button" onclick="applyFilters()">筛选</button>
                 </div>
 
                 <table class="data-table">
@@ -175,10 +300,14 @@
                             <th>用户姓名</th>
                             <th>年龄</th>
                             <th>性别</th>
+                            <th>手机号</th>
                             <th>地区</th>
                             <th>喜欢的颜色</th>
                             <th>讨厌的颜色</th>
                             <th>喜欢的形容词</th>
+                            <th>喜欢的图片</th>
+                            <th>色彩分析</th>
+                            <th>坐标分析</th>
                         </tr>
                     </thead>
                     <tbody id="dataTableBody"></tbody>
@@ -190,6 +319,7 @@
                     <div class="tab-buttons">
                         <button class="tab-button active" data-tab="color">颜色分析</button>
                         <button class="tab-button" data-tab="adjective">形容词分析</button>
+                        <button class="tab-button" data-tab="image">图片分析</button>
                         <button class="tab-button" data-tab="region">地域分析</button>
                     </div>
                     <div class="tab-content active" id="colorTab">
@@ -204,6 +334,12 @@
                         <div class="charts-container">
                             <div id="adjectiveChart" class="chart"></div>
                             <div id="adjectivePie" class="chart"></div>
+                        </div>
+                    </div>
+                    <div class="tab-content" id="imageTab">
+                        <div class="charts-container">
+                            <div id="imageChart" class="chart"></div>
+                            <div id="imagePie" class="chart"></div>
                         </div>
                     </div>
                     <div class="tab-content" id="regionTab">
@@ -342,6 +478,7 @@
             const ageRange = document.getElementById('ageRange').value;
             const gender = document.getElementById('gender').value;
             const city = document.getElementById('city').value;
+            const topN = document.getElementById('topN').value;
             
             currentFilters = {};
             
@@ -351,6 +488,10 @@
             
             if (city) {
                 currentFilters.city = city;
+            }
+            
+            if (topN) {
+                currentFilters.top = parseInt(topN);
             }
             
             if (ageRange) {
@@ -389,7 +530,7 @@
         // 显示表格加载状态
         function showTableLoading() {
             const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">加载中...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">加载中...</td></tr>';
         }
 
         // 隐藏表格加载状态
@@ -406,6 +547,9 @@
                 let likedColors = '-';
                 let dislikedColors = '-';
                 let likedAdjectives = '-';
+                let likedImages = '-';
+                let colorImageUrl = '-';
+                let boxImageUrl = '-';
                 
                 try {
                     if (item.liked_colors) {
@@ -422,6 +566,36 @@
                         const adj = JSON.parse(item.liked_adjectives);
                         likedAdjectives = Array.isArray(adj) ? adj.join(', ') : adj;
                     }
+                    
+                    if (item.liked_images) {
+                        const images = JSON.parse(item.liked_images);
+                        // 限制最多显示10张图片
+                        const limitedImages = Array.isArray(images) ? images.slice(0, 10) : [images];
+                        
+                        if (limitedImages.length > 0) {
+                            // 创建图片预览HTML
+                            let previewHtml = '<div class="image-preview-container"><div class="image-preview-title">图片预览 (最多10张)</div><div class="image-preview-grid">';
+                            
+                            limitedImages.forEach(img => {
+                                previewHtml += `<img src="${img}" class="preview-image" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22120%22%20height%3D%22120%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20120%20120%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_1%20text%20%7B%20fill%3A%23999%3Bfont-weight%3Anormal%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_1%22%3E%3Crect%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22%23eee%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2236.5%22%20y%3D%2264.5%22%3E加载失败%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E';">`;
+                            });
+                            
+                            previewHtml += '</div></div>';
+                            
+                            // 显示图片数量和预览触发器
+                            likedImages = `<span class="image-preview-trigger">${limitedImages.length}张图片 (悬停查看)${previewHtml}</span>`;
+                        } else {
+                            likedImages = '无图片';
+                        }
+                    }
+                    
+                    if (item.color_image_url) {
+                        colorImageUrl = `<a href="${item.color_image_url}" target="_blank">查看图片</a>`;
+                    }
+                    
+                    if (item.box_image_url) {
+                        boxImageUrl = `<a href="${item.box_image_url}" target="_blank">查看图片</a>`;
+                    }
                 } catch (e) {
                     console.error('解析JSON数据失败:', e);
                 }
@@ -430,11 +604,15 @@
                 row.innerHTML = `
                     <td>${item.name || '-'}</td>
                     <td>${item.age || '-'}</td>
-                    <td>${item.gender || '-'}</td>
+                    <td>${item.gender === 'male' ? '男' : (item.gender === 'female' ? '女' : '-')}</td>
+                    <td>${item.phone || '-'}</td>
                     <td>${item.city || '-'}</td>
                     <td>${likedColors}</td>
                     <td>${dislikedColors}</td>
                     <td>${likedAdjectives}</td>
+                    <td>${likedImages}</td>
+                    <td>${colorImageUrl}</td>
+                    <td>${boxImageUrl}</td>
                 `;
                 tbody.appendChild(row);
             });
@@ -447,6 +625,13 @@
             const totalPages = Math.ceil(total / pageSize);
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
+
+            // 添加数据总数显示
+            const totalCountSpan = document.createElement('span');
+            totalCountSpan.className = 'total-count';
+            totalCountSpan.textContent = `共 ${total} 条数据`;
+            totalCountSpan.style.marginRight = '15px';
+            pagination.appendChild(totalCountSpan);
 
             for (let i = 1; i <= totalPages; i++) {
                 const button = document.createElement('button');
@@ -462,18 +647,19 @@
         // 加载所有图表
         async function loadAllCharts(forceRefresh = false) {
             try {
+                // 获取当前的topN值，如果未设置则默认为10
+                const topN = currentFilters.top || 10;
+                
                 // 加载颜色喜好分析
                 const likedColorData = await fetchAestheticDataAnalysis('color', {
                     ...currentFilters, 
-                    top: 10, 
                     dimension: 'top'
                 });
-                renderBarChart('colorLikeChart', likedColorData, '喜欢的颜色 Top 10', forceRefresh);
+                renderBarChart('colorLikeChart', likedColorData, `喜欢的颜色 Top ${topN}`, forceRefresh);
                 
                 // 使用percent维度获取数据用于饼图
                 const likedColorPercentData = await fetchAestheticDataAnalysis('color', {
                     ...currentFilters, 
-                    top: 10, 
                     dimension: 'percent'
                 });
                 renderPieChart('colorLikePie', likedColorPercentData, '喜欢的颜色比例', forceRefresh);
@@ -481,10 +667,9 @@
                 // 加载颜色厌恶分析
                 const dislikedColorData = await fetchAestheticDataAnalysis('disliked_color', {
                     ...currentFilters, 
-                    top: 10, 
                     dimension: 'top'
                 });
-                renderBarChart('colorDislikeChart', dislikedColorData, '讨厌的颜色 Top 10', forceRefresh);
+                renderBarChart('colorDislikeChart', dislikedColorData, `讨厌的颜色 Top ${topN}`, forceRefresh);
                 
                 const dislikedColorPercentData = await fetchAestheticDataAnalysis('disliked_color', {
                     ...currentFilters, 
@@ -508,8 +693,34 @@
                 });
                 renderPieChart('adjectivePie', adjectivePercentData, '形容词偏好比例', forceRefresh);
                 
-                // 加载地域分析数据（示例）
-                renderCityChart('cityChart', forceRefresh);
+                // 加载图片分析
+                const imageData = await fetchAestheticDataAnalysis('image', {
+                    ...currentFilters, 
+                    top: 10, 
+                    dimension: 'top'
+                });
+                renderBarChart('imageChart', imageData, '喜欢的图片 Top 10', forceRefresh);
+                
+                const imagePercentData = await fetchAestheticDataAnalysis('image', {
+                    ...currentFilters, 
+                    top: 10, 
+                    dimension: 'percent'
+                });
+                renderPieChart('imagePie', imagePercentData, '图片偏好比例', forceRefresh);
+                
+                // 加载地域分析数据（使用API获取）
+                const regionData = await fetchAestheticDataAnalysis('region', {
+                    ...currentFilters, 
+                    dimension: 'top'
+                });
+                renderCityChart('cityChart', regionData, '用户地域分布', forceRefresh);
+                
+                // 加载地域分析地图数据
+                const regionMapData = await fetchAestheticDataAnalysis('region', {
+                    ...currentFilters, 
+                    dimension: 'map'
+                });
+                renderRegionMap('regionMap', regionMapData, '用户地域分布地图', forceRefresh);
                 
             } catch (error) {
                 console.error('加载图表数据失败:', error);
@@ -530,6 +741,28 @@
             if (!myChart) {
                 myChart = echarts.init(chartDom);
                 chartInstances[containerId] = myChart;
+            }
+            
+            // 处理null或空数据的情况
+            if (!data || data.length === 0) {
+                myChart.clear();
+                myChart.setOption({
+                    title: {
+                        text: title,
+                        left: 'center'
+                    },
+                    graphic: {
+                        type: 'text',
+                        left: 'center',
+                        top: 'middle',
+                        style: {
+                            text: '暂无数据',
+                            fontSize: 20,
+                            fill: '#999'
+                        }
+                    }
+                });
+                return;
             }
             
             const names = data.map(item => item.name);
@@ -596,9 +829,31 @@
                 chartInstances[containerId] = myChart;
             }
             
+            // 处理null或空数据的情况
+            if (!data || data.length === 0) {
+                myChart.clear();
+                myChart.setOption({
+                    title: {
+                        text: title,
+                        left: 'center'
+                    },
+                    graphic: {
+                        type: 'text',
+                        left: 'center',
+                        top: 'middle',
+                        style: {
+                            text: '暂无数据',
+                            fontSize: 20,
+                            fill: '#999'
+                        }
+                    }
+                });
+                return;
+            }
+            
             const seriesData = data.map(item => ({
-                name: item.name,
-                value: item.count
+                value: item.count,
+                name: item.name
             }));
             
             const option = {
@@ -637,8 +892,8 @@
             myChart.setOption(option);
         }
 
-        // 渲染城市分布图（示例数据）
-        function renderCityChart(containerId, forceRefresh = false) {
+        // 渲染城市分布图（使用API数据）
+        function renderCityChart(containerId, data, title, forceRefresh = false) {
             const chartDom = document.getElementById(containerId);
             
             // 如果强制刷新或图表实例不存在，则创建新实例
@@ -653,19 +908,31 @@
                 chartInstances[containerId] = myChart;
             }
             
-            // 这里应该从API获取数据，现在使用模拟数据
-            const data = [
-                {name: '北京', value: 20},
-                {name: '上海', value: 18},
-                {name: '广州', value: 15},
-                {name: '深圳', value: 14},
-                {name: '杭州', value: 10},
-                {name: '成都', value: 8}
-            ];
+            // 处理null或空数据的情况
+            if (!data || data.length === 0) {
+                myChart.clear();
+                myChart.setOption({
+                    title: {
+                        text: title,
+                        left: 'center'
+                    },
+                    graphic: {
+                        type: 'text',
+                        left: 'center',
+                        top: 'middle',
+                        style: {
+                            text: '暂无数据',
+                            fontSize: 20,
+                            fill: '#999'
+                        }
+                    }
+                });
+                return;
+            }
             
             const option = {
                 title: {
-                    text: '用户地域分布',
+                    text: title,
                     left: 'center'
                 },
                 tooltip: {
@@ -673,14 +940,18 @@
                 },
                 xAxis: {
                     type: 'category',
-                    data: data.map(item => item.name)
+                    data: data.map(item => item.name),
+                    axisLabel: {
+                        interval: 0,
+                        rotate: 30
+                    }
                 },
                 yAxis: {
                     type: 'value'
                 },
                 series: [
                     {
-                        data: data.map(item => item.value),
+                        data: data.map(item => item.count),
                         type: 'bar',
                         itemStyle: {
                             color: '#3498db'
@@ -692,6 +963,95 @@
             // 清除旧数据并设置新选项
             myChart.clear();
             myChart.setOption(option);
+        }
+
+        // 渲染地域分布地图
+        function renderRegionMap(containerId, data, title, forceRefresh = false) {
+            const chartDom = document.getElementById(containerId);
+            
+            // 如果强制刷新或图表实例不存在，则创建新实例
+            if (forceRefresh && chartInstances[containerId]) {
+                chartInstances[containerId].dispose();
+                chartInstances[containerId] = null;
+            }
+            
+            let myChart = chartInstances[containerId];
+            if (!myChart) {
+                myChart = echarts.init(chartDom);
+                chartInstances[containerId] = myChart;
+            }
+            
+            // 处理null或空数据的情况
+            if (!data || data.length === 0) {
+                myChart.clear();
+                myChart.setOption({
+                    title: {
+                        text: title,
+                        left: 'center'
+                    },
+                    graphic: {
+                        type: 'text',
+                        left: 'center',
+                        top: 'middle',
+                        style: {
+                            text: '暂无数据',
+                            fontSize: 20,
+                            fill: '#999'
+                        }
+                    }
+                });
+                return;
+            }
+            
+            // 转换数据格式以适应地图
+            const mapData = data.map(item => ({
+                name: item.name,
+                value: item.count
+            }));
+            
+            const option = {
+                title: {
+                    text: title,
+                    left: 'center'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{b}: {c}人'
+                },
+                visualMap: {
+                    min: 0,
+                    max: Math.max(...mapData.map(item => item.value)),
+                    left: 'left',
+                    top: 'bottom',
+                    text: ['高', '低'],
+                    calculable: true,
+                    inRange: {
+                        color: ['#e0f3f8', '#045a8d']
+                    }
+                },
+                series: [{
+                    name: '用户数量',
+                    type: 'map',
+                    map: 'china',
+                    emphasis: {
+                        label: {
+                            show: true
+                        }
+                    },
+                    data: mapData
+                }]
+            };
+            
+            // 加载中国地图数据
+            fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+                .then(response => response.json())
+                .then(geoJson => {
+                    echarts.registerMap('china', geoJson);
+                    myChart.setOption(option);
+                })
+                .catch(error => {
+                    console.error('加载地图数据失败:', error);
+                });
         }
 
         // 初始化标签切换

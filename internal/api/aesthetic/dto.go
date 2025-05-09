@@ -61,9 +61,9 @@ type AestheticDataListRequest struct {
 
 // 审美数据统计分析请求
 type AestheticAnalysisRequest struct {
-	AnalysisType string `form:"analysis_type" binding:"required"` // 分析类型: color, disliked_color, adjective, image
-	Dimension    string `form:"dimension"`                        // 分析维度: count, top, percent
-	Top          int    `form:"top" binding:"min=1,max=100"`      // 取前N条数据
+	AnalysisType string `form:"analysis_type" binding:"required"` // 分析类型: color, disliked_color, adjective, image, region
+	Dimension    string `form:"dimension"`                        // 分析维度: count, top, percent, map
+	Top          int    `form:"top" binding:"max=100"`            // 取前N条数据
 	Gender       string `form:"gender"`                           // 按性别过滤
 	AgeMin       int    `form:"age_min"`                          // 最小年龄
 	AgeMax       int    `form:"age_max"`                          // 最大年龄
@@ -102,4 +102,12 @@ type UserListRequest struct {
 // 用户状态更新请求
 type UserStatusRequest struct {
 	Status int `json:"status" binding:"oneof=0 1"` // 状态 1:正常 0:禁用
+}
+
+// UserUpdateRequest 用户信息更新请求
+type UserUpdateRequest struct {
+	Name   string `json:"name"`   // 姓名
+	Gender string `json:"gender"` // 性别
+	Age    int    `json:"age"`    // 年龄
+	City   string `json:"city"`   // 城市
 }

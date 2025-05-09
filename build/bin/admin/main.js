@@ -157,6 +157,9 @@ function renderCharts() {
     } else if (activeTab === 'adjective') {
         renderAdjectiveChart();
         renderAdjectivePie();
+    } else if (activeTab === 'image') {
+        renderBarChart('imageChart', imageData, '喜欢的图片 Top 10');
+        renderPieChart('imagePie', imagePercentData, '图片偏好比例');
     } else if (activeTab === 'region') {
         renderRegionMap();
         renderCityChart();
@@ -544,4 +547,4 @@ function initTabs() {
             }
         });
     });
-} 
+}

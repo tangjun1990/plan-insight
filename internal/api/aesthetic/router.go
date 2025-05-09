@@ -75,6 +75,14 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 		}
+
+		// 用户信息相关接口
+		wxUserGroup := wxGroup.Group("/wx/user")
+		wxUserGroup.Use(authMiddleware.UserAuth())
+		{
+			wxUserGroup.GET("/info", controller.GetUserInfo)
+			wxUserGroup.PUT("/update", controller.UpdateUserInfo)
+		}
 	}
 
 	// 注册管理后台相关API

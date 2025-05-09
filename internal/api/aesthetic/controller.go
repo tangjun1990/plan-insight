@@ -340,3 +340,43 @@ func (c *Controller) GetAestheticDataAnalysis(ctx *gin.Context) {
 
 	c.ResponseSuccess(ctx, result)
 }
+
+// UpdateUserInfo 更新用户信息
+func (c *Controller) UpdateUserInfo(ctx *gin.Context) {
+	var req UserUpdateRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "参数错误: "+err.Error())
+		return
+	}
+
+	userID := c.GetUserID(ctx)
+	if userID == 0 {
+		c.ResponseError(ctx, 401, "未授权")
+		return
+	}
+
+	err := c.service.UpdateUserInfo(userID, req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "更新用户信息失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, nil)
+}
+
+// GetUserInfo 获取用户信息
+func (c *Controller) GetUserInfo(ctx *gin.Context) {
+	userID := c.GetUserID(ctx)
+	if userID == 0 {
+		c.ResponseError(ctx, 401, "未授权")
+		return
+	}
+
+	user, err := c.service.GetUserByID(userID)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, user)
+}

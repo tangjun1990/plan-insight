@@ -1,6 +1,7 @@
 [app.global]
 serviceName = "insight-server"
 environment = "local"
+host = "http://127.0.0.1"
 
 [server.http]
 port = 80

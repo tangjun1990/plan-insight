@@ -39,6 +39,8 @@ type AestheticData struct {
 	DislikedColors  string         `gorm:"type:text" json:"disliked_colors"`  // 讨厌的5个颜色，JSON格式
 	LikedAdjectives string         `gorm:"type:text" json:"liked_adjectives"` // 喜欢的10个形容词，JSON格式
 	LikedImages     string         `gorm:"type:text" json:"liked_images"`     // 喜欢的10张图片，JSON格式
+	ColorImageURL   string         `gorm:"size:255" json:"color_image_url"`   // 色彩分析图片URL
+	BoxImageURL     string         `gorm:"size:255" json:"box_image_url"`     // 坐标分析图片URL
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`

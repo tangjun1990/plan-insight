@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"git.4321.sh/feige/commonapi/pkg/imagex"
+	"git.4321.sh/feige/flygo/core/kcfg"
 	"github.com/disintegration/imaging"
 	"github.com/spf13/cast"
 	"gorm.io/gorm"
@@ -117,6 +118,53 @@ func (s *Service) GetUserByToken(token string) (*User, error) {
 	}
 
 	return &user, nil
+}
+
+// GetUserByID 根据ID获取用户信息
+func (s *Service) GetUserByID(userID uint) (*User, error) {
+	var user User
+	result := s.db.First(&user, userID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+// UpdateUserInfo 更新用户信息
+func (s *Service) UpdateUserInfo(userID uint, req UserUpdateRequest) error {
+	var user User
+	result := s.db.First(&user, userID)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	// 只更新非空字段
+	updates := map[string]interface{}{}
+	
+	if req.Name != "" {
+		updates["name"] = req.Name
+	}
+	
+	if req.Gender != "" {
+		updates["gender"] = req.Gender
+	}
+	
+	if req.Age > 0 {
+		updates["age"] = req.Age
+	}
+	
+	if req.City != "" {
+		updates["city"] = req.City
+	}
+
+	if len(updates) > 0 {
+		result = s.db.Model(&user).Updates(updates)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
+	return nil
 }
 
 type colorItem struct {
@@ -628,6 +676,26 @@ func numToRGB(num int) (uint8, uint8, uint8) {
 	return 0, 0, 0
 }
 
+// num转名称
+func numToName(num int) string {
+	for _, v := range globalColor {
+		if num == v.Num {
+			return v.Name
+		}
+	}
+	return "未知颜色"
+}
+
+// num转名称
+func numToFullName(num int) string {
+	for _, v := range globalColor {
+		if num == v.Num {
+			return cast.ToString(v.Num) + "#" + v.Name
+		}
+	}
+	return "未知颜色"
+}
+
 // 将rgb值转为页面样式css中的色值，格式如 #000001
 func rgbToHex(r, g, b uint8) string {
 	return fmt.Sprintf("#%02X%02X%02X", r, g, b)
@@ -674,6 +742,9 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 		return nil, err
 	}
 
+	colorimg := DrawColor(likedColorNum, disLikedColorNum)
+	boximg := DrawToBox(req.LikedImages, likedColorNum, disLikedColorNum)
+
 	// 创建审美数据记录
 	data := AestheticData{
 		UserID:          userID,
@@ -686,6 +757,8 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 		DislikedColors:  string(dislikedColorsJSON),
 		LikedAdjectives: string(likedAdjectivesJSON),
 		LikedImages:     string(likedImagesJSON),
+		ColorImageURL:   trimBasePath(colorimg),
+		BoxImageURL:     trimBasePath(boximg),
 	}
 
 	// 保存数据
@@ -693,13 +766,32 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 		return nil, err
 	}
 
+	commenttxt := mapComment(likedColorNum, req.LikedAdjectives)
 	// 返回保存的数据
 	return &AestheticDataRsp{
 		AestheticData:    data,
-		ColorExplorImage: "http://127.0.0.1/" + DrawColor(likedColorNum, disLikedColorNum),
-		BoxExplorImage:   "http://127.0.0.1/" + DrawToBox(req.LikedImages, likedColorNum, disLikedColorNum),
-		Comment:          mapComment(likedColorNum, req.LikedAdjectives),
+		ColorExplorImage: getColorImageURL(colorimg),
+		BoxExplorImage:   getBoxImageURL(boximg),
+		Comment:          commenttxt,
 	}, nil
+}
+
+func getColorImageURL(img string) string {
+	if strings.Index(img, "/") != -1 {
+		return kcfg.GetString("app.global.host") + "/" + img
+	}
+	return kcfg.GetString("app.global.host") + "/colorimg/" + img
+}
+
+func getBoxImageURL(img string) string {
+	if strings.Index(img, "/") != -1 {
+		return kcfg.GetString("app.global.host") + "/" + img
+	}
+	return kcfg.GetString("app.global.host") + "/boximg/" + img
+}
+
+func getGlobalImageURL(img string) string {
+	return kcfg.GetString("app.global.host") + "/img/" + img
 }
 
 func mapComment(likedColors []int, likedAdjectives []string) []string {
@@ -951,6 +1043,10 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 	return outputPath
 }
 
+func trimBasePath(path string) string {
+	return strings.Split(path, "/")[1]
+}
+
 // GetUserAestheticDataList 获取用户审美数据列表
 func (s *Service) GetUserAestheticDataList(userID uint, page, pageSize int) (*PageResponse, error) {
 	var total int64
@@ -1127,12 +1223,35 @@ func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResp
 		return nil, err
 	}
 
+	for k, v := range list {
+		list[k].ColorImageURL = getColorImageURL(v.ColorImageURL)
+		list[k].BoxImageURL = getBoxImageURL(v.BoxImageURL)
+		list[k].LikedImages = formatLikedImages(v.LikedImages)
+	}
+
 	return &PageResponse{
 		List:     list,
 		Total:    total,
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}, nil
+}
+
+func formatLikedImages(images string) string {
+	if images == "" {
+		return ""
+	}
+	var imgs []string
+	err := json.Unmarshal([]byte(images), &imgs)
+	if err != nil {
+		return ""
+	}
+	newimg := make([]string, 0)
+	for _, v := range imgs {
+		newimg = append(newimg, getGlobalImageURL(v))
+	}
+	s, _ := json.Marshal(newimg)
+	return string(s)
 }
 
 // GetAestheticDataAnalysis 获取审美数据统计分析
@@ -1173,6 +1292,8 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 		return s.analyzeAdjectives(dataList, req.Top), nil
 	case "image":
 		return s.analyzeImages(dataList, req.Top), nil
+	case "region":
+		return s.analyzeRegions(dataList, req.Top), nil
 	default:
 		return nil, errors.New("不支持的分析类型")
 	}
@@ -1181,11 +1302,11 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 // analyzeColors 分析颜色数据
 func (s *Service) analyzeColors(dataList []AestheticData, isLiked bool, top int) []AnalysisItem {
 	// 统计颜色频率
-	colorCounts := make(map[string]int)
+	colorCounts := make(map[int]int)
 	total := 0
 
 	for _, data := range dataList {
-		var colors []string
+		var colors []int
 		jsonStr := data.LikedColors
 		if !isLiked {
 			jsonStr = data.DislikedColors
@@ -1203,7 +1324,7 @@ func (s *Service) analyzeColors(dataList []AestheticData, isLiked bool, top int)
 	var items []AnalysisItem
 	for color, count := range colorCounts {
 		items = append(items, AnalysisItem{
-			Name:    color,
+			Name:    numToFullName(color),
 			Count:   count,
 			Percent: float64(count) * 100 / float64(total),
 		})
@@ -1259,6 +1380,32 @@ func (s *Service) analyzeAdjectives(dataList []AestheticData, top int) []Analysi
 	return items
 }
 
+func imageNameToDescription(name string) string {
+	// 提取数字部分
+	parts := strings.Split(name, "-")
+	category := cast.ToInt(parts[0])
+	numdesc := parts[2]
+	numslice := strings.Split(numdesc, ".")
+	num := cast.ToInt(numslice[0])
+	// 构建描述
+	boxname := ""
+	for _, v := range globalBox {
+		if v.Num == num {
+			boxname = v.name
+			break
+		}
+	}
+	categoryname := ""
+	for _, v := range globalImageCategory {
+		if v.CategoryID == category {
+			categoryname = v.CategoryName
+			break
+		}
+	}
+	description := fmt.Sprintf("%s-%s", categoryname, boxname)
+	return description
+}
+
 // analyzeImages 分析图片数据
 func (s *Service) analyzeImages(dataList []AestheticData, top int) []AnalysisItem {
 	// 统计图片频率
@@ -1278,12 +1425,8 @@ func (s *Service) analyzeImages(dataList []AestheticData, top int) []AnalysisIte
 	// 将统计结果转换为AnalysisItem
 	var items []AnalysisItem
 	for img, count := range imageCounts {
-		// 提取图片名称以便展示
-		parts := strings.Split(img, "/")
-		name := parts[len(parts)-1]
-
 		items = append(items, AnalysisItem{
-			Name:    name,
+			Name:    imageNameToDescription(img),
 			Count:   count,
 			Percent: float64(count) * 100 / float64(total),
 		})
@@ -1299,6 +1442,46 @@ func (s *Service) analyzeImages(dataList []AestheticData, top int) []AnalysisIte
 		return items[:top]
 	}
 	return items
+}
+
+// analyzeRegions 分析地域数据
+func (s *Service) analyzeRegions(dataList []AestheticData, top int) []AnalysisItem {
+	// 统计城市出现次数
+	cityCount := make(map[string]int)
+	for _, item := range dataList {
+		if item.City != "" {
+			cityCount[item.City]++
+		}
+	}
+
+	// 转换为分析结果
+	var result []AnalysisItem
+	for city, count := range cityCount {
+		result = append(result, AnalysisItem{
+			Name:  city,
+			Count: count,
+		})
+	}
+
+	// 计算百分比
+	total := len(dataList)
+	if total > 0 {
+		for i := range result {
+			result[i].Percent = float64(result[i].Count) * 100 / float64(total)
+		}
+	}
+
+	// 按数量降序排序
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Count > result[j].Count
+	})
+
+	// 截取前top条数据
+	if top > 0 && len(result) > top {
+		result = result[:top]
+	}
+
+	return result
 }
 
 func GetImageFromFile(filePath string) (img image.Image, err error) {

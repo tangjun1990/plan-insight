@@ -11,6 +11,26 @@
             box-sizing: border-box;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
 
         body {
             background-color: #f7f7f7;
@@ -572,6 +592,66 @@
             background-color: #fff;
             border-radius: 8px;
         }
+        
+        /* 颜色选择模式按钮样式 */
+        .color-selection-mode {
+            display: flex;
+            position: sticky;
+            top: 60px;
+            z-index: 50;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+        
+        .mode-btn {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: all 0.3s;
+        }
+        
+        .mode-btn.active {
+            background: #e6f7ff;
+            color: #1890ff;
+            font-weight: 500;
+        }
+        
+        .like-mode.active {
+            background: #f0f9eb;
+            color: #07c160;
+        }
+        
+        .dislike-mode.active {
+            background: #fff2f0;
+            color: #ff4d4f;
+        }
+        
+        .mode-icon {
+            font-size: 16px;
+            margin-right: 6px;
+        }
+        
+        .mode-text {
+            white-space: nowrap;
+        }
+        
+        .mode-icon {
+            font-size: 16px;
+            margin-right: 6px;
+        }
 
         .color-grid {
             display: block;
@@ -961,9 +1041,18 @@
             <div class="page-title">第二步：选择颜色偏好</div>
             <div class="page-subtitle">左键选择您喜欢的颜色（最多10种），右键选择您讨厌的颜色（最多5种）</div>
             
-
             <!-- 颜色选择区域 -->
             <div class="color-selection-area">
+                <div class="color-selection-mode">
+                    <button class="mode-btn like-mode active" id="likeMode">
+                        <span class="mode-icon">👍</span>
+                        <span class="mode-text">选择喜欢的颜色</span>
+                    </button>
+                    <button class="mode-btn dislike-mode" id="dislikeMode">
+                        <span class="mode-icon">👎</span>
+                        <span class="mode-text">选择讨厌的颜色</span>
+                    </button>
+                </div>
                 <div class="color-grid">
                     {{range $i, $v := .color_map}}
                     <div class="color-item" style="background: {{$v.RGB}};" data-category="红色系" data-name="{{$v.Name}}"></div>
@@ -1197,17 +1286,6 @@
             <button class="btn btn-secondary">退出登录</button>
         </div>
 
-        <!-- 底部导航栏 -->
-        <div class="tab-bar">
-            <div class="tab-item active">
-                <i class="fas fa-home"></i>
-                <span>主页</span>
-            </div>
-            <div class="tab-item">
-                <i class="fas fa-user"></i>
-                <span>我的</span>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -1349,20 +1427,53 @@
 
         // 颜色选择
         function initColorSelection() {
-        document.querySelectorAll('.color-item').forEach(item => {
+            // 初始化颜色项点击事件
+            document.querySelectorAll('.color-item').forEach(item => {
                 // 移除旧的事件监听器（防止重复绑定）
                 item.removeEventListener('click', handleColorClick);
                 item.removeEventListener('contextmenu', handleColorRightClick);
                 
-            // 左键点击选择喜欢的颜色
+                // 点击选择颜色（根据当前模式）
                 item.addEventListener('click', handleColorClick);
                 
-                // 右键点击选择不喜欢的颜色
+                // 右键点击仍然阻止默认菜单
                 item.addEventListener('contextmenu', handleColorRightClick);
+            });
+            
+            // 初始化模式切换按钮
+            const likeModeBtn = document.getElementById('likeMode');
+            const dislikeModeBtn = document.getElementById('dislikeMode');
+            
+            likeModeBtn.addEventListener('click', () => {
+                setColorSelectionMode('like');
+            });
+            
+            dislikeModeBtn.addEventListener('click', () => {
+                setColorSelectionMode('dislike');
             });
         }
         
-        // 处理颜色左键点击
+        // 当前选择模式：'like' 或 'dislike'
+        let currentSelectionMode = 'like';
+        
+        // 设置颜色选择模式
+        function setColorSelectionMode(mode) {
+            currentSelectionMode = mode;
+            
+            // 更新按钮状态
+            const likeModeBtn = document.getElementById('likeMode');
+            const dislikeModeBtn = document.getElementById('dislikeMode');
+            
+            if (mode === 'like') {
+                likeModeBtn.classList.add('active');
+                dislikeModeBtn.classList.remove('active');
+            } else {
+                likeModeBtn.classList.remove('active');
+                dislikeModeBtn.classList.add('active');
+            }
+        }
+        
+        // 处理颜色点击
         function handleColorClick(e) {
             const item = e.currentTarget;
             const originalBackground = item.style.background || '';
@@ -1372,7 +1483,10 @@
             if (!color) {
                 color = getComputedStyle(item).backgroundColor;
             }
-                
+            
+            // 根据当前模式处理点击
+            if (currentSelectionMode === 'like') {
+                // 喜欢模式
                 if (likedColors.has(color)) {
                     likedColors.delete(color);
                     item.classList.remove('selected-like');
@@ -1385,23 +1499,8 @@
                 } else {
                     alert('最多只能选择10种喜欢的颜色');
                 }
-                
-                updateSelectedColors();
-        }
-
-        // 处理颜色右键点击
-        function handleColorRightClick(e) {
-                e.preventDefault(); // 阻止默认右键菜单
-                
-            const item = e.currentTarget;
-            const originalBackground = item.style.background || '';
-            let color = originalBackground;
-            
-            // 如果没有直接获取到背景色，使用计算样式
-            if (!color) {
-                color = getComputedStyle(item).backgroundColor;
-            }
-                
+            } else {
+                // 讨厌模式
                 if (dislikedColors.has(color)) {
                     dislikedColors.delete(color);
                     item.classList.remove('selected-dislike');
@@ -1414,8 +1513,14 @@
                 } else {
                     alert('最多只能选择5种讨厌的颜色');
                 }
-                
-                updateSelectedColors();
+            }
+            
+            updateSelectedColors();
+        }
+
+        // 处理颜色右键点击 - 保留此函数以兼容旧代码，但不再使用
+        function handleColorRightClick(e) {
+            e.preventDefault(); // 阻止默认右键菜单
         }
 
         // 添加星星闪烁效果
@@ -2168,35 +2273,108 @@
 
         // 处理登录流程
         async function handleLogin() {
-            const phone = prompt('请输入手机号码进行登录：');
-            if (!phone) return;
-            
-            try {
-                const response = await fetch('/api/wx/auth', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        code: 'mock_web_code', // 网页版使用mock code
-                        phone: phone
-                    })
-                });
+            // 检查是否在微信小程序环境中
+            if (window.wx && wx.miniProgram) {
+                try {
+                    // 调用微信小程序的获取手机号接口
+                    wx.miniProgram.navigateTo({
+                        url: '/pages/auth/auth?redirect=index',
+                        success: function() {
+                            console.log('跳转到手机号授权页面成功');
+                        },
+                        fail: function(err) {
+                            console.error('跳转到手机号授权页面失败', err);
+                            showToast('获取手机号授权失败，请重试');
+                        }
+                    });
+                    
+                    // 监听从小程序返回的消息
+                    window.addEventListener('message', function(event) {
+                        const data = event.data;
+                        if (data && data.type === 'getPhoneNumber') {
+                            if (data.success) {
+                                // 获取到手机号，进行登录
+                                const phoneNumber = data.phoneNumber;
+                                const userInfo = {
+                                    name: '用户' + phoneNumber.substring(phoneNumber.length - 4),
+                                    phone: phoneNumber,
+                                    id: generateUserId()
+                                };
+                                
+                                // 保存用户信息
+                                localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                                
+                                // 更新UI
+                                updateUserInfo(userInfo);
+                                
+                                // 进入下一步
+                                goToNextStep();
+                            } else {
+                                // 用户拒绝授权或授权失败
+                                showToast('获取手机号失败：' + (data.errMsg || '用户拒绝授权'));
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('微信小程序API调用失败', error);
+                    showToast('登录失败，请重试');
+                }
+            } else {
+                // 非小程序环境，使用原有的登录方式
+                const phone = prompt('请输入手机号码进行登录：');
+                if (!phone) return;
                 
-                const result = await response.json();
-                if (result.code === 0 && result.data && result.data.token) {
-                    localStorage.setItem('aesthetic_token', result.data.token);
-                    localStorage.setItem('aesthetic_token_expires', Date.now() + result.data.expires_in * 1000);
-                return true;
-                } else {
-                    alert('登录失败: ' + (result.message || '未知错误'));
+                try {
+                    const response = await fetch('/api/wx/auth', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            code: 'mock_web_code', // 网页版使用mock code
+                            phone: phone
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    if (result.code === 0 && result.data && result.data.token) {
+                        localStorage.setItem('aesthetic_token', result.data.token);
+                        localStorage.setItem('aesthetic_token_expires', Date.now() + result.data.expires_in * 1000);
+                    return true;
+                    } else {
+                        showToast('登录失败: ' + (result.message || '未知错误'));
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('登录请求错误:', error);
+                    showToast('登录过程中发生错误，请检查网络连接后重试');
                     return false;
                 }
-            } catch (error) {
-                console.error('登录请求错误:', error);
-                alert('登录过程中发生错误，请检查网络连接后重试');
-                return false;
             }
+        }
+        
+        // 生成用户ID的辅助函数
+        function generateUserId() {
+            return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        // 显示提示信息
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 3000);
         }
 
         // 保存报告
