@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>审美测试</title>
+    <!-- 引入微信JS-SDK -->
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <style>
         * {
             margin: 0;
@@ -2495,6 +2497,32 @@
 
         // 在适当的地方添加星星闪烁效果
         //setTimeout(addTwinkleEffect, 1000);
+    </script>
+    <!-- 微信JS-SDK初始化 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // 检查是否在小程序环境中
+            function isMiniProgram() {
+                return window.__wxjs_environment === 'miniprogram';
+            }
+            
+        });
+        // 检测是否在小程序环境中
+        if (window.__wxjs_environment === 'miniprogram') {
+        // 向小程序发送消息
+        wx.miniProgram.postMessage({
+            data: {
+            action: 'someAction',
+            value: 'someValue'
+            }
+        });
+        
+        // 监听小程序发来的消息（如果需要）
+        window.addEventListener('message', function(e) {
+            console.log('收到小程序消息：', e.data);
+        });
+        }
     </script>
 </body>
 </html>
