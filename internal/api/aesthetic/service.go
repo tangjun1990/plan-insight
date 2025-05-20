@@ -8,6 +8,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"math/rand"
 	"net/http"
 	"os"
@@ -39,12 +40,31 @@ func NewService(db *gorm.DB) *Service {
 
 // WxAuth 微信小程序用户鉴权
 func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
-	// 模拟微信小程序登录凭证校验
-	// 实际项目中应调用微信API获取OpenID
-	openID := fmt.Sprintf("wx_openid_%s", req.Phone)
+	openID := ""
+	phoneNumber := ""
 
+	if req.Code == "mock_web_code" {
+		// 模拟微信API返回的OpenID和手机号
+		openID = "mock_openid"
+		phoneNumber = req.Phone
+	} else {
+		wxResp, err := s.getWxOpenIDAndPhoneNumber(req.Code)
+		if err != nil {
+			return nil, fmt.Errorf("获取微信用户信息失败: %w", err)
+		}
+
+		openID = wxResp.OpenID
+		phoneNumber = wxResp.PhoneInfo.PhoneNumber
+	}
+
+	// 如果请求中提供了手机号，优先使用请求中的手机号
+	if req.Phone != "" {
+		phoneNumber = req.Phone
+	}
+
+	// 根据手机号查询用户
 	var user User
-	result := s.db.Where("phone = ?", req.Phone).First(&user)
+	result := s.db.Where("phone = ?", phoneNumber).First(&user)
 
 	now := time.Now()
 	tokenExpire := now.Add(24 * time.Hour * 7) // token有效期7天
@@ -54,7 +74,7 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			// 新用户，创建用户记录
 			user = User{
-				Phone:          req.Phone,
+				Phone:          phoneNumber,
 				WxOpenID:       openID,
 				Status:         1, // 正常状态
 				FirstLoginTime: &now,
@@ -81,9 +101,9 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 			user.TokenExpireAt = &tokenExpire
 		}
 
-		// 更新登录时间
+		// 更新登录时间和OpenID
 		user.LastLoginTime = &now
-		user.WxOpenID = openID // 更新OpenID
+		user.WxOpenID = openID
 		if err := s.db.Save(&user).Error; err != nil {
 			return nil, err
 		}
@@ -94,7 +114,7 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 		ExpiresIn: int64(tokenExpire.Sub(now).Seconds()),
 		UserInfo: map[string]interface{}{
 			"id":    user.ID,
-			"phone": user.Phone,
+			"phone": phoneNumber,
 		},
 	}, nil
 }
@@ -140,19 +160,19 @@ func (s *Service) UpdateUserInfo(userID uint, req UserUpdateRequest) error {
 
 	// 只更新非空字段
 	updates := map[string]interface{}{}
-	
+
 	if req.Name != "" {
 		updates["name"] = req.Name
 	}
-	
+
 	if req.Gender != "" {
 		updates["gender"] = req.Gender
 	}
-	
+
 	if req.Age > 0 {
 		updates["age"] = req.Age
 	}
-	
+
 	if req.City != "" {
 		updates["city"] = req.City
 	}
@@ -846,16 +866,38 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 
 		startX := 0
 		startY := 0
+		//baseStartX := 0
+		//baseStartY := 0
 		for _, vv := range globalBox {
 			if vv.Num == boxNum {
 				startX = vv.StartX
 				startY = vv.StartY
+
+				//baseStartX = vv.StartX
+				//baseStartY = vv.StartY
+				break
 			}
 		}
+
+		// 处理最窄的两个抽屉，改为横着最多2张图，然后竖着向下排列
+		/*if boxNum == 3 || boxNum == 9 {
+			tmpstep := 1
+			if _, ok := imagemap[boxNum]; ok {
+				tmpstep += len(imagemap[boxNum])
+			}
+
+			if math.Mod(float64(tmpstep+1), 2) == 0 {
+				startX = baseStartX
+			} else {
+				startX = baseStartX + 200
+			}
+			startY = baseStartY + (int(math.Ceil(float64(tmpstep)/2))-1)*220
+		} else {*/
 		// 如果这个box内已有图片了，startx需要向右移动200
 		if _, ok := imagemap[boxNum]; ok {
 			startX = startX + (len(imagemap[boxNum]) * 200)
 		}
+		//}
 
 		srcImage, _ := GetImageFromFile("./insimg/" + img)
 		overlap = imaging.Overlay(backgroundImage, srcImage, image.Point{startX, startY}, 0.75)
@@ -971,12 +1013,12 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 			curY := startY + 350
 			r, g, b := numToRGB(col)
 			// 画不喜欢的颜色，使用矩形
-			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 50, 93, r, g, b, outputPath)
+			err := imagex.DrawHalfTriangleOnImage(outputPath, startX, curY, 95, r, g, b, outputPath)
 			if err != nil {
 
 			}
 			// 如果是多个颜色，x增加55
-			startX = startX + 55
+			startX = startX + 95
 		}
 	}
 	return outputPath
@@ -987,7 +1029,7 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 	tempDir := "./"
 
 	// 输入图片路径 (实际使用时请替换为实际图片路径)
-	inputPath := filepath.Join(tempDir, "colorbase.jpg")
+	inputPath := filepath.Join(tempDir, "colorbase.png")
 
 	// 输出图片路径
 	outputPath := filepath.Join(tempDir, fmt.Sprintf("colorimg/output_%d_%d.jpg", time.Now().UnixNano(), rand.Intn(1000)+9000))
@@ -999,13 +1041,17 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 		xstep := ((v - 1) % 10)
 		ystep := (v - 1) / 10
 		// 设置矩形参数
-		x := 252 + xstep*95 // 矩形左上角x坐标
-		y := 397 + ystep*93 // 矩形左上角y坐标
-		width := 95         // 矩形宽度
-		height := 93        // 矩形高度
+		x := 285 + xstep*79 // 矩形左上角x坐标
+		y := 268 + ystep*78 // 矩形左上角y坐标
+		width := 79         // 矩形宽度
+		height := 78        // 矩形高度
 		r, g, b := numToRGB(v)
 		if ystep >= 12 {
-			y = y + 20
+			y = y + 15
+		} else if ystep > 8 {
+			y = y + 5
+		} else if ystep > 6 {
+			y = y + 2
 		}
 
 		// 画喜欢的颜色，使用矩形
@@ -1021,25 +1067,26 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 		xstep := ((v - 1) % 10)
 		ystep := (v - 1) / 10
 		// 设置矩形参数
-		x := 252 + xstep*95 // 矩形左上角x坐标
-		y := 397 + ystep*93 // 矩形左上角y坐标
-		width := 50         // 矩形宽度
-		height := 93        // 矩形高度
+		x := 285 + xstep*79 // 矩形左上角x坐标
+		y := 268 + ystep*78 // 矩形左上角y坐标
+		width := 79         // 三角形宽度
 		r, g, b := numToRGB(v)
-
 		if ystep >= 12 {
-			y = y + 20
+			y = y + 15
+		} else if ystep > 8 {
+			y = y + 5
+		} else if ystep > 6 {
+			y = y + 2
 		}
 
-		// 画喜欢的颜色，使用矩形
-		err := imagex.DrawRectangleOnImage(outputPath, x, y, width, height, r, g, b, outputPath)
+		// 画讨厌的颜色，使用三角形
+		err := imagex.DrawHalfTriangleOnImage(outputPath, x, y, width, r, g, b, outputPath)
 		if err != nil {
 			fmt.Printf("处理图片时出错: %v\n", err)
 			return ""
 		}
 	}
 
-	// 画不喜欢的颜色，使用窄矩形
 	return outputPath
 }
 
@@ -1281,7 +1328,6 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 	if err := query.Find(&dataList).Error; err != nil {
 		return nil, err
 	}
-
 	// 根据分析类型处理数据
 	switch req.AnalysisType {
 	case "color":
@@ -1293,7 +1339,7 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 	case "image":
 		return s.analyzeImages(dataList, req.Top), nil
 	case "region":
-		return s.analyzeRegions(dataList, req.Top), nil
+		return s.analyzeRegions(dataList, req.Top, req.Dimension), nil
 	default:
 		return nil, errors.New("不支持的分析类型")
 	}
@@ -1445,7 +1491,7 @@ func (s *Service) analyzeImages(dataList []AestheticData, top int) []AnalysisIte
 }
 
 // analyzeRegions 分析地域数据
-func (s *Service) analyzeRegions(dataList []AestheticData, top int) []AnalysisItem {
+func (s *Service) analyzeRegions(dataList []AestheticData, top int, dimension string) []AnalysisItem {
 	// 统计城市出现次数
 	cityCount := make(map[string]int)
 	for _, item := range dataList {
@@ -1457,6 +1503,38 @@ func (s *Service) analyzeRegions(dataList []AestheticData, top int) []AnalysisIt
 	// 转换为分析结果
 	var result []AnalysisItem
 	for city, count := range cityCount {
+		if dimension == "map" {
+			// 渲染地图时，不能使用市，要使用省级
+			if city == "北京" || city == "上海" || city == "天津" || city == "重庆" {
+				city = city + "市"
+			} else {
+				if city == "成都" {
+					city = "四川省"
+				}
+				if city == "武汉" {
+					city = "湖北省"
+				}
+				if city == "深圳" {
+					city = "广东省"
+				}
+				if city == "南京" {
+					city = "江苏省"
+				}
+				if city == "西安" {
+					city = "陕西省"
+				}
+				if city == "昆明" {
+					city = "云南省"
+				}
+				if city == "杭州" {
+					city = "浙江省"
+				}
+				if city == "长沙" {
+					city = "湖南省"
+				}
+			}
+		}
+
 		result = append(result, AnalysisItem{
 			Name:  city,
 			Count: count,
@@ -1482,6 +1560,65 @@ func (s *Service) analyzeRegions(dataList []AestheticData, top int) []AnalysisIt
 	}
 
 	return result
+}
+
+// WxAPIResponse 微信API返回的数据结构
+type WxAPIResponse struct {
+	OpenID     string `json:"openid"`
+	SessionKey string `json:"session_key"`
+	UnionID    string `json:"unionid"`
+	ErrCode    int    `json:"errcode"`
+	ErrMsg     string `json:"errmsg"`
+	PhoneInfo  struct {
+		PhoneNumber     string `json:"phoneNumber"`
+		PurePhoneNumber string `json:"purePhoneNumber"`
+		CountryCode     string `json:"countryCode"`
+		Watermark       struct {
+			Timestamp int64  `json:"timestamp"`
+			AppID     string `json:"appid"`
+		} `json:"watermark"`
+	} `json:"phone_info"`
+}
+
+// getWxOpenIDAndPhoneNumber 调用微信API获取OpenID和手机号
+func (s *Service) getWxOpenIDAndPhoneNumber(code string) (*WxAPIResponse, error) {
+	// 从配置中获取小程序AppID和AppSecret
+	appID := kcfg.GetString("app.global.wxappid")
+	appSecret := kcfg.GetString("app.global.wxappsecret")
+
+	if appID == "" || appSecret == "" {
+		return nil, errors.New("微信小程序配置缺失")
+	}
+
+	// 调用微信登录凭证校验接口获取session_key和openid
+	authURL := fmt.Sprintf("https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code",
+		appID, appSecret, code)
+
+	resp, err := http.Get(authURL)
+	if err != nil {
+		return nil, fmt.Errorf("请求微信API失败: %w", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取微信API响应失败: %w", err)
+	}
+
+	var wxResp WxAPIResponse
+	if err := json.Unmarshal(body, &wxResp); err != nil {
+		return nil, fmt.Errorf("解析微信API响应失败: %w", err)
+	}
+
+	if wxResp.ErrCode != 0 {
+		return nil, fmt.Errorf("微信API返回错误: %s", wxResp.ErrMsg)
+	}
+
+	// 如果需要获取手机号，还需要调用微信的手机号解密接口
+	// 这里假设code已经是手机号获取的code，直接返回结果
+	// 实际应用中可能需要额外调用getPhoneNumber接口
+
+	return &wxResp, nil
 }
 
 func GetImageFromFile(filePath string) (img image.Image, err error) {

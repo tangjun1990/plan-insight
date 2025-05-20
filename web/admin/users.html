@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>用户管理 - 审美数据分析系统</title>
+    <style>
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #007bff;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #f8f9fa;
+        }
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .pagination button {
+            margin: 0 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            border: none;
+        }
+        .page-layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 200px;
+            background-color: #2c3e50;
+            padding: 20px 0;
+            color: white;
+        }
+        .sidebar h2 {
+            padding: 0 20px;
+            margin-bottom: 30px;
+            font-size: 18px;
+            color: #ecf0f1;
+        }
+        .nav-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .nav-menu li {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .nav-menu li:hover {
+            background-color: #34495e;
+        }
+        .nav-menu a {
+            color: #ecf0f1;
+            text-decoration: none;
+            display: block;
+        }
+        .nav-menu li.active {
+            background-color: #3498db;
+        }
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        .status-active {
+            background-color: #e6f7e6;
+            color: #28a745;
+        }
+        .status-disabled {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+        .action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+        .enable-btn {
+            background-color: #28a745;
+        }
+        .disable-btn {
+            background-color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-layout">
+        <div class="sidebar">
+            <h2>审美数据分析系统</h2>
+            <ul class="nav-menu">
+                <li><a href="index">数据分析</a></li>
+                <li class="active"><a href="users">用户管理</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <div class="container">
+                <div class="header">
+                    <button class="logout-btn" onclick="handleLogout()">退出登录</button>
+                </div>
+                <h1>用户管理</h1>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>姓名</th>
+                            <th>手机号</th>
+                            <th>性别</th>
+                            <th>年龄</th>
+                            <th>所在地区</th>
+                            <th>注册时间</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                </table>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // 检查登录状态
+        function checkLogin() {
+            const tokenExpire = localStorage.getItem('tokenExpire');
+            const isTokenValid = tokenExpire && (parseInt(tokenExpire) > Date.now());
+            
+            if (!isTokenValid || localStorage.getItem('isLoggedIn') !== 'true') {
+                window.location.href = 'login';
+            }
+        }
+
+        // 退出登录
+        function handleLogout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('tokenExpire');
+            window.location.href = 'login';
+        }
+
+        // API请求基础函数
+        async function fetchAPI(url, method = 'GET', body = null) {
+            const token = localStorage.getItem('adminToken');
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            };
+
+            const options = {
+                method: method,
+                headers: headers
+            };
+
+            if (body && (method === 'POST' || method === 'PUT')) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+
+                if (data.code !== 0) {
+                    throw new Error(data.message || '请求失败');
+                }
+
+                return data.data;
+            } catch (error) {
+                console.error('API请求出错:', error);
+                alert('操作失败: ' + error.message);
+                throw error;
+            }
+        }
+
+        // 获取用户列表
+        async function fetchUserList(page = 1, pageSize = 10, filters = {}) {
+            let queryParams = 'page=' + page + '&page_size=' + pageSize;
+            
+            if (filters.phone) {
+                queryParams += '&phone=' + encodeURIComponent(filters.phone);
+            }
+            
+            if (filters.status !== undefined) {
+                queryParams += '&status=' + filters.status;
+            }
+            
+            return await fetchAPI('/admin/user/list?' + queryParams);
+        }
+
+        // 启用用户
+        async function enableUser(userId) {
+            return await fetchAPI('/admin/user/' + userId + '/enable', 'PUT');
+        }
+
+        // 禁用用户
+        async function disableUser(userId) {
+            return await fetchAPI('/admin/user/' + userId + '/disable', 'PUT');
+        }
+
+        // 渲染用户表格
+        function renderUserTable(userData) {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '';
+
+            userData.list.forEach((user) => {
+                const row = document.createElement('tr');
+                row.innerHTML = '<td>' + (user.name || '-') + '</td>' +
+                    '<td>' + (user.phone || '-') + '</td>' +
+                    '<td>' + (user.gender || '-') + '</td>' +
+                    '<td>' + (user.age || '-') + '</td>' +
+                    '<td>' + (user.city || '-') + '</td>' +
+                    '<td>' + formatDate(user.first_login_time) + '</td>' +
+                    '<td><span class="status-badge ' + (user.status === 1 ? 'status-active' : 'status-disabled') + '">' +
+                    (user.status === 1 ? '正常' : '禁用中') + '</span></td>' +
+                    '<td><button class="action-btn ' + (user.status === 1 ? 'disable-btn' : 'enable-btn') + '" ' +
+                    'onclick="toggleUserStatus(' + user.id + ', ' + user.status + ')">' +
+                    (user.status === 1 ? '禁用' : '启用') + '</button></td>';
+                tbody.appendChild(row);
+            });
+
+            renderPagination(userData.total, userData.page, userData.page_size);
+        }
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return isNaN(date.getTime()) ? dateStr : date.toLocaleDateString('zh-CN');
+        }
+
+        // 渲染分页
+        function renderPagination(total, currentPage, pageSize) {
+            const totalPages = Math.ceil(total / pageSize);
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            for (let i = 1; i <= totalPages; i++) {
+                const button = document.createElement('button');
+                button.textContent = i;
+                button.onclick = () => loadUserData(i, pageSize);
+                if (i === currentPage) {
+                    button.classList.add('active');
+                }
+                pagination.appendChild(button);
+            }
+        }
+
+        // 切换用户状态
+        async function toggleUserStatus(userId, currentStatus) {
+            try {
+                if (currentStatus === 1) {
+                    await disableUser(userId);
+                } else {
+                    await enableUser(userId);
+                }
+                // 操作成功后重新加载当前页数据
+                await loadUserData(currentPage, pageSize);
+            } catch (error) {
+                console.error('切换用户状态失败:', error);
+            }
+        }
+
+        // 加载用户数据
+        async function loadUserData(page = 1, size = 10) {
+            try {
+                showLoading();
+                const userData = await fetchUserList(page, size);
+                renderUserTable(userData);
+                currentPage = page;
+                pageSize = size;
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                console.error('加载用户数据失败:', error);
+            }
+        }
+
+        // 显示加载状态
+        function showLoading() {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">加载中...</td></tr>';
+        }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            // 由渲染表格函数处理
+        }
+
+        // 初始化
+        let currentPage = 1;
+        let pageSize = 10;
+        
+        window.onload = function() {
+            checkLogin();
+            loadUserData();
+        };
+    </script>
+</body>
+</html>

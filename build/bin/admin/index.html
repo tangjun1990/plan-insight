@@ -160,17 +160,18 @@
         }
         
         .image-preview-container {
-            position: absolute;
+            position: fixed;
             display: none;
             background: white;
             border: 1px solid #ddd;
             border-radius: 8px;
             padding: 10px;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-            z-index: 100;
+            z-index: 1000;
             width: 320px;
-            left: 0;
-            top: 100%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
         }
         
         .image-preview-trigger:hover .image-preview-container {

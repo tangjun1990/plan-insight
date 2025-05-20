@@ -2,6 +2,8 @@
 serviceName = "insight-server"
 environment = "local"
 host = "http://127.0.0.1"
+wxappid = "wxef0626f813827ec5"
+wxappsecret = "29f05077d951de77e2284e90b54b918f"
 
 [server.http]
 port = 80

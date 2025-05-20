@@ -180,15 +180,15 @@
 
         .color-item {
             position: absolute;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 28px;        /* 减小颜色块尺寸 */
+            height: 28px;       /* 减小颜色块尺寸 */
+            border-radius: 6px; /* 适当减小圆角 */
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.3s;
             z-index: 1;
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-            margin: 5px;
+            margin: 3px;        /* 减小外边距 */
         }
 
         .color-item.selected-like {
@@ -235,19 +235,23 @@
 
         /* 形容词选择器样式 */
         .adjective-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 6px;
             margin-top: 12px;
         }
 
         .adjective-item {
-            padding: 8px 16px;
+            padding: 6px 8px;
             background: #f7f7f7;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 12px;
             cursor: pointer;
             transition: all 0.3s;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .adjective-item.selected {
@@ -657,26 +661,26 @@
             display: block;
             position: relative;
             height: auto;
-            min-height: 300px;
-            padding: 20px;
+            min-height: 250px;  /* 减小最小高度 */
+            padding: 10px;      /* 减小内边距 */
             background: #f7f7f7;
         }
 
         .color-item {
             position: absolute;
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 28px;        /* 减小颜色块尺寸 */
+            height: 28px;       /* 减小颜色块尺寸 */
+            border-radius: 6px; /* 适当减小圆角 */
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.3s;
             z-index: 1;
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.2);
-            margin: 5px;
+            margin: 3px;        /* 减小外边距 */
         }
 
         .color-item:hover {
-            transform: scale(1.5);
+            transform: scale(1.4); /* 减小悬停时的放大比例 */
             z-index: 10;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
         }
@@ -1254,8 +1258,8 @@
                 </div>
 
                 <div class="report-actions">
-                    <button class="btn btn-primary" onclick="saveReport()">查看历史</button>
-                    <button class="btn btn-secondary" onclick="shareReport()">继续测试</button>
+                    <button id="continue-test-btn" class="btn btn-secondary">继续测试</button>
+                    <button id="share-report-btn" class="btn btn-primary">分享报告</button>
                 </div>
             </div>
         </div>
@@ -1970,6 +1974,43 @@
 
         // 生成报告
         function generateReport() {
+            // 显示加载中提示
+            showToast('正在生成报告...');
+            
+            // 尝试从微信小程序获取token
+            if (window.wx && window.wx.miniProgram) {
+                wx.miniProgram.getStorage({
+                    key: 'token',
+                    success: function(res) {
+                        // 获取token成功
+                        const token = res.data;
+                        console.log('获取到微信小程序token:', token);
+                        
+                        // 使用token调用生成报告接口
+                        generateReportWithData(token);
+                    },
+                    fail: function(err) {
+                        console.error('获取token失败:', err);
+                        // 尝试使用本地存储的token
+                        const localToken = localStorage.getItem('aesthetic_token');
+                        if (localToken) {
+                            generateReportWithData(localToken);
+                        } else {
+                            showToast('请先登录后再生成报告');
+                            // 可以选择跳转到登录页面或使用默认流程
+                            generateReportWithData();
+                        }
+                    }
+                });
+            } else {
+                // 非微信小程序环境，使用本地token或默认流程
+                const localToken = localStorage.getItem('aesthetic_token');
+                generateReportWithData(localToken);
+            }
+        }
+        
+        // 使用数据生成报告
+        function generateReportWithData(token) {
             // 收集表单数据
             const formData = {
                     name: document.getElementById('name-input').value,
@@ -1988,7 +2029,7 @@
             //   return;
             //}
             // 提交数据到服务器
-            submitToServer(formData);
+            submitToServer(formData, token);
 
             document.getElementById('step4-page').classList.remove('active');
             document.getElementById('report-page').classList.add('active');
@@ -2054,91 +2095,10 @@
                 adjectiveList.appendChild(adjectiveTag);
             });
 
-            // 更新形容词分析文本
-            /*let styleAnalysisText = '您偏好';
-            const adjectiveArray = Array.from(selectedAdjectives);
-            if (adjectiveArray.length > 0) {
-                styleAnalysisText += adjectiveArray.slice(0, -1).join('、');
-                if (adjectiveArray.length > 1) {
-                    styleAnalysisText += '和' + adjectiveArray[adjectiveArray.length - 1];
-                } else {
-                    styleAnalysisText += adjectiveArray[0];
-                }
-                styleAnalysisText += '的风格。这反映出您是一个具有独特审美品味的人。';
-            } else {
-                styleAnalysisText = '您尚未选择任何风格偏好。';
-            }
-            document.querySelector('.style-analysis + .analysis-text').textContent = styleAnalysisText;*/
-
             // 更新报告中的图片展示
             const visualAnalysis = document.querySelector('.visual-analysis .selected-images');
             visualAnalysis.innerHTML = '';
             
-            // 添加选中的图片到报告中
-            /*selectedImages.forEach((image) => {
-                const imagePreview = document.createElement('div');
-                imagePreview.className = 'image-preview';
-                imagePreview.innerHTML = `
-                    <img src="${image.url}" alt="${image.categoryName}">
-                    <div class="image-label">${image.categoryName}选择</div>
-                `;
-                visualAnalysis.appendChild(imagePreview);
-            });*/
-
-            // 更新审美测试总结
-            /*const summaryPoints = document.querySelector('.summary-points');
-            summaryPoints.innerHTML = '';
-
-            // 根据颜色偏好生成总结点
-            if (likedColors.size > 0) {
-                const colorPoint = document.createElement('div');
-                colorPoint.className = 'point';
-                // 您偏好${Array.from(likedColors).map(color => getColorName(color)).join('、')}等颜色
-                colorPoint.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    抽屉图
-                `;
-                summaryPoints.appendChild(colorPoint);
-            }*/
-
-            // 根据形容词选择生成总结点
-            /*if (selectedAdjectives.size > 0) {
-                const stylePoint = document.createElement('div');
-                stylePoint.className = 'point';
-                // 您喜欢${Array.from(selectedAdjectives).join('、')}的风格
-                stylePoint.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    色彩
-                `;
-                summaryPoints.appendChild(stylePoint);
-            }*/
-
-            // 根据图片选择生成总结点
-            /*if (selectedImages.size > 0) {
-                const imagePoint = document.createElement('div');
-                imagePoint.className = 'point';
-                // 您选择了${Array.from(selectedImages.values()).map(img => img.categoryName).join('、')}等类别的图片
-                imagePoint.innerHTML = `
-                    <i class="fas fa-check-circle"></i>
-                    形容词
-                `;
-                summaryPoints.appendChild(imagePoint);
-            }*/
-
-            // 更新总结分析文本
-            /*let summaryText = '综合来看，';
-            if (selectedAdjectives.size > 0) {
-                summaryText += `您的审美偏好呈现出${Array.from(selectedAdjectives).join('、')}的特点。`;
-            }
-            if (likedColors.size > 0) {
-                summaryText += `您偏好${Array.from(likedColors).map(color => getColorName(color)).join('、')}等颜色。`;
-            }
-            if (selectedImages.size > 0) {
-                summaryText += `在图片选择上，您倾向于${Array.from(selectedImages.values()).map(img => img.categoryName).join('、')}等风格。`;
-            }
-            summaryText += '这些选择反映出您独特的审美品味和个性特征。';
-            
-            document.querySelector('.summary-analysis .analysis-text').textContent = summaryText;*/
 
             // 延迟初始化3D动画，确保DOM已完全加载
             setTimeout(() => {
@@ -2197,9 +2157,9 @@
         }
 
         // 提交数据到服务器
-        async function submitToServer(formData) {
+        async function submitToServer(formData, providedToken) {
             // 获取token，如果没有则请求登录
-            let token = localStorage.getItem('aesthetic_token');
+            let token = providedToken || localStorage.getItem('aesthetic_token');
             if (!token) {
                 await handleLogin();
                 token = localStorage.getItem('aesthetic_token');
@@ -2219,7 +2179,7 @@
                 const result = await response.json();
                 if (result.code === 0) {
                     console.log('数据提交成功');
-                    //alert('审美数据已成功提交至服务器！');
+                    showToast('报告生成成功');
                     // 更新报告中的图片展示
                     const visualAnalysis = document.querySelector('.visual-analysis');
                     visualAnalysis.innerHTML = '';
@@ -2255,19 +2215,30 @@
                         `;
                         commentPoints.appendChild(commentPoint);
                     }
+                    
+                    // 如果在微信小程序中，可以保存报告ID到小程序存储
+                    if (window.wx && window.wx.miniProgram && result.data.report_id) {
+                        wx.miniProgram.postMessage({
+                            data: {
+                                type: 'reportGenerated',
+                                reportId: result.data.report_id
+                            }
+                        });
+                    }
                 } else if (result.code === 401) {
                     // token过期或无效，需要重新登录
                     localStorage.removeItem('aesthetic_token');
+                    showToast('登录已过期，请重新登录');
                     await handleLogin();
                     // 重新尝试提交
                     await submitToServer(formData);
                 } else {
                     console.error('提交失败:', result.message);
-                    alert('提交失败: ' + result.message);
+                    showToast('提交失败: ' + result.message);
                 }
             } catch (error) {
                 console.error('提交请求错误:', error);
-                alert('提交数据时发生错误，请检查网络连接后重试');
+                showToast('提交数据时发生错误，请检查网络连接后重试');
             }
         }
 
@@ -2384,8 +2355,24 @@
 
         // 分享报告
         function shareReport() {
-            alert('分享功能开发中');
+            if (window.wx && window.wx.miniProgram) {
+                // 在微信小程序中，通知小程序进行分享
+                wx.miniProgram.postMessage({
+                    data: {
+                        type: 'shareReport'
+                    }
+                });
+            } else {
+                // 在浏览器中，显示分享提示
+                showToast('分享功能开发中');
+            }
         }
+        
+        // 继续测试按钮点击事件
+        document.getElementById('continue-test-btn').addEventListener('click', function() {
+            // 直接刷新当前页面
+            window.location.reload();
+        });
 
         // 图片数据
         {{ .image_string }}
