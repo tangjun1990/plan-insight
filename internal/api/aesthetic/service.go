@@ -115,6 +115,7 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			// 新用户，创建用户记录
 			user = User{
+				Name:           "PLAN用户" + getRandomString(6),
 				Phone:          phoneNumber,
 				WxOpenID:       openID,
 				Status:         1, // 正常状态
@@ -189,6 +190,16 @@ func (s *Service) GetUserByID(userID uint) (*User, error) {
 		return nil, result.Error
 	}
 	return &user, nil
+}
+
+func getRandomString(length int) string {
+	rand.Seed(time.Now().UnixNano())
+	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	result := make([]byte, length)
+	for i := 0; i < length; i++ {
+		result[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(result)
 }
 
 // UpdateUserInfo 更新用户信息
