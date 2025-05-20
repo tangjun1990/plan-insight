@@ -1,6 +1,9 @@
 package aesthetic
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -38,6 +41,15 @@ func NewService(db *gorm.DB) *Service {
 
 // ======== 微信小程序用户相关 ========
 
+// WxAuthRequest 微信小程序用户鉴权请求
+type WxAuthRequest struct {
+	Code          string `json:"code"`          // 微信登录code
+	Phone         string `json:"phone"`         // 手机号（网页版使用）
+	CloudID       string `json:"cloudID"`       // 手机号CloudID
+	EncryptedData string `json:"encryptedData"` // 加密数据
+	IV            string `json:"iv"`            // 加密算法的初始向量
+}
+
 // WxAuth 微信小程序用户鉴权
 func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 	openID := ""
@@ -54,12 +66,41 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 		}
 
 		openID = wxResp.OpenID
-		phoneNumber = wxResp.PhoneInfo.PhoneNumber
+
+		// 如果提供了加密数据和IV，则尝试解密手机号
+		if req.EncryptedData != "" && req.IV != "" {
+			phoneInfo, err := s.decryptWxData(wxResp.SessionKey, req.EncryptedData, req.IV)
+			if err == nil && phoneInfo.PhoneNumber != "" {
+				phoneNumber = phoneInfo.PhoneNumber
+				fmt.Println("从加密数据中解析手机号成功:", phoneNumber)
+			} else {
+				fmt.Println("解密手机号失败:", err)
+			}
+		}
+
+		// 如果通过CloudID获取手机号
+		if phoneNumber == "" && req.CloudID != "" {
+			cloudPhoneInfo, err := s.getPhoneNumberByCloudID(req.CloudID)
+			if err == nil && cloudPhoneInfo.PhoneNumber != "" {
+				phoneNumber = cloudPhoneInfo.PhoneNumber
+				fmt.Println("从CloudID获取手机号成功:", phoneNumber)
+			} else {
+				fmt.Println("从CloudID获取手机号失败:", err)
+			}
+		}
+
+		fmt.Println("debugggggg---phoneNumber:", phoneNumber)
+		fmt.Println("debug------openID:", openID)
 	}
 
 	// 如果请求中提供了手机号，优先使用请求中的手机号
 	if req.Phone != "" {
 		phoneNumber = req.Phone
+	}
+
+	// 如果仍然没有获取到手机号，返回错误
+	if phoneNumber == "" {
+		return nil, fmt.Errorf("无法获取用户手机号")
 	}
 
 	// 根据手机号查询用户
@@ -1113,8 +1154,28 @@ func (s *Service) GetUserAestheticDataList(userID uint, page, pageSize int) (*Pa
 		return nil, err
 	}
 
+	result := make([]*AestheticDataRsp, 0)
+	for k, v := range list {
+		list[k].ColorImageURL = getColorImageURL(v.ColorImageURL)
+		list[k].BoxImageURL = getBoxImageURL(v.BoxImageURL)
+
+		tmplikedcolors := make([]int, 0)
+		for _, vv := range strings.Split(v.LikedColors, ",") {
+			tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
+		}
+		tmpadjectives := make([]string, 0)
+		for _, vv := range strings.Split(v.LikedAdjectives, ",") {
+			tmpadjectives = append(tmpadjectives, vv)
+		}
+		comments := mapComment(tmplikedcolors, tmpadjectives)
+		result = append(result, &AestheticDataRsp{
+			AestheticData: list[k],
+			Comment:       comments,
+		})
+	}
+
 	return &PageResponse{
-		List:     list,
+		List:     result,
 		Total:    total,
 		Page:     page,
 		PageSize: pageSize,
@@ -1122,13 +1183,23 @@ func (s *Service) GetUserAestheticDataList(userID uint, page, pageSize int) (*Pa
 }
 
 // GetAestheticDataDetail 获取审美数据详情
-func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticData, error) {
+func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, error) {
 	var data AestheticData
 	if err := s.db.Where("id = ? AND user_id = ?", id, userID).First(&data).Error; err != nil {
 		return nil, err
 	}
+	data.ColorImageURL = getColorImageURL(data.ColorImageURL)
+	data.BoxImageURL = getBoxImageURL(data.BoxImageURL)
 
-	return &data, nil
+	tmplikedcolors := make([]int, 0)
+	json.Unmarshal([]byte(data.LikedColors), &tmplikedcolors)
+	tmpadjectives := make([]string, 0)
+	json.Unmarshal([]byte(data.LikedAdjectives), &tmpadjectives)
+
+	return &AestheticDataRsp{
+		AestheticData: data,
+		Comment:       mapComment(tmplikedcolors, tmpadjectives),
+	}, nil
 }
 
 // ======== 管理员相关 ========
@@ -1580,6 +1651,84 @@ type WxAPIResponse struct {
 	} `json:"phone_info"`
 }
 
+// PhoneInfo 手机号信息
+type PhoneInfo struct {
+	PhoneNumber     string `json:"phoneNumber"`
+	PurePhoneNumber string `json:"purePhoneNumber"`
+	CountryCode     string `json:"countryCode"`
+	Watermark       struct {
+		AppID     string `json:"appid"`
+		Timestamp int64  `json:"timestamp"`
+	} `json:"watermark"`
+}
+
+// 解密微信加密数据
+func (s *Service) decryptWxData(sessionKey, encryptedData, iv string) (*PhoneInfo, error) {
+	// 解码sessionKey
+	aesKey, err := base64.StdEncoding.DecodeString(sessionKey)
+	if err != nil {
+		return nil, fmt.Errorf("解码sessionKey失败: %w", err)
+	}
+
+	// 解码加密数据
+	ciphertext, err := base64.StdEncoding.DecodeString(encryptedData)
+	if err != nil {
+		return nil, fmt.Errorf("解码encryptedData失败: %w", err)
+	}
+
+	// 解码初始向量
+	ivBytes, err := base64.StdEncoding.DecodeString(iv)
+	if err != nil {
+		return nil, fmt.Errorf("解码iv失败: %w", err)
+	}
+
+	// 创建解密器
+	block, err := aes.NewCipher(aesKey)
+	if err != nil {
+		return nil, fmt.Errorf("创建解密器失败: %w", err)
+	}
+
+	// 使用CBC模式解密
+	mode := cipher.NewCBCDecrypter(block, ivBytes)
+	plaintext := make([]byte, len(ciphertext))
+	mode.CryptBlocks(plaintext, ciphertext)
+
+	// 去除PKCS#7填充
+	plaintext = s.pkcs7Unpad(plaintext)
+
+	// 解析JSON
+	var phoneInfo PhoneInfo
+	if err := json.Unmarshal(plaintext, &phoneInfo); err != nil {
+		return nil, fmt.Errorf("解析手机号信息失败: %w", err)
+	}
+
+	return &phoneInfo, nil
+}
+
+// PKCS#7解填充
+func (s *Service) pkcs7Unpad(data []byte) []byte {
+	length := len(data)
+	if length == 0 {
+		return nil
+	}
+
+	padding := int(data[length-1])
+	if padding > length {
+		return data
+	}
+
+	return data[:length-padding]
+}
+
+// 通过CloudID获取手机号
+func (s *Service) getPhoneNumberByCloudID(cloudID string) (*PhoneInfo, error) {
+	// 这里实现通过CloudID获取手机号的逻辑
+	// 可能需要调用微信云开发的API或者自己的云函数
+
+	// 示例实现，实际项目中需要替换为真实的实现
+	return nil, fmt.Errorf("未实现CloudID获取手机号的功能")
+}
+
 // getWxOpenIDAndPhoneNumber 调用微信API获取OpenID和手机号
 func (s *Service) getWxOpenIDAndPhoneNumber(code string) (*WxAPIResponse, error) {
 	// 从配置中获取小程序AppID和AppSecret
@@ -1606,6 +1755,7 @@ func (s *Service) getWxOpenIDAndPhoneNumber(code string) (*WxAPIResponse, error)
 	}
 
 	var wxResp WxAPIResponse
+	fmt.Println("微信API响应: ", string(body))
 	if err := json.Unmarshal(body, &wxResp); err != nil {
 		return nil, fmt.Errorf("解析微信API响应失败: %w", err)
 	}

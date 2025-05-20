@@ -17,14 +17,6 @@ type PageResponse struct {
 
 // ======== 微信小程序用户相关 ========
 
-// 微信小程序鉴权请求
-type WxAuthRequest struct {
-	Code          string `json:"code" binding:"required"` // 微信小程序临时登录凭证
-	EncryptedData string `json:"encryptedData"`           // 包括敏感数据在内的完整用户信息的加密数据
-	IV            string `json:"iv"`                      // 加密算法的初始向量
-	Phone         string `json:"phone"`                   // 手机号码
-}
-
 // 微信小程序鉴权响应
 type WxAuthResponse struct {
 	Token     string      `json:"token"`               // 用户token

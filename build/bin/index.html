@@ -1977,42 +1977,52 @@
         // 生成报告
         function generateReport() {
             // 显示加载中提示
-            showToast('正在生成报告...');
+            showToast('正在生成报告，请稍候...');
             
-            // 尝试从微信小程序获取token
-            if (window.wx && window.wx.miniProgram) {
-                wx.miniProgram.getStorage({
-                    key: 'token',
-                    success: function(res) {
-                        // 获取token成功
-                        const token = res.data;
-                        console.log('获取到微信小程序token:', token);
-                        
-                        // 使用token调用生成报告接口
-                        generateReportWithData(token);
-                    },
-                    fail: function(err) {
-                        console.error('获取token失败:', err);
-                        // 尝试使用本地存储的token
-                        const localToken = localStorage.getItem('aesthetic_token');
-                        if (localToken) {
-                            generateReportWithData(localToken);
-                        } else {
-                            showToast('请先登录后再生成报告');
-                            // 可以选择跳转到登录页面或使用默认流程
-                            generateReportWithData();
-                        }
+            // 检查是否在小程序环境中
+            if (window.__wxjs_environment === 'miniprogram' && window.wx && window.wx.miniProgram) {
+                console.info('在小程序环境中生成报告');
+                generateReportWithData('user_token_1747535367_1747535367384149000');
+                
+                // 设置token回调函数
+                /*window.tokenCallback = function(token) {
+                    console.info('通过回调获取到token，继续生成报告');
+                    generateReportWithData(token);
+                };
+                
+                // 向小程序请求token
+                wx.miniProgram.postMessage({
+                    data: {
+                        type: 'getToken',
+                        message: '请求获取token'
                     }
-                });
+                });*/
+                console.info('已向小程序发送getToken请求');
             } else {
+                console.info('当前环境非微信小程序');
                 // 非微信小程序环境，使用本地token或默认流程
                 const localToken = localStorage.getItem('aesthetic_token');
-                generateReportWithData(localToken);
+                if (localToken) {
+                    console.log('使用本地token:', localToken);
+                    generateReportWithData(localToken);
+                } else {
+                    showToast('请先登录后再生成报告');
+                    // 可以选择跳转到登录页面或使用默认流程
+                    handleLogin().then(() => {
+                        const newToken = localStorage.getItem('aesthetic_token');
+                        if (newToken) {
+                            generateReportWithData(newToken);
+                        } else {
+                            generateReportWithData();
+                        }
+                    });
+                }
             }
         }
         
         // 使用数据生成报告
         function generateReportWithData(token) {
+            console.info('generateReportWithData-使用token:', token);
             // 收集表单数据
             const formData = {
                     name: document.getElementById('name-input').value,
