@@ -1963,6 +1963,13 @@
             });
         }
 
+        // 网页端获取token的代码
+        function getTokenFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            return token;
+        }
+
         // 生成报告
         function generateReport() {
             // 显示加载中提示
@@ -1971,22 +1978,9 @@
             // 检查是否在小程序环境中
             if (window.__wxjs_environment === 'miniprogram' && window.wx && window.wx.miniProgram) {
                 console.info('在小程序环境中生成报告');
-                generateReportWithData('user_token_1747535367_1747535367384149000');
-                
-                // 设置token回调函数
-                /*window.tokenCallback = function(token) {
-                    console.info('通过回调获取到token，继续生成报告');
-                    generateReportWithData(token);
-                };
-                
-                // 向小程序请求token
-                wx.miniProgram.postMessage({
-                    data: {
-                        type: 'getToken',
-                        message: '请求获取token'
-                    }
-                });*/
-                console.info('已向小程序发送getToken请求');
+                const token = getTokenFromUrl();                
+                generateReportWithData(token);
+
             } else {
                 console.info('当前环境非微信小程序');
                 // 非微信小程序环境，使用本地token或默认流程
