@@ -182,9 +182,9 @@
 
         .color-item {
             position: absolute;
-            width: 28px;        /* 减小颜色块尺寸 */
-            height: 28px;       /* 减小颜色块尺寸 */
-            border-radius: 6px; /* 适当减小圆角 */
+            width: 38px;        /* 修改：颜色块尺寸设为38px */
+            height: 38px;       /* 修改：颜色块尺寸设为38px */
+            border-radius: 0;   /* 修改：去掉圆角 */
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.3s;
@@ -603,7 +603,7 @@
         .color-selection-mode {
             display: flex;
             position: sticky;
-            top: 60px;
+            top: 1px;
             z-index: 50;
             width: 100%;
             background: rgba(255, 255, 255, 0.95);
@@ -665,14 +665,13 @@
             height: auto;
             min-height: 250px;  /* 减小最小高度 */
             padding: 10px;      /* 减小内边距 */
-            background: #f7f7f7;
         }
 
         .color-item {
             position: absolute;
-            width: 28px;        /* 减小颜色块尺寸 */
-            height: 28px;       /* 减小颜色块尺寸 */
-            border-radius: 6px; /* 适当减小圆角 */
+            width: 38px;        /* 修改：颜色块尺寸设为38px */
+            height: 38px;       /* 修改：颜色块尺寸设为38px */
+            border-radius: 0;   /* 修改：去掉圆角 */
             cursor: pointer;
             border: 2px solid transparent;
             transition: all 0.3s;
@@ -1034,7 +1033,7 @@
         <!-- 步骤2：颜色选择 -->
         <div class="page" id="step2-page">
             <div class="page-title">第二步：选择颜色偏好</div>
-            <div class="page-subtitle">左键选择您喜欢的颜色（最多10种），右键选择您讨厌的颜色（最多5种）</div>
+            <div class="page-subtitle">选择您喜欢的颜色（最多10种），选择您讨厌的颜色（最多5种）</div>
             
             <!-- 颜色选择区域 -->
             <div class="color-selection-area">
@@ -1528,7 +1527,7 @@
                 
                 // 闪烁动画 - 简单的透明度变化
                 setInterval(() => {
-                    item.style.opacity = '0.7';
+                    item.style.opacity = '1';
                     setTimeout(() => {
                         item.style.opacity = '1';
                     }, 300);
@@ -1644,8 +1643,8 @@
                 positions.push({ x, y, radius });
                 
                 // 设置项的大小
-                item.style.width = `${size}px`;
-                item.style.height = `${size}px`;
+                //item.style.width = `${size}px`;
+                //item.style.height = `${size}px`;
                 
                 // 添加更大的随机旋转效果，20-40度
                 const randomRotate = 20 + Math.random() * 20; // 20-40度旋转
@@ -1757,8 +1756,8 @@
                 positions.push({ x, y, radius });
                 
                 // 设置项的大小
-                item.style.width = `${size}px`;
-                item.style.height = `${size}px`;
+                //item.style.width = `${size}px`;
+                //item.style.height = `${size}px`;
                 
                 // 添加更大的随机旋转效果，20-40度
                 const randomRotate = 20 + Math.random() * 20; // 20-40度旋转
