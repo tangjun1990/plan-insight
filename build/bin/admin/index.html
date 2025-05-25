@@ -6,6 +6,9 @@
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         /* 样式部分保持不变 */
+        body {
+            font-family: "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
+        }
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -1044,7 +1047,7 @@
             };
             
             // 加载中国地图数据
-            fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+            fetch('/admin/areas_full')
                 .then(response => response.json())
                 .then(geoJson => {
                     echarts.registerMap('china', geoJson);

@@ -1,0 +1,6 @@
+# 忽略build/bin目录下的server可执行文件
+build/bin/server
+
+# 忽略build/bin目录下的图片目录
+build/bin/boximg/
+build/bin/colorimg/

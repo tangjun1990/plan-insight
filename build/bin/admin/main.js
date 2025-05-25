@@ -414,7 +414,7 @@ function renderRegionMap() {
     };
 
     // 加载中国地图数据
-    fetch('https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json')
+    fetch('/admin/areas_full')
         .then(response => response.json())
         .then(geoJson => {
             echarts.registerMap('china', geoJson);
