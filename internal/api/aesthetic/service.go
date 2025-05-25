@@ -157,6 +157,7 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 		UserInfo: map[string]interface{}{
 			"id":    user.ID,
 			"phone": phoneNumber,
+			"name":  user.Name,
 		},
 	}, nil
 }
