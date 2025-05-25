@@ -2,6 +2,8 @@
 serviceName = "insight-server"
 environment = "local"
 host = "https://plan-living.com"
+wxappid = "wxef0626f813827ec5"
+wxappsecret = "29f05077d951de77e2284e90b54b918f"
 
 [server.http]
 host = "0.0.0.0"
