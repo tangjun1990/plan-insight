@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>审美测试</title>
+    <title></title>
     <!-- 引入微信JS-SDK -->
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <style>
@@ -1079,7 +1079,7 @@
         <!-- 步骤3：形容词选择 -->
         <div class="page" id="step3-page">
             <div class="page-title">第三步：选择风格偏好</div>
-            <div class="page-subtitle">请选择您喜欢的形容词（最多10个）</div>
+            <div class="page-subtitle">请选择您喜欢的形容词（最多5个）</div>
             <div class="adjective-list">
                 {{range $i, $v := .word_map}}
                 <div class="adjective-item" data-name="{{$v}}">{{$v}}</div>
@@ -2499,11 +2499,11 @@
                 if (selectedAdjectives.has(name)) {
                     selectedAdjectives.delete(name);
                     item.classList.remove('selected');
-                } else if (selectedAdjectives.size < 10) {
+                } else if (selectedAdjectives.size < 5) {
                     selectedAdjectives.add(name);
                     item.classList.add('selected');
                 } else {
-                    alert('最多只能选择10个形容词');
+                    alert('最多只能选择5个形容词');
                 }
             });
         });
