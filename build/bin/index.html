@@ -1039,11 +1039,11 @@
             <div class="color-selection-area">
                 <div class="color-selection-mode">
                     <button class="mode-btn like-mode active" id="likeMode">
-                        <span class="mode-icon">👍</span>
+                        <span class="mode-icon">☑️</span>
                         <span class="mode-text">选择喜欢的颜色</span>
                     </button>
                     <button class="mode-btn dislike-mode" id="dislikeMode">
-                        <span class="mode-icon">👎</span>
+                        <span class="mode-icon">✖️</span>
                         <span class="mode-text">选择讨厌的颜色</span>
                     </button>
                 </div>
@@ -1249,7 +1249,7 @@
 
                 <div class="report-actions">
                     <button id="continue-test-btn" class="btn btn-secondary">继续测试</button>
-                    <button id="share-report-btn" class="btn btn-primary">分享报告</button>
+                    <button id="share-report-btn" class="btn btn-primary">查看历史</button>
                 </div>
             </div>
         </div>
@@ -2361,11 +2361,32 @@
                 showToast('分享功能开发中');
             }
         }
-        
+
         // 继续测试按钮点击事件
         document.getElementById('continue-test-btn').addEventListener('click', function() {
             // 直接刷新当前页面
             window.location.reload();
+        });
+
+        // 添加查看历史按钮点击事件
+        document.getElementById('share-report-btn').addEventListener('click', function() {
+            // 检查是否在小程序环境中
+            if (window.__wxjs_environment === 'miniprogram' && window.wx && window.wx.miniProgram) {
+                // 跳转到小程序的"我的报告"页面
+                wx.miniProgram.navigateTo({
+                    url: '/pages/report-list/report-list',
+                    success: function() {
+                        console.log('跳转到我的报告页面成功');
+                    },
+                    fail: function(err) {
+                        console.error('跳转到我的报告页面失败', err);
+                        showToast('跳转失败，请重试');
+                    }
+                });
+            } else {
+                // 非小程序环境，显示提示
+                showToast('请在微信小程序中查看历史报告');
+            }
         });
 
         // 图片数据
