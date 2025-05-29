@@ -2210,14 +2210,29 @@
                         commentPoints.appendChild(commentPoint);
                     }
                     
-                    // 如果在微信小程序中，可以保存报告ID到小程序存储
-                    if (window.wx && window.wx.miniProgram && result.data.report_id) {
+                    // 如果在微信小程序中，跳转到报告详情页
+                    if (window.__wxjs_environment === 'miniprogram' && window.wx && window.wx.miniProgram && result.data.id) {
+                        // 先发送消息保存报告ID
                         wx.miniProgram.postMessage({
                             data: {
                                 type: 'reportGenerated',
-                                reportId: result.data.report_id
+                                reportId: result.data.id
                             }
                         });
+                        
+                        // 延迟一下确保消息发送完成，然后跳转到报告详情页
+                        setTimeout(() => {
+                            wx.miniProgram.navigateTo({
+                                url: `/pages/report/report?reportId=${result.data.id}`,
+                                success: function() {
+                                    console.log('跳转到报告详情页成功');
+                                },
+                                fail: function(err) {
+                                    console.error('跳转到报告详情页失败', err);
+                                    showToast('跳转失败，请重试');
+                                }
+                            });
+                        }, 500);
                     }
                 } else if (result.code === 401) {
                     // token过期或无效，需要重新登录
