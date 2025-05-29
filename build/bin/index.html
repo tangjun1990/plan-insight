@@ -1485,13 +1485,13 @@
                     likedColors.delete(color);
                     item.classList.remove('selected-like');
                 } else if (dislikedColors.has(color)) {
-                    alert('该颜色已被选为讨厌的颜色');
+                    showToast('该颜色已被选为讨厌的颜色');
                 } else if (likedColors.size < 10) {
                     // 存储颜色值和名称
                     likedColors.add(color);
                     item.classList.add('selected-like');
                 } else {
-                    alert('最多只能选择10种喜欢的颜色');
+                    showToast('最多只能选择10种喜欢的颜色');
                 }
             } else {
                 // 讨厌模式
@@ -1499,13 +1499,13 @@
                     dislikedColors.delete(color);
                     item.classList.remove('selected-dislike');
                 } else if (likedColors.has(color)) {
-                    alert('该颜色已被选为喜欢的颜色');
+                    showToast('该颜色已被选为喜欢的颜色');
                 } else if (dislikedColors.size < 5) {
                     // 存储颜色值和名称
                     dislikedColors.add(color);
                     item.classList.add('selected-dislike');
                 } else {
-                    alert('最多只能选择5种讨厌的颜色');
+                    showToast('最多只能选择5种讨厌的颜色');
                 }
             }
             
@@ -2103,47 +2103,47 @@
         // 验证表单数据
         function validateFormData(data) {
             if (!data.name) {
-                alert('请输入姓名');
+                showToast('请输入姓名');
                 return false;
             }
             
             if (!data.gender) {
-                alert('请选择性别');
+                showToast('请选择性别');
                 return false;
             }
             
             if (!data.age || data.age < 1 || data.age > 120) {
-                alert('请输入有效的年龄(1-120)');
+                showToast('请输入有效的年龄(1-120)');
                 return false;
             }
             
             if (!data.city) {
-                alert('请输入所在城市');
+                showToast('请输入所在城市');
                 return false;
             }
             
             if (!data.phone) {
-                alert('请输入手机号码');
+                showToast('请输入手机号码');
                 return false;
             }
             
             if (!data.liked_colors || data.liked_colors.length < 1) {
-                alert('请至少选择1个喜欢的颜色');
+                showToast('请至少选择1个喜欢的颜色');
                 return false;
             }
             
             if (!data.disliked_colors || data.disliked_colors.length < 1) {
-                alert('请至少选择1个讨厌的颜色');
+                showToast('请至少选择1个讨厌的颜色');
                 return false;
             }
             
             if (!data.liked_adjectives || data.liked_adjectives.length < 1) {
-                alert('请至少选择1个喜欢的形容词');
+                showToast('请至少选择1个喜欢的形容词');
                 return false;
             }
             
             if (!data.liked_images || data.liked_images.length < 1) {
-                alert('请至少选择1张喜欢的图片');
+                showToast('请至少选择1张喜欢的图片');
                 return false;
             }
             
@@ -2344,7 +2344,7 @@
 
         // 保存报告
         function saveReport() {
-            alert('报告已保存');
+            showToast('报告已保存');
         }
 
         // 分享报告
@@ -2503,7 +2503,7 @@
                     selectedAdjectives.add(name);
                     item.classList.add('selected');
                 } else {
-                    alert('最多只能选择5个形容词');
+                    showToast('最多只能选择5个形容词');
                 }
             });
         });

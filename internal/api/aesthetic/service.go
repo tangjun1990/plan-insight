@@ -1082,7 +1082,7 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 	tempDir := "./"
 
 	// 输入图片路径 (实际使用时请替换为实际图片路径)
-	inputPath := filepath.Join(tempDir, "colorbase.png")
+	inputPath := filepath.Join(tempDir, "colorbase-3.jpg")
 
 	// 输出图片路径
 	outputPath := filepath.Join(tempDir, fmt.Sprintf("colorimg/output_%d_%d.jpg", time.Now().UnixNano(), rand.Intn(1000)+9000))
@@ -1094,10 +1094,10 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 		xstep := ((v - 1) % 10)
 		ystep := (v - 1) / 10
 		// 设置矩形参数
-		x := 285 + xstep*79 // 矩形左上角x坐标
-		y := 268 + ystep*78 // 矩形左上角y坐标
-		width := 79         // 矩形宽度
-		height := 78        // 矩形高度
+		x := 210 + xstep*87 // 矩形左上角x坐标
+		y := 306 + ystep*88 // 矩形左上角y坐标
+		width := 88         // 矩形宽度
+		height := 88        // 矩形高度
 		r, g, b := numToRGB(v)
 		if ystep >= 12 {
 			y = y + 15
@@ -1120,9 +1120,9 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 		xstep := ((v - 1) % 10)
 		ystep := (v - 1) / 10
 		// 设置矩形参数
-		x := 285 + xstep*79 // 矩形左上角x坐标
-		y := 268 + ystep*78 // 矩形左上角y坐标
-		width := 79         // 三角形宽度
+		x := 210 + xstep*87 // 矩形左上角x坐标
+		y := 306 + ystep*88 // 矩形左上角y坐标
+		width := 88         // 三角形宽度
 		r, g, b := numToRGB(v)
 		if ystep >= 12 {
 			y = y + 15
