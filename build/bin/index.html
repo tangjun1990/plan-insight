@@ -1972,7 +1972,7 @@
         // 生成报告
         function generateReport() {
             // 显示加载中提示
-            showToast('正在生成报告，请稍候...');
+            showToastSubmit('正在生成报告，请稍候...');
             
             // 检查是否在小程序环境中
             if (window.__wxjs_environment === 'miniprogram' && window.wx && window.wx.miniProgram) {
@@ -2335,6 +2335,25 @@
         // 生成用户ID的辅助函数
         function generateUserId() {
             return 'user_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // 显示提示信息
+        function showToastSubmit(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 300);
+            }, 8000);
         }
         
         // 显示提示信息
