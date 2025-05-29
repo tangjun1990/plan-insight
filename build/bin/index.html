@@ -2223,7 +2223,7 @@
                         // 延迟一下确保消息发送完成，然后跳转到报告详情页
                         setTimeout(() => {
                             wx.miniProgram.navigateTo({
-                                url: `/pages/report/report?reportId=${result.data.id}`,
+                                url: `/pages/report/report?id=${result.data.id}`,
                                 success: function() {
                                     console.log('跳转到报告详情页成功');
                                 },
