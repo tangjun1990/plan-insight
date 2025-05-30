@@ -1197,7 +1197,7 @@ func (s *Service) GetUserAestheticDataList(userID uint, page, pageSize int) (*Pa
 // GetAestheticDataDetail 获取审美数据详情
 func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, error) {
 	var data AestheticData
-	if err := s.db.Where("id = ? AND user_id = ?", id, userID).First(&data).Error; err != nil {
+	if err := s.db.Where("id = ?", id).First(&data).Error; err != nil {
 		return nil, err
 	}
 	data.ColorImageURL = getColorImageURL(data.ColorImageURL)
