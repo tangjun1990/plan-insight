@@ -234,12 +234,12 @@ func drawImageToBox() {
 			curY := startY + 220
 			r, g, b := aesthetic.NumToRGB(col)
 			// 画喜欢的颜色，使用矩形
-			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 95, 93, r, g, b, outputPath)
+			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 50, 50, r, g, b, outputPath)
 			if err != nil {
 
 			}
 			// 如果是多个颜色，x增加100
-			startX = startX + 100
+			startX = startX + 50
 		}
 	}
 
@@ -273,15 +273,15 @@ func drawImageToBox() {
 		}
 		for _, col := range v {
 			// 画不喜欢的颜色，x不变，y增加320
-			curY := startY + 320
+			curY := startY + 270
 			r, g, b := aesthetic.NumToRGB(col)
 			// 画不喜欢的颜色，使用矩形
-			err := imagex.DrawCrossOnImage(outputPath, startX, curY, 95, 20, r, g, b, outputPath)
+			err := imagex.DrawCrossOnImage(outputPath, startX, curY, 50, 10, r, g, b, outputPath)
 			if err != nil {
 
 			}
 			// 如果是多个颜色，x增加95
-			startX = startX + 95
+			startX = startX + 50
 		}
 	}
 
