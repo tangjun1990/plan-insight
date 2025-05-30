@@ -2172,7 +2172,6 @@
                 const result = await response.json();
                 if (result.code === 0) {
                     console.log('数据提交成功');
-                    showToast('报告生成成功');
                     // 更新报告中的图片展示
                     const visualAnalysis = document.querySelector('.visual-analysis');
                     visualAnalysis.innerHTML = '';
