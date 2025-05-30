@@ -218,3 +218,120 @@ func drawTriangle(img *image.RGBA, x, y, size int, c color.Color) {
 	DrawLine(img, p2, p3, c)
 	DrawLine(img, p3, p1, c)
 }
+
+// DrawCrossOnImage 在图片上绘制❌符号
+// imagePath: 输入图片路径
+// x: ❌符号左上角x坐标
+// y: ❌符号左上角y坐标
+// size: ❌符号的大小（正方形边长）
+// thickness: ❌符号的粗度（线条宽度）
+// r,g,b: ❌符号颜色RGB值
+// outputPath: 输出图片路径，如果为空则覆盖原图片
+// 返回：错误信息
+func DrawCrossOnImage(imagePath string, x, y, size, thickness int, r, g, b uint8, outputPath string) error {
+	// 如果输出路径为空，则覆盖原图片
+	if outputPath == "" {
+		outputPath = imagePath
+	}
+
+	// 打开图片文件
+	file, err := os.Open(imagePath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	// 解码图片
+	var img image.Image
+	ext := strings.ToLower(filepath.Ext(imagePath))
+
+	if ext == ".png" {
+		img, err = png.Decode(file)
+	} else {
+		// 默认按JPEG处理
+		img, err = jpeg.Decode(file)
+	}
+	if err != nil {
+		return err
+	}
+
+	// 获取图片尺寸
+	bounds := img.Bounds()
+	imgWidth := bounds.Dx()
+	imgHeight := bounds.Dy()
+
+	// 创建一个RGBA图像用于绘制
+	rgba := image.NewRGBA(bounds)
+	draw.Draw(rgba, bounds, img, bounds.Min, draw.Src)
+
+	// 定义颜色
+	crossColor := color.RGBA{R: r, G: g, B: b, A: 255}
+
+	// 确保❌符号不超出图片边界
+	if x < 0 {
+		x = 0
+	}
+	if y < 0 {
+		y = 0
+	}
+	if x+size > imgWidth {
+		size = imgWidth - x
+	}
+	if y+size > imgHeight {
+		size = imgHeight - y
+	}
+
+	// 确保粗度不超过符号大小
+	if thickness <= 0 {
+		thickness = 1
+	}
+	if thickness > size/2 {
+		thickness = size / 2
+	}
+
+	// 绘制❌符号（两条交叉的粗线）
+	// 通过绘制多条平行线来实现粗度效果
+	for i := 0; i < thickness; i++ {
+		// 第一条线：从左上角到右下角的平行线
+		p1 := image.Point{X: x + i, Y: y}
+		p2 := image.Point{X: x + size, Y: y + size - i}
+		DrawLine(rgba, p1, p2, crossColor)
+
+		if i > 0 {
+			// 向另一个方向偏移，增加粗度
+			p1_alt := image.Point{X: x, Y: y + i}
+			p2_alt := image.Point{X: x + size - i, Y: y + size}
+			DrawLine(rgba, p1_alt, p2_alt, crossColor)
+		}
+
+		// 第二条线：从右上角到左下角的平行线
+		p3 := image.Point{X: x + size - i, Y: y}
+		p4 := image.Point{X: x, Y: y + size - i}
+		DrawLine(rgba, p3, p4, crossColor)
+
+		if i > 0 {
+			// 向另一个方向偏移，增加粗度
+			p3_alt := image.Point{X: x + size, Y: y + i}
+			p4_alt := image.Point{X: x + i, Y: y + size}
+			DrawLine(rgba, p3_alt, p4_alt, crossColor)
+		}
+	}
+
+	// 创建输出文件
+	outFile, err := os.Create(outputPath)
+	if err != nil {
+		return err
+	}
+	defer outFile.Close()
+
+	// 保存图片
+	ext = strings.ToLower(filepath.Ext(outputPath))
+	if ext == ".png" {
+		err = png.Encode(outFile, rgba)
+	} else {
+		// 默认保存为JPEG
+		err = jpeg.Encode(outFile, rgba, nil)
+	}
+
+	return err
+}

@@ -13,7 +13,7 @@ import (
 )
 
 func main() {
-	resizeImage("./colorbase-2.jpg", "./colorbase-3.jpg", 1110, 1770)
+	resizeImage("./boxbase-4.jpg", "./boxbase-5.jpg", 2200, 2760)
 }
 
 func main2() {
