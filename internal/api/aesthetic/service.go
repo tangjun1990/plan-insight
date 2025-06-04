@@ -108,7 +108,7 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 	result := s.db.Where("phone = ?", phoneNumber).First(&user)
 
 	now := time.Now()
-	tokenExpire := now.Add(24 * time.Hour * 7) // token有效期7天
+	tokenExpire := now.Add(24 * time.Hour * 30) // token有效期7天
 	token := fmt.Sprintf("user_token_%d_%d", time.Now().Unix(), time.Now().UnixNano())
 
 	if result.Error != nil {
