@@ -11,12 +11,24 @@ import (
 	"gorm.io/gorm"
 )
 
+// 添加跨域隔离中间件
+func CrossOriginIsolationMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// 设置跨域隔离的HTTP头
+		c.Header("Cross-Origin-Embedder-Policy", "require-corp")
+		c.Header("Cross-Origin-Opener-Policy", "same-origin")
+		c.Next()
+	}
+}
+
 // RegisterRouter 注册审美感知应用的API路由
 func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	// 创建服务和中间件实例
 	service := NewService(db)
 	controller := NewController(service)
 	authMiddleware := NewAuthMiddleware(service)
+
+	server.Use(CrossOriginIsolationMiddleware())
 
 	server.LoadHTMLGlob("./*.html")
 	server.Static("/img", "./insimg")
