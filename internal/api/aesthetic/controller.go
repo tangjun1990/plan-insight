@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"git.4321.sh/feige/flygo/core/kcfg"
 	"github.com/gin-gonic/gin"
 )
 
@@ -399,7 +400,7 @@ func (c *Controller) GetImageList(ctx *gin.Context) {
 		for _, subItem := range category.SubItems {
 			images = append(images, map[string]interface{}{
 				"id":           subItem.Name,
-				"url":          subItem.URL,
+				"url":          kcfg.GetString("app.global.host") + subItem.URL,
 				"categoryName": subItem.CategoryName,
 			})
 		}
