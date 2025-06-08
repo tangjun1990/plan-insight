@@ -380,3 +380,31 @@ func (c *Controller) GetUserInfo(ctx *gin.Context) {
 
 	c.ResponseSuccess(ctx, user)
 }
+
+// GetImageList 获取图片数据
+// @Summary 获取图片数据
+// @Description 获取所有类别的图片数据
+// @Tags 小程序
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "用户令牌"
+// @Success 200 {object} Response{data=map[string]interface{}} "成功响应"
+// @Router /api/aesthetic/images [get]
+func (c *Controller) GetImageList(ctx *gin.Context) {
+	indexImages := c.service.GetIndexImage()
+	imageData := make(map[string][]map[string]interface{})
+
+	for _, category := range indexImages {
+		images := make([]map[string]interface{}, 0)
+		for _, subItem := range category.SubItems {
+			images = append(images, map[string]interface{}{
+				"id":           subItem.Name,
+				"url":          subItem.URL,
+				"categoryName": subItem.CategoryName,
+			})
+		}
+		imageData[category.CategoryEnglishName] = images
+	}
+
+	c.ResponseSuccess(ctx, imageData)
+}
