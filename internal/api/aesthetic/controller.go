@@ -409,3 +409,13 @@ func (c *Controller) GetImageList(ctx *gin.Context) {
 
 	c.ResponseSuccess(ctx, imageData)
 }
+
+func (c *Controller) GetColorList(ctx *gin.Context) {
+	colors := c.service.GetIndexColor()
+	c.ResponseSuccess(ctx, colors)
+}
+
+func (c *Controller) GetWordList(ctx *gin.Context) {
+	words := c.service.GetIndexWord()
+	c.ResponseSuccess(ctx, words)
+}
