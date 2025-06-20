@@ -786,12 +786,21 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 
 	likedColorNum := make([]int, 0)
 	for _, v := range req.LikedColors {
-		likedColorNum = append(likedColorNum, rgbToNum(v))
+		if strings.Index(v, "#") == -1 {
+			likedColorNum = append(likedColorNum, cast.ToInt(v))
+		} else {
+			likedColorNum = append(likedColorNum, rgbToNum(v))
+		}
+
 	}
 
 	disLikedColorNum := make([]int, 0)
 	for _, v := range req.DislikedColors {
-		disLikedColorNum = append(disLikedColorNum, rgbToNum(v))
+		if strings.Index(v, "#") == -1 {
+			disLikedColorNum = append(disLikedColorNum, cast.ToInt(v))
+		} else {
+			disLikedColorNum = append(disLikedColorNum, rgbToNum(v))
+		}
 	}
 
 	// 序列化数组为JSON字符串
