@@ -87,6 +87,12 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
+			userGroup.GET("/colors", func(ctx *gin.Context) {
+				ctx.JSON(http.StatusOK, controller.service.GetIndexColor())
+			})
+			userGroup.GET("/words", func(ctx *gin.Context) {
+				ctx.JSON(http.StatusOK, controller.service.GetIndexWord())
+			})
 		}
 
 		// 用户信息相关接口
