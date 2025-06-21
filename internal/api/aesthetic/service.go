@@ -1363,6 +1363,14 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 			}
 		}
 	}
+	lifeImageDesc := make([]string, 0)
+	for _, v := range tmpLikedImages[0:4] {
+		lifeImageDesc = append(lifeImageDesc, getGlobalImageURL(v))
+	}
+	areaImageDesc := make([]string, 0)
+	for _, v := range tmpLikedImages[4:] {
+		areaImageDesc = append(areaImageDesc, getGlobalImageURL(v))
+	}
 
 	return &AestheticDataRsp{
 		AestheticData:      data,
@@ -1370,8 +1378,8 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		LikedColorDesc:     likedColorDesc,
 		DislikedColorDesc:  dislikedColorDesc,
 		LikedAdjectiveDesc: tmpadjectives,
-		LikedLifeImageDesc: tmpLikedImages[0:4],
-		LikedAreaImageDesc: tmpLikedImages[4:],
+		LikedLifeImageDesc: lifeImageDesc,
+		LikedAreaImageDesc: areaImageDesc,
 	}, nil
 }
 
