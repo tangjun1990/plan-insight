@@ -46,11 +46,25 @@ type AestheticData struct {
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
+type ColorDescItem struct {
+	Num   string   `json:"num"`
+	Name  string   `json:"name"`
+	Img   string   `json:"img"`
+	Words []string `json:"words"`
+	RGB   string   `json:"rgb"`
+}
+
 type AestheticDataRsp struct {
 	AestheticData
 	ColorExplorImage string   `json:"color_explor_image"`
 	BoxExplorImage   string   `json:"box_explor_image"`
 	Comment          []string `json:"comment"`
+
+	LikedColorDesc     []ColorDescItem `json:"liked_color_desc"`
+	DislikedColorDesc  []ColorDescItem `json:"disliked_color_desc"`
+	LikedAdjectiveDesc []string        `json:"liked_adjective_desc"`
+	LikedLifeImageDesc []string        `json:"liked_life_image_desc"`
+	LikedAreaImageDesc []string        `json:"liked_area_image_desc"`
 }
 
 // Admin 管理员模型

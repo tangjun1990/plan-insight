@@ -252,12 +252,13 @@ type colorItem struct {
 }
 
 type boxItem struct {
-	Num    int
-	name   string
-	StartX int
-	StartY int
-	Words  []string
-	Colors []int
+	Num     int
+	name    string
+	StartX  int
+	StartY  int
+	Words   []string
+	Colors  []int
+	Comment string
 }
 
 // 以下数据适用于2200*2760的base图片
@@ -269,6 +270,7 @@ var globalBox = []boxItem{
 		670,
 		[]string{"稚嫩的", "可爱的", "孩子气的", "伶俐的"},
 		[]int{2, 3, 21, 22, 30, 31, 23},
+		"“可爱” 是表现惹人怜爱、娇柔模样的主题。具有可爱特质的人喜欢柔和、甜美的氛围。若要运用能让人联想到 “可爱” 的设计元素，可活用色彩相关要素。以 RP（紫红色系 ）为中心，搭配 B（蓝色系 ）到 GY（灰绿色系 ），展现出柔和的形象。避免使用浊色调，采用女性化的浅色调进行配色，以表现柔和、甜美的氛围。通过这种配色，可营造出鲜明、可爱且充满活力的印象。",
 	},
 	{
 		2,
@@ -277,6 +279,7 @@ var globalBox = []boxItem{
 		1080,
 		[]string{"开朗的", "快乐的", "高兴的", "愉快的", "风趣的", "阳光的", "快活的", "活跃的", "有生气的", "闲适的", "朝气蓬勃的", "鲜艳的", "绚丽的", "轻松的", "自由自在的", "无忧无虑的", "有亲和力的", "开放的"},
 		[]int{1, 10, 11, 12},
+		"【闲适的】是一种融合了活泼、开放与亲切特质的氛围主题，呈现出轻松自在又不失温暖活力的整体印象。使用 GY（黄绿色系） - YR（橙色系） ，为营造沉稳感，避免过于明亮的色调，采用低调、柔和的色调配色。为营造沉稳感，避免过于明亮的色调，采用低调、柔和的色调配色，以 GY 或 YR 为中心，搭配白色和淡色，强化从容舒适感，加入暖色系，营造温暖舒适的氛围。材质选用自然纹理（亚麻、浅木），线条保留适度弧度，整体平衡「活力」与「松弛感」，达成闲适而不散漫、温暖而不甜腻的独特气质。",
 	},
 	{
 		3,
@@ -285,6 +288,7 @@ var globalBox = []boxItem{
 		1680,
 		[]string{"充满活力的", "悦动的", "进取的", "主动的", "大胆的", "刺激的", "热烈的", "激烈的", "强烈的", "动感的", "力动的", "精力旺盛的"},
 		[]int{0},
+		" “动感”是表现充满活力、积极跃动状态的主题，具有动感特质的人喜欢充满活力、积极的氛围。 若要运用能让人联想到“动感”的设计元素，颜色选用暖色系的R（红色系 ）到Y（黄色系 ）、G（绿色系 ），为突出力量感，避免使用沉闷色调，采用鲜艳色调来搭配色彩。为实现鲜艳色调的搭配，将黑色与代表黄色的红色搭配，再加入冷色系的PB（蓝色系 ），能进一步突出力量感，强调强度（表现强烈的意志能量 ），营造出充满动感活力的氛围。",
 	},
 	{
 		4,
@@ -293,6 +297,7 @@ var globalBox = []boxItem{
 		1680,
 		[]string{"娇媚的", "娇艳的", "华丽的", "性感的", "魅惑的", "富于装饰的", "丰满的", "丰润的", "豪华的", "成熟的", "奢华的", "充实的", "浓郁的"},
 		[]int{91, 92, 100},
+		"“豪华” 是表现富足且华丽的主题，具有豪华特质的人喜欢非常华丽耀眼的氛围。若要运用能让人联想到 “豪华” 的设计元素，颜色方面，色相选用 R（红色系 ）到 P（紫色系 ），为展现华丽感，采用有深度的色调进行配色。V调让人联想到黄金，营造出豪华高端的形象，加入 P（紫色系 ）进一步增强华丽感，加入黑色营造出高级感。",
 	},
 	{
 		5,
@@ -301,6 +306,7 @@ var globalBox = []boxItem{
 		2130,
 		[]string{"强劲的", "坚韧的", "阳刚的", "健壮的"},
 		[]int{101},
+		"“粗犷” 是表现处于野生自然状态或粗犷有力状态的主题，具有野性特质的人喜欢男性化的氛围。若要运用能让人联想到 “野性” 的设计元素，颜色方面，色相以 R（红色系 ）和 YR（黄红色系 ）为主，搭配 G（绿色系 ）到 BG（蓝绿色系 ）、P（紫色系 ），为突出强壮感，避免使用浅色调，采用深色调。通过搭配黑色（Bk ），增强硬朗印象，从而表现出野性的形象。",
 	},
 
 	{
@@ -310,6 +316,7 @@ var globalBox = []boxItem{
 		620,
 		[]string{"楚楚动人的", "甜美的", "纯净的", "浪漫的", "童话般的", "朦胧的", "纯真的", "清纯的"},
 		[]int{32, 33, 34, 41, 42, 43, 44, 49, 50, 122},
+		"“浪漫” 是表现富有情感且甜美的神情的主题，具有浪漫特质的人喜欢柔和且独特的氛围。若要运用能让人联想到 “浪漫” 的设计元素，颜色偏向 YR（黄红色系 ）到 RP（紫红色系 ），以 YR 为中心进行配色，搭配白色，可营造出少女般的氛围。加入 B（蓝色系 ）到 P（紫色系 ），能增强幻想般的氛围。",
 	},
 	{
 		7,
@@ -319,6 +326,7 @@ var globalBox = []boxItem{
 		[]string{"自然的", "悠然自然的", "温和的", "大方的", "放松的", "舒适的", "坦诚的", "悠闲的", "家居的", "温润的", "和睦的", "柔软的", "柔和的",
 			"融洽的", "温柔的", "安宁的", "温顺的", "淡泊的", "简朴的", "不加修饰的", "和平的", "水灵灵的", "惬意的", "健康的", "新鲜的", "鲜活的", "安稳的"},
 		[]int{13, 20, 24, 25, 39, 40, 51, 52, 53, 54, 55, 59, 61, 62, 70, 82, 123},
+		"“自然” 是表现不做作、夸张，呈现自然天然状态的主题，具有自然特质的人喜欢温暖的户外氛围。若要运用能让人联想到 “自然” 的设计元素，颜色方面，色相选用 YR（黄红色系 ）到 G（绿色系 ）以及无彩色，采用中明度中彩度的尼泊尔风格配色。暖色系的 Y（黄色系 ）点缀出舒适感，中性色营造出宁静平和的氛围。",
 	},
 	{
 		8,
@@ -327,6 +335,7 @@ var globalBox = []boxItem{
 		1040,
 		[]string{"优美的", "有情趣的", "端庄的", "抒情的", "细腻的", "细致的", "柔美的", "娇美的", "有品味位的", "含蓄的", "华美的", "女性化的", "雅致的", "温文尔雅的", "秀丽的", "优雅的"},
 		[]int{4, 5, 14, 19, 29, 60, 63, 64, 69, 83, 84, 124, 125},
+		"【雅致】是一种融合女性柔美与高雅格调的主题风格，偏好【雅致】的人群通常喜爱柔和而精致的氛围。要营造【雅致】的设计效果，建议以RP-P（玫瑰粉至薰衣草紫）为主色调，搭配PB-P（灰蓝色至淡紫色）及GY-B-RP（灰绿色至淡紫红），避免使用刚硬的男性化色调，采用低饱和度的浊色调进行协调配色。以P（紫色）系为基调，配合相近色相或中性色，能完美呈现高贵典雅的女性气质。",
 	},
 	{
 		9,
@@ -335,6 +344,7 @@ var globalBox = []boxItem{
 		1150,
 		[]string{"微妙的", "谨慎的", "安静的", "随章的", "洗练的", "质朴的", "精致的", "洒脱的", "江河的", "都市气息的", "文化气息的", "知性的", "冷静的", "娴静的", "萧瑟的", "素雅的", "风流的", "乡土气息的"},
 		[]int{6, 13, 15, 28, 65, 66, 68, 85, 86, 87, 89},
+		"【精致的】是一种融合清新与深邃美感的设计主题，偏好【精致的】风格的人群通常喜爱细腻而高雅的氛围。要呈现【精致的】设计效果，建议以GY-PB（薄荷绿至雾霾蓝）为主基调，搭配PB-G（灰紫色至黛青色），通过明清色与浊色的渐变过渡来协调配色。避免使用艳丽色调，采用75%冷色系（明度70-85）、20%中性色（珍珠白/银灰）及5%金属点缀色（铂金/哑光金）的构成比例。",
 	},
 	{
 		10,
@@ -343,6 +353,7 @@ var globalBox = []boxItem{
 		1680,
 		[]string{"怀念的", "古风的", "深邃的", "潜心的", "怀旧的", "传统的", "古典的"},
 		[]int{9, 71, 72, 81, 90, 93, 99, 102, 103},
+		"【古典的】是一种融合风雅韵味与传统厚重感的设计主题，偏好【古典的】风格的人群通常喜爱高雅而沉稳的氛围。要呈现【古典的】设计效果，建议采用Y-RP（黄色至紫红色）至PB-GY（蓝紫色至灰绿色）的色相范围，避免使用艳丽色调，以低饱和度的沉稳色调进行协调配色。",
 	},
 	{
 		11,
@@ -351,6 +362,7 @@ var globalBox = []boxItem{
 		1780,
 		[]string{"深沉的", "绅士的", "男子汉的", "严谨的", "凌然的", "正统的", "坚实的", "考究的"},
 		[]int{8, 73, 74, 75, 76, 77, 78, 79, 80, 88, 94, 95, 96, 97, 98, 126, 127},
+		"“高品质” 是表现纯净、优质的主题。具有高品质特质的人喜欢精致、高雅的氛围。若要运用能让人联想到“高品质”的设计元素，可活用色彩相关要素。以 PB（蓝色系 ）为中心，突出精致感。避免使用强烈、杂乱的颜色，采用低调、沉稳的色调进行配色，注意色调对比，避免过于强烈，可营造出高品质、高雅的氛围。",
 	},
 	{
 		12,
@@ -359,6 +371,7 @@ var globalBox = []boxItem{
 		2130,
 		[]string{"锤炼的", "庄重的", "厚重的", "坚定的", "有格调的", "独到的", "正宗的"},
 		[]int{104, 105, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 128, 129, 130},
+		"【古典的&考究的】是一种融合了厚重底蕴与高雅格调的设计主题，偏好这种风格的人群通常追求既沉稳可靠又严谨精致的审美体验。在色彩运用上，建议以RP-PB（紫红色至蓝紫色）的宽幅色域为基调，特别注重PB（蓝紫色）的中心地位，通过暗色调与暗清色的统一配色营造庄重氛围。材质选择上，推荐以70%哑光织物表现古典的沉稳，25%细腻皮革彰显考究品质，再辅以5%金属装饰提升精致度。这种设计语言既能通过冷色系营造严谨的紧绷感，又能借暖色系传递充实的温度，最终达成“重而不笨、雅而不娇“的完美平衡，特别适合表现具有历史底蕴又不失现代精致感的空间与产品设计。",
 	},
 	{
 		13,
@@ -367,6 +380,7 @@ var globalBox = []boxItem{
 		2100,
 		[]string{"高雅的", "高沿的", "高贵的", "神圣的", "庄严的", "肃穆的"},
 		[]int{106, 107},
+		"“正式” 是表现遵循既定正确方式、不简化且依照原本形式的主题，具有正式特质的人喜欢高雅的氛围。若要运用能让人联想到 “正式” 的设计元素，颜色方面，色相以冷色系的 PB（蓝色系 ）为主，采用冷静的尼泊尔风格色调，打造出众的配色。通过搭配白色或明亮的无彩色营造沉稳感，凸显黑色（Bk ）的高级感和 PB（蓝色系 ）的优雅感。",
 	},
 	{
 		14,
@@ -375,6 +389,7 @@ var globalBox = []boxItem{
 		730,
 		[]string{"清雅的", "清新的", "清静的", "清澈的", "清爽的", "清朗的", "清冷的"},
 		[]int{26, 35, 36, 37, 38, 45, 46, 47, 48, 56, 57, 58, 121},
+		"【清爽的】是一种融合洁净质感与简约美学的生活设计主题，偏好这种风格的人群追求通透利落的视觉体验。在色彩运用上，推荐以B-GB-PB的冷色系为主，其中B（蓝色）作为核心基调，搭配BG-G-PB（薄荷绿至灰蓝）构建层次感，最后点缀YR（浅珊瑚色）增添活力。关键要避免浊色和强烈对比，采用明清色调，配合纯白作为空间留白。材质选择上，玻璃、亚克力等透明材质为主，哑光织物为辅。这种设计语言既保留了GB-PB色系带来的水质般透明感，又通过简约的BG-G过渡色块强化了现代感，特别适合表现“少即是多“的清爽美学，在卫浴用品、家居饰品和电子数码产品领域尤为适用。",
 	},
 	{
 		15,
@@ -383,6 +398,7 @@ var globalBox = []boxItem{
 		1160,
 		[]string{"轻快的", "青春的", "青春洋溢的", "清冽的", "运动的"},
 		[]int{16, 17, 27, 67},
+		"【冷·闲适的】是一种融合青春活力与明快特质的现代设计主题，偏好这种风格的人群追求既轻松愉悦又不失格调的生活氛围。在色彩运用上，建议采用冷暖平衡的配色方案：以G-B（松绿至雾蓝）冷色系作为基调，搭配Y（淡柠檬黄）与R（浅珊瑚粉）暖色系作为点缀。具体实施时，应避免使用高彩度高于的强烈色调，推荐采用明清色与浊色相结合的中间调，通过柔和的冷暖对比营造舒适视觉体验。材质选择上，亚麻等天然织物为主。既保留了Y-GB色系带来的清新活力，又通过PB系的冷调沉淀了整体氛围，特别适合打造都市中的休闲生活空间，在咖啡厅、书店和居家工作区域等场景中尤能体现“动中有静“的美学意境。",
 	},
 	{
 		16,
@@ -391,6 +407,7 @@ var globalBox = []boxItem{
 		1690,
 		[]string{"迅捷的", "现代的", "进步的", "革新的", "机敏的", "理性的", "敏锐的", "精确的", "合理的", "致密的", "人工的", "现代化的"},
 		[]int{7},
+		"【现代的】是一种融合未来前瞻性与科技实用性的设计主题，其核心在于平衡冷峻的科技美学与人性化的功能体验。在色彩系统构建上，我们建议采用双核心架构：以B-BG（科技蓝至数字绿）冷色系奠定科技基调，同时融入G-PB（矿物绿至电子紫）构建未来层次，并以YR-Y（橙黄至荧光黄）作为创新点缀。这套系统既延续了BG-PB色系的专业感，又通过YR暖调的适度介入，在机械精密中注入人文温度。特别适用于智能终端、新能源汽车等需要同时体现代科技可靠性与未来亲和力的产品设计领域。",
 	},
 }
 
@@ -786,9 +803,11 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 
 	likedColorNum := make([]int, 0)
 	for _, v := range req.LikedColors {
+		// 如果没有#说明是色号，不需要转换
 		if strings.Index(v, "#") == -1 {
 			likedColorNum = append(likedColorNum, cast.ToInt(v))
 		} else {
+			// 如果有#说明是rgb值，需要转换
 			likedColorNum = append(likedColorNum, rgbToNum(v))
 		}
 
@@ -874,6 +893,84 @@ func getBoxImageURL(img string) string {
 
 func getGlobalImageURL(img string) string {
 	return kcfg.GetString("app.global.host") + "/img/" + img
+}
+
+func genComment(likedColors []int, dislikedColors []int, likedAdjectives []string, likedImages []string) []string {
+	// 分数记录，key是boxnum，value是分数
+	score := make(map[int]int, 0)
+
+	// 基于likedColors计算分数
+	for _, v := range likedColors {
+		for _, vv := range globalBox {
+			for _, vvv := range vv.Colors {
+				if vvv == v {
+					if _, ok := score[vv.Num]; ok {
+						score[vv.Num] = score[vv.Num] + 1
+					} else {
+						score[vv.Num] = 1
+					}
+				}
+			}
+		}
+	}
+	// 基于dislikedColors计算分数
+	for _, v := range dislikedColors {
+		for _, vv := range globalBox {
+			for _, vvv := range vv.Colors {
+				if vvv == v {
+					if _, ok := score[vv.Num]; ok {
+						score[vv.Num] = score[vv.Num] - 1
+					} else {
+						score[vv.Num] = -1
+					}
+				}
+			}
+		}
+	}
+	// 基于likedAdjectives计算分数
+	for _, v := range likedAdjectives {
+		for _, vv := range globalBox {
+			for _, vvv := range vv.Words {
+				if vvv == v {
+					if _, ok := score[vv.Num]; ok {
+						score[vv.Num] = score[vv.Num] + 1
+					} else {
+						score[vv.Num] = 1
+					}
+				}
+			}
+		}
+	}
+	// 基于likedImages计算分数
+	for _, v := range likedImages {
+		tmp := strings.Split(v, "-")
+		tmpSuffix := tmp[2]
+		tmpNum := strings.Split(tmpSuffix, ".")
+		boxNum := cast.ToInt(tmpNum[0])
+		if _, ok := score[boxNum]; ok {
+			score[boxNum] = score[boxNum] + 1
+		} else {
+			score[boxNum] = 1
+		}
+	}
+	// 找到分数最高的box
+	maxScore := 0
+	maxBoxNum := 0
+	for k, v := range score {
+		if v > maxScore {
+			maxScore = v
+			maxBoxNum = k
+		}
+	}
+	// 找到分数最高的box对应的comment
+	comment := ""
+	for _, v := range globalBox {
+		if v.Num == maxBoxNum {
+			comment = v.Comment
+			break
+		}
+	}
+	return []string{comment}
 }
 
 func mapComment(likedColors []int, likedAdjectives []string) []string {
@@ -1214,12 +1311,67 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 
 	tmplikedcolors := make([]int, 0)
 	json.Unmarshal([]byte(data.LikedColors), &tmplikedcolors)
+
+	tmpDislikedColors := make([]int, 0)
+	json.Unmarshal([]byte(data.DislikedColors), &tmpDislikedColors)
+
 	tmpadjectives := make([]string, 0)
 	json.Unmarshal([]byte(data.LikedAdjectives), &tmpadjectives)
 
+	tmpLikedImages := make([]string, 0)
+	json.Unmarshal([]byte(data.LikedImages), &tmpLikedImages)
+
+	likedColorDesc := make([]ColorDescItem, 0)
+	for _, v := range tmplikedcolors {
+		for _, vv := range globalColor {
+			if vv.Num == v {
+				// 取vv.Words的前5个元素
+				tmpwords := make([]string, 0)
+				if len(vv.Words) > 5 {
+					tmpwords = vv.Words[0:5]
+				} else {
+					tmpwords = vv.Words
+				}
+				likedColorDesc = append(likedColorDesc, ColorDescItem{
+					Num:   cast.ToString(vv.Num),
+					Name:  vv.Name,
+					Img:   "", // todo
+					Words: tmpwords,
+					RGB:   rgbToHex(uint8(vv.R), uint8(vv.G), uint8(vv.B)),
+				})
+			}
+		}
+	}
+	dislikedColorDesc := make([]ColorDescItem, 0)
+	for _, v := range tmpDislikedColors {
+		for _, vv := range globalColor {
+			if vv.Num == v {
+				// 取vv.Words的前5个元素
+				tmpwords := make([]string, 0)
+				if len(vv.Words) > 5 {
+					tmpwords = vv.Words[0:5]
+				} else {
+					tmpwords = vv.Words
+				}
+				dislikedColorDesc = append(dislikedColorDesc, ColorDescItem{
+					Num:   cast.ToString(vv.Num),
+					Name:  vv.Name,
+					Img:   "", // todo
+					Words: tmpwords,
+					RGB:   rgbToHex(uint8(vv.R), uint8(vv.G), uint8(vv.B)),
+				})
+			}
+		}
+	}
+
 	return &AestheticDataRsp{
-		AestheticData: data,
-		Comment:       mapComment(tmplikedcolors, tmpadjectives),
+		AestheticData:      data,
+		Comment:            genComment(tmplikedcolors, tmpDislikedColors, tmpadjectives, tmpLikedImages),
+		LikedColorDesc:     likedColorDesc,
+		DislikedColorDesc:  dislikedColorDesc,
+		LikedAdjectiveDesc: tmpadjectives,
+		LikedLifeImageDesc: tmpLikedImages[0:4],
+		LikedAreaImageDesc: tmpLikedImages[4:],
 	}, nil
 }
 
