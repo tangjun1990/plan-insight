@@ -12,14 +12,14 @@ import (
 	"github.com/disintegration/imaging"
 )
 
-func main() {
+func main2() {
 	resizeImage("./boxbase-4.jpg", "./boxbase-5.jpg", 2200, 2760)
 }
 
-func main2() {
+func main() {
 	var files []string
 
-	root := "./base/"
+	root := "./base2/"
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		files = append(files, path)
 		return nil
@@ -28,7 +28,7 @@ func main2() {
 		panic(err)
 	}
 	for _, file := range files {
-		targetFile := strings.Replace(file, "base", "formatted", -1)
+		targetFile := strings.Replace(file, "base2", "formatted2", -1)
 
 		if strings.Index(file, ".png") > 0 || strings.Index(file, ".jpg") > 0 || strings.Index(file, ".jpeg") > 0 {
 			resizeImage(file, targetFile, 200, 220)

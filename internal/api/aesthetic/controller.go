@@ -392,7 +392,8 @@ func (c *Controller) GetUserInfo(ctx *gin.Context) {
 // @Success 200 {object} Response{data=map[string]interface{}} "成功响应"
 // @Router /api/aesthetic/images [get]
 func (c *Controller) GetImageList(ctx *gin.Context) {
-	indexImages := c.service.GetIndexImage()
+	gender := ctx.Query("gender")
+	indexImages := c.service.GetIndexImage(gender)
 	imageData := make(map[string][]map[string]interface{})
 
 	for _, category := range indexImages {

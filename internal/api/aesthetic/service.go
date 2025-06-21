@@ -429,6 +429,25 @@ func (s *Service) GetIndexColor() []*IndexColorRspItem {
 	return rsp
 }
 
+var menImage = []string{
+	"1-2-1.jpg",
+	"1-2-2.jpg",
+	"1-2-3.jpg",
+	"1-2-4.png",
+	"1-2-5.jpg",
+	"1-2-6.jpg",
+	"1-2-7.jpg",
+	"1-2-8.jpg",
+	"1-2-9.jpg",
+	"1-2-10.jpg",
+	"1-2-11.jpg",
+	"1-2-12.jpg",
+	"1-2-13.jpg",
+	"1-2-14.jpg",
+	"1-2-15.jpg",
+	"1-2-16.jpg",
+}
+
 var globalImage = []string{
 	"1-1-1.png",
 	"1-1-2.png",
@@ -689,16 +708,19 @@ type IndexImageRspSubItem struct {
 	CategoryName string
 }
 
-func (s *Service) GetIndexImage() []IndexImageRspItem {
+func (s *Service) GetIndexImage(gender string) []IndexImageRspItem {
 	rsp := make([]IndexImageRspItem, 0)
 	for _, cate := range globalImageCategory {
 
 		subItems := make([]IndexImageRspSubItem, 0)
-		for _, i := range globalImage {
+		for k, i := range globalImage {
 			// 比如 2-1-10.png，2代表所属类别，1代表子类别，10代表序号且对应抽屉号
 			tmp := strings.Split(i, "-")
 			tmpCategoryID := cast.ToInt(tmp[0])
 			if tmpCategoryID == cate.CategoryID {
+				if tmpCategoryID == 1 && gender == "男" {
+					i = menImage[k]
+				}
 				subItems = append(subItems, IndexImageRspSubItem{
 					Name:         i,
 					URL:          "/img/" + i, // todo 可能需要加域名。。。

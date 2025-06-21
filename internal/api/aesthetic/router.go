@@ -38,7 +38,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	// 添加根路由，提供index.html页面
 	server.GET("/", func(c *gin.Context) {
 
-		indexImages := controller.service.GetIndexImage()
+		indexImages := controller.service.GetIndexImage("女")
 		imageSlice := make([]string, 0)
 		for _, v := range indexImages {
 			subImageSlice := make([]string, 0)
