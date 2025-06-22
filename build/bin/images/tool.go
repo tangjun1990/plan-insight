@@ -30,8 +30,9 @@ func main() {
 	for _, file := range files {
 		targetFile := strings.Replace(file, "base2", "formatted2", -1)
 
+		// 原来的比例200*220
 		if strings.Index(file, ".png") > 0 || strings.Index(file, ".jpg") > 0 || strings.Index(file, ".jpeg") > 0 {
-			resizeImage(file, targetFile, 200, 220)
+			resizeImage(file, targetFile, 100, 220)
 		}
 	}
 }
