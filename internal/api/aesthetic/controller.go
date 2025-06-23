@@ -413,6 +413,15 @@ func (c *Controller) GetImageList(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, imageData)
 }
 
+func (c *Controller) GetAllImage(ctx *gin.Context) {
+	images := c.service.GetAllImage()
+	imagesRsp := make([]string, 0)
+	for _, imgname := range images {
+		imagesRsp = append(imagesRsp, kcfg.GetString("app.global.host")+"/img/"+imgname)
+	}
+	c.ResponseSuccess(ctx, imagesRsp)
+}
+
 func (c *Controller) GetColorList(ctx *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	colors := c.service.GetIndexColor()

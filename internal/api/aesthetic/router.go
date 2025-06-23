@@ -87,6 +87,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
+			userGroup.GET("/allImages", controller.GetAllImage)
 			userGroup.GET("/colors", controller.GetColorList)
 			userGroup.GET("/words", controller.GetWordList)
 		}

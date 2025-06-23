@@ -708,6 +708,13 @@ type IndexImageRspSubItem struct {
 	CategoryName string
 }
 
+func (s *Service) GetAllImage() []string {
+	allimage := make([]string, 0)
+	allimage = append(allimage, menImage...)
+	allimage = append(allimage, globalImage...)
+	return allimage
+}
+
 func (s *Service) GetIndexImage(gender string) []IndexImageRspItem {
 	rsp := make([]IndexImageRspItem, 0)
 	for _, cate := range globalImageCategory {
