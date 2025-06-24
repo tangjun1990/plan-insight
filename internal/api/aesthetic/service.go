@@ -1821,29 +1821,39 @@ func (s *Service) analyzeRegions(dataList []AestheticData, top int, dimension st
 
 	// 转换为分析结果
 	var result []AnalysisItem
+	countMap := make(map[string]int, 0)
 	for city, count := range cityCount {
 		if dimension == "map" {
+			var province string
 			// 渲染地图时，不能使用市，要使用省级
 			if city == "北京" || city == "上海" || city == "天津" || city == "重庆" {
 				city = city + "市"
-			} else {
-				allcity := s.GetAllCity()
-				for _, v := range allcity {
-					for _, vv := range v.City {
-						if vv.Name == city {
-							city = v.Name
-							break
-						}
+			}
+
+			allcity := s.GetAllCity()
+			for _, v := range allcity {
+				for _, vv := range v.City {
+					if vv.Name == city {
+						province = v.Name
+						break
 					}
 				}
 			}
-			if city == "北京" || city == "上海" || city == "天津" || city == "重庆" {
-				city = city + "市"
+
+			if province == "北京" || province == "上海" || province == "天津" || province == "重庆" {
+				province = province + "市"
+			}
+
+			if _, ok := countMap[province]; ok {
+				countMap[province] += count
+			} else {
+				countMap[province] = count
 			}
 		}
-
+	}
+	for name, count := range countMap {
 		result = append(result, AnalysisItem{
-			Name:  city,
+			Name:  name,
 			Count: count,
 		})
 	}
