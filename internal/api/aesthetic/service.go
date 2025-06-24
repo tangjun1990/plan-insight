@@ -1827,30 +1827,18 @@ func (s *Service) analyzeRegions(dataList []AestheticData, top int, dimension st
 			if city == "北京" || city == "上海" || city == "天津" || city == "重庆" {
 				city = city + "市"
 			} else {
-				if city == "成都" {
-					city = "四川省"
+				allcity := s.GetAllCity()
+				for _, v := range allcity {
+					for _, vv := range v.City {
+						if vv.Name == city {
+							city = v.Name
+							break
+						}
+					}
 				}
-				if city == "武汉" {
-					city = "湖北省"
-				}
-				if city == "深圳" {
-					city = "广东省"
-				}
-				if city == "南京" {
-					city = "江苏省"
-				}
-				if city == "西安" {
-					city = "陕西省"
-				}
-				if city == "昆明" {
-					city = "云南省"
-				}
-				if city == "杭州" {
-					city = "浙江省"
-				}
-				if city == "长沙" {
-					city = "湖南省"
-				}
+			}
+			if city == "北京" || city == "上海" || city == "天津" || city == "重庆" {
+				city = city + "市"
 			}
 		}
 
