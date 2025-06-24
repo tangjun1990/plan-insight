@@ -1656,6 +1656,20 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 		query = query.Where("city LIKE ?", "%"+req.City+"%")
 	}
 
+	if req.Province != "" {
+		allcity := s.GetAllCity()
+		cityinprovince := make([]string, 0)
+		for _, v := range allcity {
+			if v.Name == req.Province {
+				for _, vv := range v.City {
+					cityinprovince = append(cityinprovince, vv.Name)
+				}
+			}
+		}
+		query = query.Where("city IN ?", cityinprovince)
+
+	}
+
 	// 获取符合条件的数据
 	var dataList []AestheticData
 	if err := query.Find(&dataList).Error; err != nil {

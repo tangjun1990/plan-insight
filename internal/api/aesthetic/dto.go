@@ -61,6 +61,7 @@ type AestheticAnalysisRequest struct {
 	AgeMin       int    `form:"age_min"`                          // 最小年龄
 	AgeMax       int    `form:"age_max"`                          // 最大年龄
 	City         string `form:"city"`                             // 按城市过滤
+	Province     string `form:"province"`                         // 省份
 }
 
 // 审美数据分析结果项
