@@ -1568,6 +1568,20 @@ func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResp
 		query = query.Where("age <= ?", req.AgeMax)
 	}
 
+	if req.Province != "" {
+		allcity := s.GetAllCity()
+		cityinprovince := make([]string, 0)
+		for _, v := range allcity {
+			if v.Name == req.Province {
+				for _, vv := range v.City {
+					cityinprovince = append(cityinprovince, vv.Name)
+				}
+			}
+		}
+		query = query.Where("city IN ?", cityinprovince)
+
+	}
+
 	if req.City != "" {
 		query = query.Where("city LIKE ?", "%"+req.City+"%")
 	}

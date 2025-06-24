@@ -47,6 +47,7 @@ type AestheticDataListRequest struct {
 	Gender   string `form:"gender"`                            // 性别
 	AgeMin   int    `form:"age_min"`                           // 最小年龄
 	AgeMax   int    `form:"age_max"`                           // 最大年龄
+	Province string `form:"province"`                          // 省份
 	City     string `form:"city"`                              // 所在城市
 	Phone    string `form:"phone"`                             // 手机号码
 }
