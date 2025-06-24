@@ -437,3 +437,8 @@ func (c *Controller) GetWordList(ctx *gin.Context) {
 	words := c.service.GetIndexWord()
 	c.ResponseSuccess(ctx, words)
 }
+
+func (c *Controller) GetCityList(ctx *gin.Context) {
+	citys := c.service.GetAllCity()
+	c.ResponseSuccess(ctx, citys)
+}

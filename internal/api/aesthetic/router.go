@@ -90,6 +90,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/allImages", controller.GetAllImage)
 			userGroup.GET("/colors", controller.GetColorList)
 			userGroup.GET("/words", controller.GetWordList)
+			userGroup.GET("/citys", controller.GetCityList)
 		}
 
 		// 用户信息相关接口
