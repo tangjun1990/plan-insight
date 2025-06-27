@@ -426,9 +426,9 @@ func (c *Controller) GetColorList(ctx *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	colors := c.service.GetIndexColor()
 	// 将colors中元素的顺序随机打乱
-	rand.Shuffle(len(colors), func(i, j int) {
-		colors[i], colors[j] = colors[j], colors[i]
-	})
+	//rand.Shuffle(len(colors), func(i, j int) {
+	//	colors[i], colors[j] = colors[j], colors[i]
+	//})
 
 	c.ResponseSuccess(ctx, colors)
 }

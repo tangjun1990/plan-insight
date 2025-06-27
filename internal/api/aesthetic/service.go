@@ -419,12 +419,19 @@ type IndexColorRspItem struct {
 
 func (s *Service) GetIndexColor() []*IndexColorRspItem {
 	rsp := make([]*IndexColorRspItem, 0)
-	for _, v := range globalColor {
-		rsp = append(rsp, &IndexColorRspItem{
-			Num:  v.Num,
-			Name: v.Name,
-			RGB:  rgbToHex(uint8(v.R), uint8(v.G), uint8(v.B)),
-		})
+	// 按照既定的顺序返回130颜色
+	for _, s := range sortedColorByNum {
+		for _, v := range globalColor {
+			if v.Num == s {
+				rsp = append(rsp, &IndexColorRspItem{
+					Num:  v.Num,
+					Name: v.Name,
+					RGB:  rgbToHex(uint8(v.R), uint8(v.G), uint8(v.B)),
+				})
+				break
+			}
+
+		}
 	}
 	return rsp
 }
@@ -791,6 +798,27 @@ func (s *Service) GetAllCity() []ProvinceItem {
 }
 
 var globalColor = []colorItem{}
+var sortedColorByNum = []int{
+	49, 26, 2, 42, 88, 37, 16,
+	38, 50, 91, 34, 121, 78, 23,
+	29, 45, 17, 130, 21, 73, 32,
+	106, 10, 102, 53, 104, 9, 18,
+	62, 51, 65, 71, 4, 47, 76,
+	90, 99, 126, 33, 28, 100, 54,
+	36, 113, 52, 98, 69, 83, 15,
+	118, 101, 107, 60, 84, 120, 7,
+	124, 24, 129, 123, 66, 3, 103,
+	94, 48, 87, 43, 41, 70, 77,
+	92, 128, 72, 79, 31, 27, 117,
+	125, 1, 58, 115, 55, 44, 25,
+	39, 35, 40, 96, 110, 105, 97,
+	63, 116, 13, 19, 22, 127, 85,
+	46, 14, 80, 122, 20, 57, 68,
+	111, 8, 82, 75, 95, 109, 64,
+	89, 5, 11, 114, 93, 67, 30,
+	59, 108, 6, 56, 119, 74, 112,
+	61, 81, 12, 86,
+}
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
