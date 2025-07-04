@@ -3,8 +3,8 @@ package redis
 import (
 	"sync"
 
-	"git.4321.sh/feige/flygo/component/client/kredis"
-	"git.4321.sh/feige/flygo/core/kcfg"
+	"github.com/tangjun1990/flygo/component/client/kredis"
+	"github.com/tangjun1990/flygo/core/kcfg"
 )
 
 var _redisMap = make(map[string]*kredis.Component)

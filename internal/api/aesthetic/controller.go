@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"git.4321.sh/feige/flygo/core/kcfg"
 	"github.com/gin-gonic/gin"
+	"github.com/tangjun1990/flygo/core/kcfg"
 )
 
 // Controller 审美感知应用API控制器

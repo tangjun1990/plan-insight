@@ -1,12 +1,12 @@
 package router
 
 import (
-	"git.4321.sh/feige/commonapi/docs"
-	"git.4321.sh/feige/commonapi/internal/api/aesthetic"
-	"git.4321.sh/feige/commonapi/internal/server/middleware"
-	"git.4321.sh/feige/flygo/component/server/kin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"github.com/tangjun1990/flygo/component/server/kin"
+	"github.com/tangjun1990/plan-insight/docs"
+	"github.com/tangjun1990/plan-insight/internal/api/aesthetic"
+	"github.com/tangjun1990/plan-insight/internal/server/middleware"
 	"gorm.io/gorm"
 )
 

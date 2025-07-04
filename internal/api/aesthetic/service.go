@@ -20,10 +20,10 @@ import (
 	"strings"
 	"time"
 
-	"git.4321.sh/feige/commonapi/pkg/imagex"
-	"git.4321.sh/feige/flygo/core/kcfg"
 	"github.com/disintegration/imaging"
 	"github.com/spf13/cast"
+	"github.com/tangjun1990/flygo/core/kcfg"
+	"github.com/tangjun1990/plan-insight/pkg/imagex"
 	"gorm.io/gorm"
 )
 

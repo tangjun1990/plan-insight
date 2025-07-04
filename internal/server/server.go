@@ -3,9 +3,9 @@ package server
 import (
 	"context"
 
-	"git.4321.sh/feige/commonapi/internal/api/aesthetic"
-	"git.4321.sh/feige/commonapi/internal/server/router"
-	"git.4321.sh/feige/flygo/component/server/kin"
+	"github.com/tangjun1990/flygo/component/server/kin"
+	"github.com/tangjun1990/plan-insight/internal/api/aesthetic"
+	"github.com/tangjun1990/plan-insight/internal/server/router"
 	"gorm.io/gorm"
 )
 

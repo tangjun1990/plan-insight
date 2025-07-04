@@ -1,11 +1,11 @@
-module git.4321.sh/feige/commonapi
+module github.com/tangjun1990/plan-insight
 
 go 1.23.0
 
 toolchain go1.24.2
 
 require (
-	git.4321.sh/feige/flygo v0.0.0-20230421100411-7eee1c9a730d
+	github.com/tangjun1990/flygo v0.0.0-20230421100411-7eee1c9a730d
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.9+incompatible
 	github.com/disintegration/imaging v1.6.2
 	github.com/gin-gonic/gin v1.9.1

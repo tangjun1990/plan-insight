@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"git.4321.sh/feige/flygo/component/server/kin"
 	"github.com/gin-gonic/gin"
+	"github.com/tangjun1990/flygo/component/server/kin"
 	"gorm.io/gorm"
 )
 

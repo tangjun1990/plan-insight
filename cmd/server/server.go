@@ -1,11 +1,11 @@
 package main
 
 import (
-	"git.4321.sh/feige/commonapi/internal/server"
-	"git.4321.sh/feige/commonapi/pkg/db"
-	"git.4321.sh/feige/flygo"
-	"git.4321.sh/feige/flygo/component/server/kin"
-	"git.4321.sh/feige/flygo/core/klog"
+	"github.com/tangjun1990/flygo"
+	"github.com/tangjun1990/flygo/component/server/kin"
+	"github.com/tangjun1990/flygo/core/klog"
+	"github.com/tangjun1990/plan-insight/internal/server"
+	"github.com/tangjun1990/plan-insight/pkg/db"
 )
 
 func main() {

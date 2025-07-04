@@ -44,7 +44,7 @@ package main
 
 import (
     "fmt"
-    "git.4321.sh/feige/commonapi/pkg/imagex"
+    "github.com/tangjun1990/plan-insight/pkg/imagex"
 )
 
 func main() {
@@ -66,7 +66,7 @@ package main
 
 import (
     "fmt"
-    "git.4321.sh/feige/commonapi/pkg/imagex"
+    "github.com/tangjun1990/plan-insight/pkg/imagex"
 )
 
 func main() {

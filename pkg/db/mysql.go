@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	"git.4321.sh/feige/flygo/component/client/kgorm"
-	"git.4321.sh/feige/flygo/core/kcfg"
+	"github.com/tangjun1990/flygo/component/client/kgorm"
+	"github.com/tangjun1990/flygo/core/kcfg"
 )
 
 var _dbs = make(map[string]*kgorm.Component)

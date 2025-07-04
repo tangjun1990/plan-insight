@@ -2,7 +2,8 @@ package email
 
 import (
 	"crypto/tls"
-	"git.4321.sh/feige/flygo/core/kcfg"
+
+	"github.com/tangjun1990/flygo/core/kcfg"
 	"gopkg.in/gomail.v2"
 )
 

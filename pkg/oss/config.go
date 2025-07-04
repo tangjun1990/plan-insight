@@ -2,8 +2,9 @@ package oss
 
 import (
 	"fmt"
-	"git.4321.sh/feige/commonapi/pkg/util"
-	"git.4321.sh/feige/flygo/core/kcfg"
+
+	"github.com/tangjun1990/flygo/core/kcfg"
+	"github.com/tangjun1990/plan-insight/pkg/util"
 )
 
 const (
