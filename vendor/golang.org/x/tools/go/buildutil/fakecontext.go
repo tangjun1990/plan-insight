@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"go/build"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -75,7 +76,7 @@ func FakeContext(pkgs map[string]map[string]string) *build.Context {
 		if !ok {
 			return nil, fmt.Errorf("file not found: %s", filename)
 		}
-		return io.NopCloser(strings.NewReader(content)), nil
+		return ioutil.NopCloser(strings.NewReader(content)), nil
 	}
 	ctxt.IsAbsPath = func(path string) bool {
 		path = filepath.ToSlash(path)
@@ -95,7 +96,7 @@ func (s byName) Less(i, j int) bool { return s[i].Name() < s[j].Name() }
 type fakeFileInfo string
 
 func (fi fakeFileInfo) Name() string    { return string(fi) }
-func (fakeFileInfo) Sys() any           { return nil }
+func (fakeFileInfo) Sys() interface{}   { return nil }
 func (fakeFileInfo) ModTime() time.Time { return time.Time{} }
 func (fakeFileInfo) IsDir() bool        { return false }
 func (fakeFileInfo) Size() int64        { return 0 }
@@ -104,7 +105,7 @@ func (fakeFileInfo) Mode() os.FileMode  { return 0644 }
 type fakeDirInfo string
 
 func (fd fakeDirInfo) Name() string    { return string(fd) }
-func (fakeDirInfo) Sys() any           { return nil }
+func (fakeDirInfo) Sys() interface{}   { return nil }
 func (fakeDirInfo) ModTime() time.Time { return time.Time{} }
 func (fakeDirInfo) IsDir() bool        { return true }
 func (fakeDirInfo) Size() int64        { return 0 }

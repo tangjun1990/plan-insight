@@ -1,13 +1,5 @@
 coverage:
-  require_ci_to_pass: true
-
-  status:
-    project:
+  notify:
+    gitter:
       default:
-        target: 99%
-        threshold: 99%
-
-    patch:
-      default:
-        target: 99%
-        threshold: 95%
+        url: https://webhooks.gitter.im/e/d90dcdeeab2f1e357165
