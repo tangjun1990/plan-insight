@@ -939,7 +939,7 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 	}
 
 	colorimg := DrawColor(likedColorNum, disLikedColorNum)
-	boximg := DrawToBox(req.LikedImages, likedColorNum, disLikedColorNum)
+	boximg := DrawToBox(req.LikedImages, likedColorNum, disLikedColorNum, req.LikedAdjectives)
 
 	// 创建审美数据记录
 	data := AestheticData{
@@ -1098,7 +1098,7 @@ func mapComment(likedColors []int, likedAdjectives []string) []string {
 }
 
 // DrawToBox 将用户所选择的颜色，形容词，图片都合并到抽屉图中
-func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
+func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []string) string {
 	tempDir := "./"
 
 	// 输入图片路径 (实际使用时请替换为实际图片路径)
@@ -1110,8 +1110,8 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 	backgroundImage, _ := GetImageFromFile(inputPath)
 
 	// 1.把图片合并到抽屉图
-	var overlap *image.NRGBA
-	imagemap := make(map[int][]string, 0)
+	//var overlap *image.NRGBA
+	/*imagemap := make(map[int][]string, 0)
 	for _, img := range likedImages {
 		tmp := strings.Split(img, "-")
 		tmpSuffix := tmp[2]
@@ -1133,20 +1133,6 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 			}
 		}
 
-		// 处理最窄的两个抽屉，改为横着最多2张图，然后竖着向下排列
-		/*if boxNum == 3 || boxNum == 9 {
-			tmpstep := 1
-			if _, ok := imagemap[boxNum]; ok {
-				tmpstep += len(imagemap[boxNum])
-			}
-
-			if math.Mod(float64(tmpstep+1), 2) == 0 {
-				startX = baseStartX
-			} else {
-				startX = baseStartX + 200
-			}
-			startY = baseStartY + (int(math.Ceil(float64(tmpstep)/2))-1)*220
-		} else {*/
 		// 如果这个box内已有图片了，startx需要向右移动200
 		if _, ok := imagemap[boxNum]; ok {
 			startX = startX + (len(imagemap[boxNum]) * 200)
@@ -1162,35 +1148,8 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 			imagemap[boxNum] = []string{img}
 		}
 	}
-	_ = imaging.Save(overlap, outputPath)
-	// 2.把关键词合并到抽屉图
-	/*wordmap := make(map[int][]string, 0)
-	for _, v := range words {
-		for k, vv := range globalBox {
-			for _, vvv := range vv.Words {
-				if vvv == v {
-					if _, ok := wordmap[vv.Num]; ok {
-						wordmap[vv.Num] = append(wordmap[vv.Num], v)
-					} else {
-						wordmap[vv.Num] = []string{v}
-					}
-				}
-			}
-		}
-	}
-	for _, v := range wordmap {
-		startX := 0
-		startY := 0
-		for _, vv := range globalBox {
-			if vv.Num == boxNum {
-				startX = vv.StartX
-				startY = vv.StartY
-			}
-		}
-		tmpstring := strings.Join(v, ",")
-		// 使用freetype将文字写入图片overlap中
-	}
 	*/
+	_ = imaging.Save(backgroundImage, outputPath)
 
 	// 3.把喜欢的颜色合并到抽屉图
 	likedcolormap := make(map[int][]int, 0)
@@ -1222,15 +1181,15 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 		}
 		for _, col := range v {
 			// 画喜欢的颜色，x不变，y增加250
-			curY := startY + 220
+			curY := startY + 10
 			r, g, b := numToRGB(col)
 			// 画喜欢的颜色，使用矩形
-			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 50, 50, r, g, b, outputPath)
+			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 100, 100, r, g, b, outputPath)
 			if err != nil {
 
 			}
 			// 如果是多个颜色，x增加100
-			startX = startX + 50
+			startX = startX + 100
 		}
 	}
 
@@ -1264,16 +1223,46 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int) string {
 		}
 		for _, col := range v {
 			// 画不喜欢的颜色，x不变，y增加250
-			curY := startY + 270
+			curY := startY + 110
 			r, g, b := numToRGB(col)
 			// 画不喜欢的颜色，使用矩形
-			err := imagex.DrawCrossOnImage(outputPath, startX, curY, 50, 10, r, g, b, outputPath)
+			err := imagex.DrawCrossOnImage(outputPath, startX, curY, 100, 20, r, g, b, outputPath)
 			if err != nil {
 
 			}
 			// 如果是多个颜色，x增加55
-			startX = startX + 50
+			startX = startX + 100
 		}
+	}
+
+	// 把关键词合并到抽屉图
+	wordmap := make(map[int][]string, 0)
+	for _, v := range words {
+		for _, vv := range globalBox {
+			for _, vvv := range vv.Words {
+				if vvv == v {
+					if _, ok := wordmap[vv.Num]; ok {
+						wordmap[vv.Num] = append(wordmap[vv.Num], v)
+					} else {
+						wordmap[vv.Num] = []string{v}
+					}
+				}
+			}
+		}
+	}
+	for vnum, v := range wordmap {
+		startX := 0
+		startY := 0
+		for _, vv := range globalBox {
+			if vv.Num == vnum {
+				startX = vv.StartX
+				startY = vv.StartY
+			}
+		}
+		curY := startY + 210
+		tmpstring := strings.Join(v, ",")
+		imagex.DrawTextOnImage(outputPath, startX, curY, 40, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
+		// 使用freetype将文字写入图片overlap中
 	}
 	return outputPath
 }

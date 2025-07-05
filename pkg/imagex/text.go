@@ -1,6 +1,7 @@
 package imagex
 
 import (
+	"errors"
 	"image"
 	"image/color"
 	"image/draw"
@@ -14,7 +15,6 @@ import (
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
 )
 
 // DrawTextOnImage 在图片上绘制中文文字

@@ -290,7 +290,7 @@ func drawImageToBox() {
 	// 把关键词合并到抽屉图
 	wordmap := make(map[int][]string, 0)
 	for _, v := range words {
-		for k, vv := range globalBox {
+		for _, vv := range globalBox {
 			for _, vvv := range vv.Words {
 				if vvv == v {
 					if _, ok := wordmap[vv.Num]; ok {
@@ -313,7 +313,7 @@ func drawImageToBox() {
 		}
 		curY := startY + 210
 		tmpstring := strings.Join(v, ",")
-		imagex.DrawTextOnImage(outputPath, startX, curY, 30, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
+		imagex.DrawTextOnImage(outputPath, startX, curY, 40, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
 		// 使用freetype将文字写入图片overlap中
 	}
 
