@@ -15,8 +15,8 @@ import (
 	"time"
 
 	"github.com/disintegration/imaging"
-	"git.4321.sh/feige/commonapi/internal/api/aesthetic"
-	"git.4321.sh/feige/commonapi/pkg/imagex"
+	"github.com/tangjun1990/plan-insight/internal/api/aesthetic"
+	"github.com/tangjun1990/plan-insight/pkg/imagex"
 )
 
 func main() {

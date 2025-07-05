@@ -16,8 +16,8 @@ import (
 
 	"github.com/disintegration/imaging"
 	"github.com/spf13/cast"
-	"git.4321.sh/feige/commonapi/internal/api/aesthetic"
-	"git.4321.sh/feige/commonapi/pkg/imagex"
+	"github.com/tangjun1990/plan-insight/internal/api/aesthetic"
+	"github.com/tangjun1990/plan-insight/pkg/imagex"
 )
 
 func main_back0703() {
