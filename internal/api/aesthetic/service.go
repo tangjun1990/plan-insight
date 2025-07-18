@@ -284,7 +284,7 @@ var globalBox = []boxItem{
 
 	{
 		3,
-		"亲和力",
+		"亲和",
 		580,
 		745,
 		[]string{"有亲和力的", "活跃的"},
@@ -294,7 +294,7 @@ var globalBox = []boxItem{
 
 	{
 		4,
-		"开放感",
+		"开放",
 		440,
 		995,
 		[]string{"开朗的", "轻松的", "开放的"},
@@ -304,7 +304,7 @@ var globalBox = []boxItem{
 
 	{
 		5,
-		"有生气的",
+		"朝气",
 		150,
 		1220,
 		[]string{"有生气的", "朝气蓬勃的"},
@@ -394,7 +394,7 @@ var globalBox = []boxItem{
 
 	{
 		14,
-		"楚楚动人",
+		"动人",
 		810,
 		185,
 		[]string{"甜美的", "楚楚动人的"},
@@ -424,7 +424,7 @@ var globalBox = []boxItem{
 
 	{
 		17,
-		"细致的",
+		"细致",
 		1490,
 		745,
 		[]string{"细致的", "有品位的"},
@@ -534,7 +534,7 @@ var globalBox = []boxItem{
 
 	{
 		28,
-		"风度翩翩",
+		"风度",
 		1450,
 		1635,
 		[]string{"质朴的", "风度翩翩的"},
@@ -644,7 +644,7 @@ var globalBox = []boxItem{
 
 	{
 		39,
-		"先进感",
+		"先进",
 		2290,
 		1745,
 		[]string{"革新的", "进步的", "敏锐的"},
@@ -2151,12 +2151,116 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		}
 	}
 	lifeImageDesc := make([]string, 0)
-	for _, v := range tmpLikedImages[0:4] {
+	for _, v := range tmpLikedImages[0:6] {
 		lifeImageDesc = append(lifeImageDesc, getGlobalImageURL(v))
 	}
 	areaImageDesc := make([]string, 0)
 	for _, v := range tmpLikedImages[4:] {
 		areaImageDesc = append(areaImageDesc, getGlobalImageURL(v))
+	}
+
+	summary := ""
+
+	boxscoremap := make(map[string]int, 0)
+	wordscoremap := make(map[string]int, 0)
+	for _, v := range tmplikedcolors {
+		// 统计颜色下的形容词
+		for _, vv := range globalColor {
+			if vv.Num == v {
+				for _, vvv := range vv.Words {
+					if _, ok := wordscoremap[vvv]; ok {
+						wordscoremap[vvv] = wordscoremap[vvv] + 1
+					} else {
+						wordscoremap[vvv] = 1
+					}
+				}
+
+			}
+		}
+
+		// 统计颜色下的box
+		for _, vv := range globalBox {
+			for _, vvv := range vv.Colors {
+				if vvv == v {
+					if _, ok := boxscoremap[vv.name]; ok {
+						boxscoremap[vv.name] = boxscoremap[vv.name] + 1
+					} else {
+						boxscoremap[vv.name] = 1
+					}
+				}
+			}
+		}
+	}
+	for _, v := range tmpadjectives {
+		if _, ok := wordscoremap[v]; ok {
+			wordscoremap[v] = wordscoremap[v] + 1
+		} else {
+			wordscoremap[v] = 1
+		}
+		for _, vv := range globalBox {
+			for _, vvv := range vv.Words {
+				if vvv == v {
+					if _, ok := boxscoremap[vv.name]; ok {
+						boxscoremap[vv.name] = boxscoremap[vv.name] + 1
+					} else {
+						boxscoremap[vv.name] = 1
+					}
+				}
+			}
+		}
+	}
+	for _, v := range tmpLikedImages {
+		tmp := strings.Split(v, "-")
+		tmpSuffix := tmp[2]
+		tmpNum := strings.Split(tmpSuffix, ".")
+		boxNum := cast.ToInt(tmpNum[0])
+		for _, vv := range globalBox {
+			if vv.Num == boxNum {
+				if _, ok := boxscoremap[vv.name]; ok {
+					boxscoremap[vv.name] = boxscoremap[vv.name] + 1
+				} else {
+					boxscoremap[vv.name] = 1
+				}
+			}
+		}
+	}
+
+	// 取boxscoremap中分数最高的2个box
+	firstscorebox := ""
+	secondscorebox := ""
+	firstscore := 0
+	secondscore := 0
+	for k, v := range boxscoremap {
+		if v > firstscore {
+			secondscore = firstscore
+			secondscorebox = firstscorebox
+			firstscore = v
+			firstscorebox = k
+		} else if v > secondscore {
+			secondscore = v
+			secondscorebox = k
+		}
+	}
+	summary = fmt.Sprintf("%s%s派", firstscorebox, secondscorebox)
+
+	// 取wordscoremap中分数最高的5个word
+	wordbaseoncolor := make([]string, 0)
+	for i := 20; i > 0; i-- {
+		for k, v := range wordscoremap {
+			if v == i {
+				wordbaseoncolor = append(wordbaseoncolor, k)
+			}
+		}
+		if len(wordbaseoncolor) >= 5 {
+			break
+		}
+
+	}
+	resultword := make([]string, 0)
+	if len(wordbaseoncolor) >= 5 {
+		resultword = wordbaseoncolor[0:5]
+	} else {
+		resultword = wordbaseoncolor
 	}
 
 	return &AestheticDataRsp{
@@ -2167,6 +2271,8 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		LikedAdjectiveDesc: tmpadjectives,
 		LikedLifeImageDesc: lifeImageDesc,
 		LikedAreaImageDesc: areaImageDesc,
+		Summary:            summary,
+		WordBaseOnColor:    resultword,
 	}, nil
 }
 

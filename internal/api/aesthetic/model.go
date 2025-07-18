@@ -65,6 +65,9 @@ type AestheticDataRsp struct {
 	LikedAdjectiveDesc []string        `json:"liked_adjective_desc"`
 	LikedLifeImageDesc []string        `json:"liked_life_image_desc"`
 	LikedAreaImageDesc []string        `json:"liked_area_image_desc"`
+
+	Summary         string   `json:"summary"`
+	WordBaseOnColor []string `json:"word_base_on_color"`
 }
 
 // Admin 管理员模型
