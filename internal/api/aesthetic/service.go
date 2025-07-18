@@ -1962,9 +1962,9 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 				startY = vv.StartY
 			}
 		}
-		curY := startY + 210
+		curY := startY + 230
 		tmpstring := strings.Join(v, ",")
-		imagex.DrawTextOnImage(outputPath, startX, curY, 40, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
+		imagex.DrawTextOnImage(outputPath, startX, curY, 60, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
 		// 使用freetype将文字写入图片overlap中
 	}
 	return outputPath

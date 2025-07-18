@@ -81,33 +81,15 @@ func DrawTextOnImage(imagePath string, x, y int, fontSize float64, text string, 
 		return errors.New("fontPath is required for Chinese text rendering")
 	}
 
-	// 创建freetype上下文来测量文字尺寸
+	// 创建freetype上下文
 	c := freetype.NewContext()
 	c.SetDPI(72)
 	c.SetFont(f)
 	c.SetFontSize(fontSize)
 	c.SetClip(rgba.Bounds())
 	c.SetDst(rgba)
+	c.SetSrc(image.NewUniform(color.RGBA{R: r, G: g, B: b, A: 255}))
 	c.SetHinting(font.HintingNone)
-
-	// 计算文字的大概尺寸（简化计算）
-	textWidth := len(text) * int(fontSize*0.6) // 大概估算文字宽度
-	textHeight := int(fontSize * 1.2)          // 大概估算文字高度
-
-	// 绘制背景矩形（使用指定的RGB颜色）
-	bgColor := color.RGBA{R: r, G: g, B: b, A: 255}
-	for dy := 0; dy < textHeight; dy++ {
-		for dx := 0; dx < textWidth; dx++ {
-			px := x + dx
-			py := y + dy - int(fontSize*0.8) // 调整y位置以适应文字基线
-			if px >= 0 && py >= 0 && px < rgba.Bounds().Dx() && py < rgba.Bounds().Dy() {
-				rgba.Set(px, py, bgColor)
-			}
-		}
-	}
-
-	// 设置文字颜色为白色
-	c.SetSrc(image.NewUniform(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
 
 	// 绘制文字
 	pt := freetype.Pt(x, y+int(c.PointToFixed(fontSize)>>6))
