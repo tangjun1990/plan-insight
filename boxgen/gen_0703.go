@@ -127,79 +127,170 @@ func init() {
 
 // 将指定的多张图片按对应的坐标startX和startY放进图片boxbase.jpg中
 func drawImageToBox() {
-	//imgs := []string{"1-1-1.png", "2-1-1.jpg", "3-1-1.png", "4-1-1.png", "1-1-2.png", "1-1-3.png", "1-1-4.png", "1-1-5.png", "1-1-6.png", "1-1-7.png", "1-1-8.png", "1-1-9.png", "1-1-10.png", "1-1-11.png", "1-1-12.png", "1-1-13.png", "1-1-14.png", "1-1-15.png", "1-1-16.png"}
-	//imgs := []string{"1-1-9.png"}
-	backImagePath := "./boxbase-5.jpg"
+
+	backImagePath := "./boxbase-6.jpg"
 	backgroundImage, _ := GetImageFromFile(backImagePath)
 
 	// 输出图片路径
 	outputPath := "./out_example_2.jpg"
 
-	words := []string{"可爱的", "雅致的", "快乐的", "进取的", "坚韧的", "甜美的"}
-	likedColor := []int{1, 2, 3, 4, 5, 6, 7, 8, 9}
-	dislikedColor := []int{10, 20, 30, 40, 50}
+	/* words := []string{"可爱的", "孩子气的"}
+	likedColor := []int{31, 33}
+	dislikedColor := []int{35}
 
-	// 1.把图片合并到抽屉图
-	//var overlap *image.NRGBA
-	/*imagemap := make(map[int][]string, 0)
-	for _, img := range imgs {
-		tmp := strings.Split(img, "-")
-		tmpSuffix := tmp[2]
-		tmpNum := strings.Split(tmpSuffix, ".")
-		boxNum := cast.ToInt(tmpNum[0])
+	words := []string{"阳光的", "愉快的"}
+	likedColor := []int{23}
+	dislikedColor := []int{30}
 
-		startX := 0
-		startY := 0
-		for _, vv := range globalBox {
-			if vv.Num == boxNum {
-				startX = vv.StartX
-				startY = vv.StartY
-			}
-		}
-		// 如果这个box内已有图片了，startx需要向右移动200
-		if _, ok := imagemap[boxNum]; ok {
-			startX = startX + (len(imagemap[boxNum]) * 200)
-		}
+	words := []string{"有亲和力的", "活跃的"}
+	likedColor := []int{22}
+	dislikedColor := []int{26}
 
-		srcImage, _ := GetImageFromFile(img)
-		overlap = imaging.Overlay(backgroundImage, srcImage, image.Point{startX, startY}, 0.75)
-		backgroundImage = overlap
-		if _, ok := imagemap[boxNum]; ok {
-			imagemap[boxNum] = append(imagemap[boxNum], img)
-		} else {
-			imagemap[boxNum] = []string{img}
-		}
-	}
-	_ = imaging.Save(overlap, outputPath)*/
+	words := []string{"开朗的", "轻松的", "开放的"}
+	likedColor := []int{21, 32}
+	dislikedColor := []int{43, 56}
 
-	// 2.把关键词合并到抽屉图
-	/*wordmap := make(map[int][]string, 0)
-	for _, v := range words {
-		for k, vv := range globalBox {
-			for _, vvv := range vv.Words {
-				if vvv == v {
-					if _, ok := wordmap[vv.Num]; ok {
-						wordmap[vv.Num] = append(wordmap[vv.Num], v)
-					} else {
-						wordmap[vv.Num] = []string{v}
-					}
-				}
-			}
-		}
-	}
-	for _, v := range wordmap {
-		startX := 0
-		startY := 0
-		for _, vv := range globalBox {
-			if vv.Num == boxNum {
-				startX = vv.StartX
-				startY = vv.StartY
-			}
-		}
-		tmpstring := strings.Join(v, ",")
-		// 使用freetype将文字写入图片overlap中
-	}
-	*/
+	words := []string{"绚丽的", "娇媚的", "华丽的"}
+	likedColor := []int{3, 9, 11}
+	dislikedColor := []int{19, 89}
+
+	words := []string{"有生气的", "朝气蓬勃的"}
+	likedColor := []int{7}
+	dislikedColor := []int{15}
+
+	words := []string{"充满活力的", "进取的"}
+	likedColor := []int{5, 6}
+	dislikedColor := []int{34}
+
+	words := []string{"热烈的", "刺激的"}
+	likedColor := []int{2}
+	dislikedColor := []int{10}
+
+	words := []string{"精力旺盛的", "动感的"}
+	likedColor := []int{1}
+	dislikedColor := []int{130}
+
+	words := []string{"魅惑的"}
+	likedColor := []int{29}
+	dislikedColor := []int{29}
+
+	words := []string{"豪华的", "富于装饰的"}
+	likedColor := []int{13, 20, 86}
+	dislikedColor := []int{93, 99}
+
+	words := []string{"粗犷的", "健壮的", "坚韧的"}
+	likedColor := []int{84, 91, 92}
+	dislikedColor := []int{95, 96, 105}
+
+	words := []string{"深邃的", "充实的"}
+	likedColor := []int{12, 81, 103}
+	dislikedColor := []int{110}
+
+	words := []string{"甜美的", "楚楚动人的"}
+	likedColor := []int{41}
+	dislikedColor := []int{50}
+
+	words := []string{"清纯的", "浪漫的"}
+	likedColor := []int{39}
+	dislikedColor := []int{49}
+
+	words := []string{"温和的", "安宁的", "温柔的", "家居的"}
+	likedColor := []int{44, 52, 55}
+	dislikedColor := []int{61, 62}
+
+	words := []string{"惬意的", "水灵灵的"}
+	likedColor := []int{36, 45}
+	dislikedColor := []int{65}
+
+	words := []string{"休闲的", "舒适的"}
+	likedColor := []int{42}
+	dislikedColor := []int{53}
+
+	words := []string{"自然的", "朴素的", "田园的"}
+	likedColor := []int{54, 63, 73, 74}
+	dislikedColor := []int{83}
+
+	words := []string{"精美的", "抒情的", "端庄的"}
+	likedColor := []int{48, 59}
+	dislikedColor := []int{60}
+
+	words := []string{"细致的", "有品位的"}
+	likedColor := []int{51, 68}
+	dislikedColor := []int{79}
+
+	words := []string{"女性化的", "幽雅的", "优雅的", "华美的"}
+	likedColor := []int{40, 69, 70, 72}
+	dislikedColor := []int{80, 90}
+	words := []string{"精美的"}
+	likedColor := []int{78}
+	dislikedColor := []int{78}
+	words := []string{"鲜活的"}
+	likedColor := []int{4}
+	dislikedColor := []int{4}
+
+	words := []string{"安静的", "精致的"}
+	likedColor := []int{57, 71, 85, 122}
+	dislikedColor := []int{85}
+
+	words := []string{"洗练的", "都市气息的"}
+	likedColor := []int{58, 67, 75}
+	dislikedColor := []int{87}
+
+	words := []string{"文化气息的", "知性的"}
+	likedColor := []int{66, 76, 88}
+	dislikedColor := []int{66}
+
+	words := []string{"质朴的", "风度翩翩的"}
+	likedColor := []int{124, 125}
+	dislikedColor := []int{124}
+
+	words := []string{"正统的", "坚实的"}
+	likedColor := []int{98}
+	dislikedColor := []int{104}
+
+	words := []string{"传统的", "潜心的"}
+	likedColor := []int{82, 100, 101, 106}
+	dislikedColor := []int{114}
+
+	words := []string{"考究的"}
+	likedColor := []int{107}
+	dislikedColor := []int{117}
+
+	words := []string{"新鲜的", "鲜活的", "肃穆的", "正式的", "高尚的"}
+	likedColor := []int{24, 25, 109, 119, 127}
+	dislikedColor := []int{128, 129}
+
+	words := []string{"新鲜的", "鲜活的", "肃穆的", "正式的", "高尚的"}
+	likedColor := []int{111, 112, 113, 115, 118}
+	dislikedColor := []int{126}
+
+	words := []string{"厚重的"}
+	likedColor := []int{94, 102, 116, 120}
+	dislikedColor := []int{94, 102, 116, 120}
+
+	words := []string{"清冷的", "清雅的"}
+	likedColor := []int{38}
+	dislikedColor := []int{46}
+
+	words := []string{"清净的", "清爽的"}
+	likedColor := []int{27, 47, 121}
+	dislikedColor := []int{27, 47, 121}
+
+	words := []string{"青春洋溢的", "轻快的"}
+	likedColor := []int{17, 18, 37}
+	dislikedColor := []int{17, 18, 37}
+
+	words := []string{"迅捷的", "运动的"}
+	likedColor := []int{8, 14}
+	dislikedColor := []int{8, 14}
+
+	words := []string{"革新的", "进步的", "敏锐的"}
+	likedColor := []int{16, 28, 108}
+	dislikedColor := []int{16, 28, 108}*/
+
+	words := []string{"精确地", "现代化的", "人工的"}
+	likedColor := []int{77, 97, 123}
+	dislikedColor := []int{77, 97, 123}
 
 	_ = imaging.Save(backgroundImage, outputPath)
 
@@ -366,145 +457,414 @@ func GetImageFromFile(filePath string) (img image.Image, err error) {
 }
 
 type boxItem struct {
-	Num    int
-	name   string
-	StartX int
-	StartY int
-	Words  []string
-	Colors []int
+	Num     int
+	name    string
+	StartX  int
+	StartY  int
+	Words   []string
+	Colors  []int
+	Comment string
 }
 
-// 以下数据适用于2200*2760的base图片
 var globalBox = []boxItem{
 	{
 		1,
-		"可爱的",
-		250,
-		670,
-		[]string{"稚嫩的", "可爱的", "孩子气的", "伶俐的"},
-		[]int{2, 3, 21, 22, 30, 31, 23},
+		"可爱",
+		360,
+		465,
+		[]string{"可爱的", "孩子气的", "伶俐的"},
+		[]int{31, 33, 35},
+		"",
 	},
+
 	{
 		2,
-		"闲适的",
-		130,
-		1080,
-		[]string{"开朗的", "快乐的", "高兴的", "愉快的", "风趣的", "阳光的", "快活的", "活跃的", "有生气的", "闲适的", "朝气蓬勃的", "鲜艳的", "绚丽的", "轻松的", "自由自在的", "无忧无虑的", "有亲和力的", "开放的"},
-		[]int{1, 10, 11, 12},
+		"阳光",
+		150,
+		745,
+		[]string{"阳光的", "愉快的"},
+		[]int{23, 30},
+		"",
 	},
+
 	{
 		3,
-		"动感的",
-		130,
-		1680,
-		[]string{"充满活力的", "悦动的", "进取的", "主动的", "大胆的", "刺激的", "热烈的", "激烈的", "强烈的", "动感的", "力动的", "精力旺盛的"},
-		[]int{0},
+		"亲和力",
+		580,
+		745,
+		[]string{"有亲和力的", "活跃的"},
+		[]int{22, 26},
+		"",
 	},
+
 	{
 		4,
-		"豪华的",
-		380,
-		1680,
-		[]string{"娇媚的", "娇艳的", "华丽的", "性感的", "魅惑的", "富于装饰的", "丰满的", "丰润的", "豪华的", "成熟的", "奢华的", "充实的", "浓郁的"},
-		[]int{91, 92, 100},
+		"开放感",
+		440,
+		995,
+		[]string{"开朗的", "轻松的", "开放的"},
+		[]int{21, 32, 43, 56},
+		"",
 	},
+
 	{
 		5,
-		"粗犷的",
-		380,
-		2130,
-		[]string{"强劲的", "坚韧的", "阳刚的", "健壮的"},
-		[]int{101},
+		"有生气的",
+		150,
+		1220,
+		[]string{"有生气的", "朝气蓬勃的"},
+		[]int{7, 15},
+		"",
 	},
 
 	{
 		6,
-		"浪漫的",
-		650,
-		620,
-		[]string{"楚楚动人的", "甜美的", "纯净的", "浪漫的", "童话般的", "朦胧的", "纯真的", "清纯的"},
-		[]int{32, 33, 34, 41, 42, 43, 44, 49, 50, 122},
+		"华丽",
+		440,
+		1320,
+		[]string{"绚丽的", "娇媚的", "华丽的"},
+		[]int{3, 9, 11, 19, 89},
+		"",
 	},
+
 	{
 		7,
-		"自然的",
-		650,
-		870,
-		[]string{"自然的", "悠然自然的", "温和的", "大方的", "放松的", "舒适的", "坦诚的", "悠闲的", "家居的", "温润的", "和睦的", "柔软的", "柔和的",
-			"融洽的", "温柔的", "安宁的", "温顺的", "淡泊的", "简朴的", "不加修饰的", "和平的", "水灵灵的", "惬意的", "健康的", "新鲜的", "鲜活的", "安稳的"},
-		[]int{13, 20, 24, 25, 39, 40, 51, 52, 53, 54, 55, 59, 61, 62, 70, 82, 123},
+		"动感",
+		150,
+		1640,
+		[]string{"充满活力的", "进取的"},
+		[]int{5, 6, 34},
+		"",
 	},
+
 	{
 		8,
-		"雅致的",
-		960,
-		1040,
-		[]string{"优美的", "有情趣的", "端庄的", "抒情的", "细腻的", "细致的", "柔美的", "娇美的", "有品味位的", "含蓄的", "华美的", "女性化的", "雅致的", "温文尔雅的", "秀丽的", "优雅的"},
-		[]int{4, 5, 14, 19, 29, 60, 63, 64, 69, 83, 84, 124, 125},
+		"热情",
+		150,
+		1850,
+		[]string{"热烈的", "刺激的"},
+		[]int{2, 10},
+		"",
 	},
+
 	{
 		9,
-		"精致的",
-		1350,
-		1150,
-		[]string{"微妙的", "谨慎的", "安静的", "随章的", "洗练的", "质朴的", "精致的", "洒脱的", "江河的", "都市气息的", "文化气息的", "知性的", "冷静的", "娴静的", "萧瑟的", "素雅的", "风流的", "乡土气息的"},
-		[]int{6, 13, 15, 28, 65, 66, 68, 85, 86, 87, 89},
+		"强力",
+		150,
+		2080,
+		[]string{"精力旺盛的", "动感的"},
+		[]int{1, 130},
+		"",
 	},
+
 	{
 		10,
-		"古典的",
-		800,
-		1680,
-		[]string{"怀念的", "古风的", "深邃的", "潜心的", "怀旧的", "传统的", "古典的"},
-		[]int{9, 71, 72, 81, 90, 93, 99, 102, 103},
+		"艳丽",
+		510,
+		1640,
+		[]string{"魅惑的"},
+		[]int{29},
+		"",
 	},
+
 	{
 		11,
-		"考究的",
-		1150,
-		1780,
-		[]string{"深沉的", "绅士的", "男子汉的", "严谨的", "凌然的", "正统的", "坚实的", "考究的"},
-		[]int{8, 73, 74, 75, 76, 77, 78, 79, 80, 88, 94, 95, 96, 97, 98, 126, 127},
+		"豪华",
+		510,
+		1960,
+		[]string{"豪华的", "富于装饰的"},
+		[]int{13, 20, 86, 93, 99},
+		"",
 	},
+
 	{
 		12,
-		"古典的&考究的",
-		860,
-		2130,
-		[]string{"锤炼的", "庄重的", "厚重的", "坚定的", "有格调的", "独到的", "正宗的"},
-		[]int{104, 105, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 128, 129, 130},
+		"充实",
+		810,
+		1640,
+		[]string{"充实的", "深邃的", "深邃的", "充实的"},
+		[]int{12, 81, 103, 110},
+		"",
 	},
+
 	{
 		13,
-		"正式的",
-		1440,
-		2100,
-		[]string{"高雅的", "高沿的", "高贵的", "神圣的", "庄严的", "肃穆的"},
-		[]int{106, 107},
+		"粗犷",
+		510,
+		2280,
+		[]string{"粗犷的", "健壮的", "坚韧的", "粗犷的", "粗犷的", "健壮的"},
+		[]int{84, 91, 92, 95, 96, 105},
+		"",
 	},
+
 	{
 		14,
-		"清爽的",
-		1590,
-		730,
-		[]string{"清雅的", "清新的", "清静的", "清澈的", "清爽的", "清朗的", "清冷的"},
-		[]int{26, 35, 36, 37, 38, 45, 46, 47, 48, 56, 57, 58, 121},
+		"楚楚动人",
+		810,
+		185,
+		[]string{"甜美的", "楚楚动人的"},
+		[]int{41, 50},
+		"",
 	},
+
 	{
 		15,
-		"冷.闲适的",
-		1650,
-		1160,
-		[]string{"轻快的", "青春的", "青春洋溢的", "清冽的", "运动的"},
-		[]int{16, 17, 27, 67},
+		"浪漫",
+		1440,
+		185,
+		[]string{"清纯的", "浪漫的"},
+		[]int{39, 49},
+		"",
 	},
+
 	{
 		16,
-		"现代的",
-		1690,
-		1690,
-		[]string{"迅捷的", "现代的", "进步的", "革新的", "机敏的", "理性的", "敏锐的", "精确的", "合理的", "致密的", "人工的", "现代化的"},
-		[]int{7},
+		"娇美",
+		1160,
+		745,
+		[]string{"精美的", "抒情的", "端庄的"},
+		[]int{48, 59, 60},
+		"",
+	},
+
+	{
+		17,
+		"细致的",
+		1490,
+		745,
+		[]string{"细致的", "有品位的"},
+		[]int{51, 68, 79},
+		"",
+	},
+
+	{
+		18,
+		"优雅",
+		1160,
+		1095,
+		[]string{"女性化的", "幽雅的", "优雅的", "华美的"},
+		[]int{40, 69, 70, 72, 80, 90},
+		"",
+	},
+
+	{
+		19,
+		"上品",
+		1450,
+		1185,
+		[]string{"精美的"},
+		[]int{78},
+		"",
+	},
+
+	{
+		20,
+		"自然",
+		810,
+		1220,
+		[]string{"自然的", "朴素的", "田园的"},
+		[]int{54, 63, 64, 73, 74, 83},
+		"",
+	},
+
+	{
+		21,
+		"休闲",
+		810,
+		745,
+		[]string{"休闲的", "舒适的"},
+		[]int{42, 53},
+		"",
+	},
+
+	{
+		22,
+		"温和",
+		810,
+		455,
+		[]string{"温和的", "安宁的", "温柔的", "家居的"},
+		[]int{44, 52, 55, 61, 62},
+		"",
+	},
+
+	{
+		23,
+		"惬意",
+		1440,
+		455,
+		[]string{"惬意的", "水灵灵的"},
+		[]int{36, 45, 65},
+		"",
+	},
+
+	{
+		24,
+		"新鲜",
+		1710,
+		745,
+		[]string{"鲜活的"},
+		[]int{4},
+		"",
+	},
+
+	{
+		25,
+		"静妙",
+		1710,
+		1105,
+		[]string{"安静的", "精致的"},
+		[]int{57, 71, 85, 122},
+		"",
+	},
+
+	{
+		26,
+		"洗练",
+		1810,
+		1465,
+		[]string{"洗练的", "都市气息的"},
+		[]int{58, 67, 75, 87},
+		"",
+	},
+
+	{
+		27,
+		"知性",
+		1810,
+		1745,
+		[]string{"文化气息的", "知性的"},
+		[]int{66, 76, 88},
+		"",
+	},
+
+	{
+		28,
+		"风度翩翩",
+		1450,
+		1635,
+		[]string{"质朴的", "风度翩翩的"},
+		[]int{124, 125},
+		"",
+	},
+
+	{
+		29,
+		"传统",
+		1100,
+		1905,
+		[]string{"传统的", "潜心的"},
+		[]int{82, 100, 101, 106, 114},
+		"",
+	},
+
+	{
+		30,
+		"坚实",
+		1450,
+		1905,
+		[]string{"正统的", "坚实的"},
+		[]int{98, 104},
+		"",
+	},
+
+	{
+		31,
+		"考究",
+		1810,
+		2025,
+		[]string{"考究的"},
+		[]int{107, 117},
+		"",
+	},
+
+	{
+		32,
+		"厚重",
+		1000,
+		2390,
+		[]string{"厚重的"},
+		[]int{94, 102, 116, 120},
+		"",
+	},
+
+	{
+		33,
+		"格调",
+		1450,
+		2280,
+		[]string{"有格调的", "坚定的", "正宗的"},
+		[]int{111, 112, 113, 115, 118, 126},
+		"",
+	},
+
+	{
+		34,
+		"正式",
+		1810,
+		2280,
+		[]string{"新鲜的", "鲜活的", "肃穆的", "正式的", "高尚的"},
+		[]int{24, 25, 109, 119, 127, 128, 129},
+		"",
+	},
+
+	{
+		35,
+		"简洁",
+		2190,
+		375,
+		[]string{"清冷的", "清雅的"},
+		[]int{38, 46},
+		"",
+	},
+
+	{
+		36,
+		"清净",
+		2410,
+		375,
+		[]string{"清净的", "清爽的"},
+		[]int{27, 47, 121},
+		"",
+	},
+
+	{
+		37,
+		"青春",
+		2190,
+		905,
+		[]string{"青春洋溢的", "轻快的"},
+		[]int{17, 18, 37},
+		"",
+	},
+
+	{
+		38,
+		"明快",
+		2190,
+		1285,
+		[]string{"迅捷的", "运动的"},
+		[]int{8, 14},
+		"",
+	},
+
+	{
+		39,
+		"先进感",
+		2290,
+		1745,
+		[]string{"革新的", "进步的", "敏锐的"},
+		[]int{16, 28, 108},
+		"",
+	},
+
+	{
+		40,
+		"技术",
+		2190,
+		2025,
+		[]string{"精确地", "现代化的", "人工的"},
+		[]int{77, 97, 123},
+		"",
 	},
 }
 

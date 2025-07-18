@@ -19,7 +19,7 @@ func main2() {
 func main() {
 	var files []string
 
-	root := "./base2/"
+	root := "./base3/"
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		files = append(files, path)
 		return nil
@@ -28,11 +28,11 @@ func main() {
 		panic(err)
 	}
 	for _, file := range files {
-		targetFile := strings.Replace(file, "base2", "formatted2", -1)
+		targetFile := strings.Replace(file, "base3/", "formatted3/6-1-", -1)
 
-		// 原来的比例200*220,100*220
+		// 服装270*480，汽车480*270，椅子和生活方式300*400, 图案和材质350*350
 		if strings.Index(file, ".png") > 0 || strings.Index(file, ".jpg") > 0 || strings.Index(file, ".jpeg") > 0 {
-			resizeImage(file, targetFile, 200, 440)
+			resizeImage(file, targetFile, 350, 350)
 		}
 	}
 }

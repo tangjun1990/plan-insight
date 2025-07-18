@@ -32,6 +32,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 
 	server.LoadHTMLGlob("./*.html")
 	server.Static("/img", "./insimg")
+	server.Static("/imgv2", "./insimgv2")
 	server.Static("/boximg", "./boximg")
 	server.Static("/colorimg", "./colorimg")
 
