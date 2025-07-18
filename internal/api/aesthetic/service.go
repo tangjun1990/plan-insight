@@ -2241,7 +2241,7 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 			secondscorebox = k
 		}
 	}
-	summary = fmt.Sprintf("%s%s派", firstscorebox, secondscorebox)
+	summary = fmt.Sprintf("“ %s%s派 ”", firstscorebox, secondscorebox)
 
 	// 取wordscoremap中分数最高的5个word
 	wordbaseoncolor := make([]string, 0)
