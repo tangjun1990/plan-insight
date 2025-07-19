@@ -23,7 +23,7 @@ import (
 // y: 文字左上角y坐标（基线位置）
 // fontSize: 字体大小
 // text: 要绘制的文字内容
-// r,g,b: 文字颜色RGB值
+// r,g,b: 背景矩形颜色RGB值
 // fontPath: 字体文件路径（.ttf文件），如果为空则使用默认字体
 // outputPath: 输出图片路径，如果为空则覆盖原图片
 // 返回：错误信息
@@ -81,14 +81,43 @@ func DrawTextOnImage(imagePath string, x, y int, fontSize float64, text string, 
 		return errors.New("fontPath is required for Chinese text rendering")
 	}
 
-	// 创建freetype上下文
+	// 创建字体面用于测量文字尺寸
+	face := truetype.NewFace(f, &truetype.Options{
+		Size:    fontSize,
+		DPI:     72,
+		Hinting: font.HintingNone,
+	})
+
+	// 计算文字的尺寸
+	textWidth := 0
+	for _, char := range text {
+		advance, _ := face.GlyphAdvance(char)
+		textWidth += int(advance >> 6)
+	}
+	textHeight := int(fontSize)
+
+	// 添加内边距
+	padding := int(fontSize * 0.3) // 内边距为字体大小的30%
+	rectWidth := textWidth + padding*2
+	rectHeight := textHeight + padding*2
+
+	// 计算圆角矩形的位置
+	rectX := x - padding
+	rectY := y - padding
+
+	// 绘制圆角矩形背景
+	cornerRadius := int(fontSize * 0.2) // 圆角半径为字体大小的20%
+	drawRoundedRectangle(rgba, rectX, rectY, rectWidth, rectHeight, cornerRadius, color.RGBA{R: r, G: g, B: b, A: 255})
+
+	// 创建freetype上下文用于绘制文字
 	c := freetype.NewContext()
 	c.SetDPI(72)
 	c.SetFont(f)
 	c.SetFontSize(fontSize)
 	c.SetClip(rgba.Bounds())
 	c.SetDst(rgba)
-	c.SetSrc(image.NewUniform(color.RGBA{R: r, G: g, B: b, A: 255}))
+	// 设置文字颜色为白色
+	c.SetSrc(image.NewUniform(color.RGBA{R: 255, G: 255, B: 255, A: 255}))
 	c.SetHinting(font.HintingNone)
 
 	// 绘制文字
@@ -115,6 +144,76 @@ func DrawTextOnImage(imagePath string, x, y int, fontSize float64, text string, 
 	}
 
 	return err
+}
+
+// drawRoundedRectangle 绘制圆角矩形
+func drawRoundedRectangle(img *image.RGBA, x, y, width, height, radius int, c color.Color) {
+	// 确保圆角半径不超过矩形的一半
+	if radius > width/2 {
+		radius = width / 2
+	}
+	if radius > height/2 {
+		radius = height / 2
+	}
+
+	// 绘制矩形主体（不包括圆角部分）
+	// 上边矩形
+	for cy := y + radius; cy < y+height-radius; cy++ {
+		for cx := x; cx < x+width; cx++ {
+			img.Set(cx, cy, c)
+		}
+	}
+
+	// 左右边矩形
+	for cy := y; cy < y+height; cy++ {
+		for cx := x + radius; cx < x+width-radius; cx++ {
+			img.Set(cx, cy, c)
+		}
+	}
+
+	// 绘制四个圆角
+	// 左上角
+	drawQuarterCircle(img, x+radius, y+radius, radius, c, 2)
+	// 右上角
+	drawQuarterCircle(img, x+width-radius-1, y+radius, radius, c, 1)
+	// 左下角
+	drawQuarterCircle(img, x+radius, y+height-radius-1, radius, c, 3)
+	// 右下角
+	drawQuarterCircle(img, x+width-radius-1, y+height-radius-1, radius, c, 0)
+}
+
+// drawQuarterCircle 绘制四分之一圆
+// quadrant: 0=右下, 1=右上, 2=左上, 3=左下
+func drawQuarterCircle(img *image.RGBA, centerX, centerY, radius int, c color.Color, quadrant int) {
+	for dy := -radius; dy <= radius; dy++ {
+		for dx := -radius; dx <= radius; dx++ {
+			dist := dx*dx + dy*dy
+			if dist <= radius*radius {
+				var px, py int
+				switch quadrant {
+				case 0: // 右下
+					if dx >= 0 && dy >= 0 {
+						px, py = centerX+dx, centerY+dy
+					}
+				case 1: // 右上
+					if dx >= 0 && dy <= 0 {
+						px, py = centerX+dx, centerY+dy
+					}
+				case 2: // 左上
+					if dx <= 0 && dy <= 0 {
+						px, py = centerX+dx, centerY+dy
+					}
+				case 3: // 左下
+					if dx <= 0 && dy >= 0 {
+						px, py = centerX+dx, centerY+dy
+					}
+				}
+				if px >= 0 && py >= 0 && px < img.Bounds().Dx() && py < img.Bounds().Dy() {
+					img.Set(px, py, c)
+				}
+			}
+		}
+	}
 }
 
 // DrawMultiLineTextOnImage 在图片上绘制多行中文文字

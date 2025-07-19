@@ -288,7 +288,7 @@ func drawImageToBox() {
 	likedColor := []int{16, 28, 108}
 	dislikedColor := []int{16, 28, 108}*/
 
-	words := []string{"精确地", "现代化的", "人工的"}
+	words := []string{"精确的"}
 	likedColor := []int{77, 97, 123}
 	dislikedColor := []int{77, 97, 123}
 
@@ -402,9 +402,9 @@ func drawImageToBox() {
 				startY = vv.StartY
 			}
 		}
-		curY := startY + 210
+		curY := startY + 230
 		tmpstring := strings.Join(v, ",")
-		imagex.DrawTextOnImage(outputPath, startX, curY, 40, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
+		imagex.DrawTextOnImage(outputPath, startX, curY, 50, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
 		// 使用freetype将文字写入图片overlap中
 	}
 
@@ -862,7 +862,7 @@ var globalBox = []boxItem{
 		"技术",
 		2190,
 		2025,
-		[]string{"精确地", "现代化的", "人工的"},
+		[]string{"精确的", "现代化的", "人工的"},
 		[]int{77, 97, 123},
 		"",
 	},
