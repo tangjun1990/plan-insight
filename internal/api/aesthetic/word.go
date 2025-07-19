@@ -419,7 +419,7 @@ var globalWord = []wordItemV2{
 	},
 	{
 		Num: 81,
-		w:   "有亲和力",
+		w:   "有亲和力的",
 	},
 	{
 		Num: 82,
