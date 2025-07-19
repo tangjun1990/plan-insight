@@ -412,10 +412,7 @@ var globalWord = []wordItemV2{
 		Num: 78,
 		w:   "有格调的",
 	},
-	{
-		Num: 79,
-		w:   "有格调的",
-	},
+
 	{
 		Num: 80,
 		w:   "有品位的",
