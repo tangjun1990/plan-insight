@@ -194,7 +194,7 @@ var globalWord = []wordItemV2{
 	},
 	{
 		Num: 24,
-		w:   "坚定地",
+		w:   "坚定的",
 	},
 	{
 		Num: 25,
