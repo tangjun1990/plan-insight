@@ -417,7 +417,7 @@ func (c *Controller) GetAllImage(ctx *gin.Context) {
 	images := c.service.GetAllImage()
 	imagesRsp := make([]string, 0)
 	for _, imgname := range images {
-		imagesRsp = append(imagesRsp, kcfg.GetString("app.global.host")+"/img/"+imgname)
+		imagesRsp = append(imagesRsp, kcfg.GetString("app.global.host")+"/imgv2/"+imgname)
 	}
 	c.ResponseSuccess(ctx, imagesRsp)
 }
