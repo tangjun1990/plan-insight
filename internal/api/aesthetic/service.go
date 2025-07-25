@@ -24,6 +24,7 @@ import (
 	"github.com/spf13/cast"
 	"github.com/tangjun1990/flygo/core/kcfg"
 	"github.com/tangjun1990/plan-insight/pkg/imagex"
+	"github.com/tangjun1990/plan-insight/pkg/util/utilstr"
 	"gorm.io/gorm"
 )
 
@@ -2342,6 +2343,28 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 			secondscorebox = k
 		}
 	}
+	allboxname := make([]string, 0)
+	for k, v := range boxscoremap {
+		if v == firstscore {
+			allboxname = append(allboxname, k)
+		}
+	}
+	for k, v := range boxscoremap {
+		for _, vv := range allboxname {
+			if k == vv {
+				continue
+			}
+		}
+		if v == secondscore {
+			allboxname = append(allboxname, k)
+		}
+	}
+	sortedboxname := utilstr.SortStrings(allboxname)
+	if len(sortedboxname) >= 2 {
+		firstscorebox = sortedboxname[0]
+		secondscorebox = sortedboxname[1]
+	}
+
 	summary = fmt.Sprintf("“ %s%s派 ”", firstscorebox, secondscorebox)
 
 	// 取wordscoremap中分数最高的5个word

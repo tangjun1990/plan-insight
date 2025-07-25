@@ -64,3 +64,8 @@ func TestChengshi(t *testing.T) {
 
 	fmt.Println(string(jp))
 }
+
+func TestSort(t *testing.T) {
+	r := SortStrings([]string{"开放", "可爱", "优雅"})
+	fmt.Println(r)
+}

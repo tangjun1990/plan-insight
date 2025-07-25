@@ -1,9 +1,11 @@
 package utilstr
 
 import (
-	"github.com/gofrs/uuid"
 	"regexp"
+	"sort"
 	"strings"
+
+	"github.com/gofrs/uuid"
 )
 
 var clearHtmlReg = regexp.MustCompile(`<[\S\s]+?>`)
@@ -16,4 +18,16 @@ func ClearHtml(src string) string {
 func UUID() string {
 	str, _ := uuid.NewV4()
 	return str.String()
+}
+
+// SortStrings 对字符串切片进行排序并返回排序后的结果
+func SortStrings(strs []string) []string {
+	// 创建一个新的切片副本，避免修改原始切片
+	sorted := make([]string, len(strs))
+	copy(sorted, strs)
+
+	// 对副本进行排序
+	sort.Strings(sorted)
+
+	return sorted
 }
