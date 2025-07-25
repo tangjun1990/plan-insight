@@ -2343,26 +2343,31 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 			secondscorebox = k
 		}
 	}
-	allboxname := make([]string, 0)
+	allfirstboxname := make([]string, 0)
 	for k, v := range boxscoremap {
 		if v == firstscore {
-			allboxname = append(allboxname, k)
+			allfirstboxname = append(allfirstboxname, k)
 		}
 	}
+	allsecondboxname := make([]string, 0)
 	for k, v := range boxscoremap {
-		for _, vv := range allboxname {
+		for _, vv := range allfirstboxname {
 			if k == vv {
 				continue
 			}
 		}
 		if v == secondscore {
-			allboxname = append(allboxname, k)
+			allsecondboxname = append(allsecondboxname, k)
 		}
 	}
-	sortedboxname := utilstr.SortStrings(allboxname)
-	if len(sortedboxname) >= 2 {
-		firstscorebox = sortedboxname[0]
-		secondscorebox = sortedboxname[1]
+	sortedfirstboxname := utilstr.SortStrings(allfirstboxname)
+	sortedsecondboxname := utilstr.SortStrings(allsecondboxname)
+
+	if len(sortedfirstboxname) >= 2 {
+		firstscorebox = sortedfirstboxname[0]
+		secondscorebox = sortedfirstboxname[1]
+	} else if len(sortedsecondboxname) >= 2 {
+		secondscorebox = sortedsecondboxname[0]
 	}
 
 	summary = fmt.Sprintf("“ %s%s派 ”", firstscorebox, secondscorebox)
