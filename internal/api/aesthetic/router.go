@@ -82,13 +82,14 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 
 		// 需要用户鉴权的接口
 		userGroup := wxGroup.Group("/aesthetic")
+		userGroup.GET("/allImages", controller.GetAllImage)
 		userGroup.Use(authMiddleware.UserAuth())
 		{
 			userGroup.POST("/data", controller.SaveAestheticData)
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
-			userGroup.GET("/allImages", controller.GetAllImage)
+
 			userGroup.GET("/colors", controller.GetColorList)
 			userGroup.GET("/words", controller.GetWordList)
 			userGroup.GET("/citys", controller.GetCityList)
