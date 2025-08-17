@@ -442,3 +442,9 @@ func (c *Controller) GetCityList(ctx *gin.Context) {
 	citys := c.service.GetAllCity()
 	c.ResponseSuccess(ctx, citys)
 }
+
+func (c *Controller) CertQuery(ctx *gin.Context) {
+	c.ResponseSuccess(ctx, gin.H{
+		"cert_url": "https://plan-living.com/imgv2/2-1-1.webp",
+	})
+}

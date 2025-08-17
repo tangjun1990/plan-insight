@@ -92,7 +92,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 
 			userGroup.GET("/colors", controller.GetColorList)
 			userGroup.GET("/words", controller.GetWordList)
-			userGroup.GET("/citys", controller.GetCityList)
+			userGroup.GET("/certQuery", controller.CertQuery)
 		}
 
 		// 用户信息相关接口
