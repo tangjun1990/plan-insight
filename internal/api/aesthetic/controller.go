@@ -1,9 +1,12 @@
 package aesthetic
 
 import (
+	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -444,7 +447,44 @@ func (c *Controller) GetCityList(ctx *gin.Context) {
 }
 
 func (c *Controller) CertQuery(ctx *gin.Context) {
-	c.ResponseSuccess(ctx, gin.H{
-		"cert_url": "https://plan-living.com/imgv2/2-1-1.webp",
-	})
+	var req CertQueryRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "参数错误: "+err.Error())
+		return
+	}
+	certlevel := "ncd2"
+	if strings.Contains(req.CertType, "三级") {
+		certlevel = "ncd3"
+	} else if strings.Contains(req.CertType, "四级") {
+		certlevel = "ncd4"
+	}
+
+	userCertName := fmt.Sprintf("%s-%s-%s", req.Name, req.IDLastFour, certlevel)
+	// 获取证书目录 ./ncdcert下的全部文件
+	files, err := ioutil.ReadDir("./ncdcert")
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取证书目录失败: "+err.Error())
+		return
+	}
+	// 遍历文件列表
+	certfile := ""
+	for _, file := range files {
+		if file.IsDir() {
+			continue
+		}
+		if strings.Contains(file.Name(), userCertName) {
+			certfile = file.Name()
+			break
+		}
+	}
+	if certfile == "" {
+		c.ResponseSuccess(ctx, gin.H{
+			"cert_url": "",
+		})
+	} else {
+		c.ResponseSuccess(ctx, gin.H{
+			"cert_url": "https://plan-living.com/ncdcert/" + certfile,
+		})
+	}
+
 }

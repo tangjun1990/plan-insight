@@ -105,3 +105,9 @@ type UserUpdateRequest struct {
 	Age    int    `json:"age"`    // 年龄
 	City   string `json:"city"`   // 城市
 }
+
+type CertQueryRequest struct {
+	CertType   string `json:"cert_type"`
+	Name       string `json:"name"`
+	IDLastFour string `json:"id_last_four"`
+}

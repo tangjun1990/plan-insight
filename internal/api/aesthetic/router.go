@@ -35,6 +35,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	server.Static("/imgv2", "./insimgv2")
 	server.Static("/boximg", "./boximg")
 	server.Static("/colorimg", "./colorimg")
+	server.Static("/ncdcert", "./ncdcert")
 
 	// 添加根路由，提供index.html页面
 	server.GET("/", func(c *gin.Context) {
@@ -83,6 +84,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 		// 需要用户鉴权的接口
 		userGroup := wxGroup.Group("/aesthetic")
 		userGroup.GET("/allImages", controller.GetAllImage)
+		userGroup.POST("/certQuery", controller.CertQuery)
 		userGroup.Use(authMiddleware.UserAuth())
 		{
 			userGroup.POST("/data", controller.SaveAestheticData)
@@ -92,7 +94,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 
 			userGroup.GET("/colors", controller.GetColorList)
 			userGroup.GET("/words", controller.GetWordList)
-			userGroup.POST("/certQuery", controller.CertQuery)
+
 		}
 
 		// 用户信息相关接口
