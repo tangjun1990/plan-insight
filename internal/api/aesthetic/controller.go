@@ -457,6 +457,7 @@ func (c *Controller) CertQuery(ctx *gin.Context) {
 		certlevel = "ncd3"
 	} else if strings.Contains(req.CertType, "四级") {
 		certlevel = "ncd4"
+		req.IDLastFour = "0000"
 	}
 
 	userCertName := fmt.Sprintf("%s-%s-%s", req.Name, req.IDLastFour, certlevel)
