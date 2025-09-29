@@ -47,3 +47,19 @@ func SortLikedImage(likedImageStr string) string {
 
 	return strings.Join(likedImage, ",")
 }
+
+func SortLikedImageSlice(likedImageStr []string) []string {
+	// 创建一个新的切片副本，避免修改原始切片
+	sorted := make([]string, len(likedImageStr))
+	copy(sorted, likedImageStr)
+
+	// 对副本进行排序
+	sort.Slice(sorted, func(i, j int) bool {
+		// 提取第一个数字
+		numI := strings.Split(sorted[i], "-")[0]
+		numJ := strings.Split(sorted[j], "-")[0]
+		return numI < numJ
+	})
+
+	return sorted
+}

@@ -2205,10 +2205,9 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 	tmpadjectives := make([]string, 0)
 	json.Unmarshal([]byte(data.LikedAdjectives), &tmpadjectives)
 
-	data.LikedImages = utilstr.SortLikedImage(data.LikedImages)
-
 	tmpLikedImages := make([]string, 0)
 	json.Unmarshal([]byte(data.LikedImages), &tmpLikedImages)
+	tmpLikedImages = utilstr.SortLikedImageSlice(tmpLikedImages)
 
 	likedColorDesc := make([]ColorDescItem, 0)
 	for _, v := range tmplikedcolors {
