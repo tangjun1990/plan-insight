@@ -247,7 +247,7 @@ type colorItem struct {
 	G    int    // G值
 	B    int    // B值
 	Name string // 颜色名
-	//Box     string   // 对应抽屉
+	// Box     string   // 对应抽屉
 	Words   []string // 对应的n个形容词
 	Comment string   // 对应的文字评价
 }
@@ -833,7 +833,6 @@ func (s *Service) GetIndexColor() []*IndexColorRspItem {
 				})
 				break
 			}
-
 		}
 	}
 	return rsp
@@ -1602,28 +1601,30 @@ func (s *Service) GetAllCity() []ProvinceItem {
 	return provinceList
 }
 
-var globalColor = []colorItem{}
-var sortedColorByNum = []int{
-	49, 26, 2, 42, 88, 37, 16,
-	38, 50, 91, 34, 121, 78, 23,
-	29, 45, 17, 130, 21, 73, 32,
-	106, 10, 102, 53, 104, 9, 18,
-	62, 51, 65, 71, 4, 47, 76,
-	90, 99, 126, 33, 28, 100, 54,
-	36, 113, 52, 98, 69, 83, 15,
-	118, 101, 107, 60, 84, 120, 7,
-	124, 24, 129, 123, 66, 3, 103,
-	94, 48, 87, 43, 41, 70, 77,
-	92, 128, 72, 79, 31, 27, 117,
-	125, 1, 58, 115, 55, 44, 25,
-	39, 35, 40, 96, 110, 105, 97,
-	63, 116, 13, 19, 22, 127, 85,
-	46, 14, 80, 122, 20, 57, 68,
-	111, 8, 82, 75, 95, 109, 64,
-	89, 5, 11, 114, 93, 67, 30,
-	59, 108, 6, 56, 119, 74, 112,
-	61, 81, 12, 86,
-}
+var (
+	globalColor      = []colorItem{}
+	sortedColorByNum = []int{
+		49, 26, 2, 42, 88, 37, 16,
+		38, 50, 91, 34, 121, 78, 23,
+		29, 45, 17, 130, 21, 73, 32,
+		106, 10, 102, 53, 104, 9, 18,
+		62, 51, 65, 71, 4, 47, 76,
+		90, 99, 126, 33, 28, 100, 54,
+		36, 113, 52, 98, 69, 83, 15,
+		118, 101, 107, 60, 84, 120, 7,
+		124, 24, 129, 123, 66, 3, 103,
+		94, 48, 87, 43, 41, 70, 77,
+		92, 128, 72, 79, 31, 27, 117,
+		125, 1, 58, 115, 55, 44, 25,
+		39, 35, 40, 96, 110, 105, 97,
+		63, 116, 13, 19, 22, 127, 85,
+		46, 14, 80, 122, 20, 57, 68,
+		111, 8, 82, 75, 95, 109, 64,
+		89, 5, 11, 114, 93, 67, 30,
+		59, 108, 6, 56, 119, 74, 112,
+		61, 81, 12, 86,
+	}
+)
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -1710,7 +1711,6 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 			// 如果有#说明是rgb值，需要转换
 			likedColorNum = append(likedColorNum, rgbToNum(v))
 		}
-
 	}
 
 	disLikedColorNum := make([]int, 0)
@@ -1991,7 +1991,6 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 			// 画喜欢的颜色，使用矩形
 			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 100, 100, r, g, b, outputPath)
 			if err != nil {
-
 			}
 			// 如果是多个颜色，x增加100
 			startX = startX + 100
@@ -2033,7 +2032,6 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 			// 画不喜欢的颜色，使用矩形
 			err := imagex.DrawCrossOnImage(outputPath, startX, curY, 100, 20, r, g, b, outputPath)
 			if err != nil {
-
 			}
 			// 如果是多个颜色，x增加55
 			startX = startX + 100
@@ -2276,7 +2274,6 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 						wordscoremap[vvv] = 1
 					}
 				}
-
 			}
 		}
 
@@ -2391,7 +2388,7 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 	} else {
 		resultword = wordbaseoncolor
 	}
-
+	data.LikedImages = utilstr.SortLikedImage(data.LikedImages)
 	return &AestheticDataRsp{
 		AestheticData:      data,
 		Comment:            genComment(tmplikedcolors, tmpDislikedColors, tmpadjectives, tmpLikedImages),
@@ -3002,7 +2999,6 @@ func (s *Service) getWxOpenIDAndPhoneNumber(code string) (*WxAPIResponse, error)
 
 func GetImageFromFile(filePath string) (img image.Image, err error) {
 	f1Src, err := os.Open(filePath)
-
 	if err != nil {
 		return nil, err
 	}
@@ -3010,7 +3006,6 @@ func GetImageFromFile(filePath string) (img image.Image, err error) {
 
 	buff := make([]byte, 512)
 	_, err = f1Src.Read(buff)
-
 	if err != nil {
 		return nil, err
 	}

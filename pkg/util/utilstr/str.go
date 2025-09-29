@@ -1,6 +1,7 @@
 package utilstr
 
 import (
+	"encoding/json"
 	"regexp"
 	"sort"
 	"strings"
@@ -30,4 +31,19 @@ func SortStrings(strs []string) []string {
 	sort.Strings(sorted)
 
 	return sorted
+}
+
+func SortLikedImage(likedImageStr string) string {
+	likedImage := make([]string, 0)
+	_ = json.Unmarshal([]byte(likedImageStr), &likedImage)
+	// likedImage 中元素的格式为"4-1-23.webp","1-1-13.webp","2-1-38.webp","3-1-2.webp","5-1-28.webp","6-1-25.webp"
+	// 需要改为按首个数字进行排序
+	sort.Slice(likedImage, func(i, j int) bool {
+		// 提取第一个数字
+		numI := strings.Split(likedImage[i], "-")[0]
+		numJ := strings.Split(likedImage[j], "-")[0]
+		return numI < numJ
+	})
+
+	return strings.Join(likedImage, ",")
 }

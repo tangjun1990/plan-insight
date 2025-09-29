@@ -69,3 +69,8 @@ func TestSort(t *testing.T) {
 	r := SortStrings([]string{"开放", "可爱", "优雅"})
 	fmt.Println(r)
 }
+
+func TestSortLikedImage(t *testing.T) {
+	r := SortLikedImage(`["4-1-23.webp","1-1-13.webp","2-1-38.webp","3-1-2.webp","5-1-28.webp","6-1-25.webp"]`)
+	fmt.Println(r)
+}
