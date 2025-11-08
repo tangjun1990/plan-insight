@@ -1700,7 +1700,7 @@ func (s *Service) AddCollection(userID uint, req *AddCollectionRequest) error {
 	var total int64
 
 	// 计算总数
-	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("aid = ?", aid).Count(&total).Error; err != nil {
+	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("a_id = ?", aid).Count(&total).Error; err != nil {
 		return err
 	}
 
@@ -1726,7 +1726,7 @@ func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) er
 	var total int64
 
 	// 计算总数
-	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("aid = ?", aid).Count(&total).Error; err != nil {
+	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("a_id = ?", aid).Count(&total).Error; err != nil {
 		return err
 	}
 
