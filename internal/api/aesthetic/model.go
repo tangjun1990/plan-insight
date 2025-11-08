@@ -46,6 +46,15 @@ type AestheticData struct {
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
+// UserCollection 用户收藏
+type UserCollection struct {
+	ID        uint      `gorm:"primarykey" json:"id"`
+	UserID    uint      `gorm:"index" json:"user_id"` // 用户ID
+	AID       uint      `gorm:"aid" json:"aid"`       // 报告ID
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type ColorDescItem struct {
 	Num   string   `json:"num"`
 	Name  string   `json:"name"`

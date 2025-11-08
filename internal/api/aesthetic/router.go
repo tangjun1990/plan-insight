@@ -39,7 +39,6 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 
 	// 添加根路由，提供index.html页面
 	server.GET("/", func(c *gin.Context) {
-
 		indexImages := controller.service.GetIndexImage("女")
 		imageSlice := make([]string, 0)
 		for _, v := range indexImages {
@@ -73,7 +72,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	})
 
 	// 添加静态文件服务
-	//server.Static("/static", "./web/static")
+	// server.Static("/static", "./web/static")
 
 	// 注册微信小程序相关API
 	wxGroup := server.Group("/api")
@@ -88,7 +87,10 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 		userGroup.Use(authMiddleware.UserAuth())
 		{
 			userGroup.POST("/data", controller.SaveAestheticData)
+			userGroup.POST("/data/addCollection", controller.AddCollection)
+			userGroup.POST("/data/cancelCollection", controller.CancelCollection)
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
+			userGroup.GET("/data/collection", controller.GetUserCollectionList)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
 

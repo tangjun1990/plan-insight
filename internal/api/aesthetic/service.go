@@ -1694,6 +1694,57 @@ func rgbToHex(r, g, b uint8) string {
 
 // ======== 审美数据相关 ========
 
+func (s *Service) AddCollection(userID uint, req *AddCollectionRequest) error {
+	aid := req.AID
+
+	var total int64
+
+	// 计算总数
+	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("aid = ?", aid).Count(&total).Error; err != nil {
+		return err
+	}
+
+	if total == 1 {
+		return errors.New("您已收藏，不可重复操作")
+	}
+	collectionData := UserCollection{
+		AID:       uint(aid),
+		UserID:    userID,
+		CreatedAt: time.Now(),
+	}
+	// 保存数据
+	if err := s.db.Create(&collectionData).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) error {
+	aid := req.AID
+
+	var total int64
+
+	// 计算总数
+	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("aid = ?", aid).Count(&total).Error; err != nil {
+		return err
+	}
+
+	if total < 1 {
+		return errors.New("您未收藏，不可取消")
+	}
+	collectionData := UserCollection{
+		AID:    uint(aid),
+		UserID: userID,
+	}
+	// 保存数据
+	if err := s.db.Delete(&collectionData).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // SaveAestheticData 保存审美数据
 func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*AestheticDataRsp, error) {
 	// 获取用户信息
@@ -2181,6 +2232,74 @@ func (s *Service) GetUserAestheticDataList(userID uint, page, pageSize int) (*Pa
 
 	return &PageResponse{
 		List:     result,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
+}
+
+// GetUserAestheticDataList 获取用户审美数据列表
+func (s *Service) GetUserCollectionList(userID uint, page, pageSize int) (*PageResponse, error) {
+	var total int64
+	var userCollection []UserCollection
+	// 计算总数
+	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
+		return nil, err
+	}
+	// 分页查询
+	if err := s.db.Where("user_id = ?", userID).
+		Order("id DESC").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&userCollection).Error; err != nil {
+		return nil, err
+	}
+	var aids []int
+	for _, v := range userCollection {
+		aids = append(aids, int(v.AID))
+	}
+
+	var list []AestheticData
+
+	// 分页查询
+	if err := s.db.Where("id in ?", aids).
+		Order("id DESC").
+		Find(&list).Error; err != nil {
+		return nil, err
+	}
+
+	result := make([]*AestheticDataRsp, 0)
+	for k, v := range list {
+		list[k].ColorImageURL = getColorImageURL(v.ColorImageURL)
+		list[k].BoxImageURL = getBoxImageURL(v.BoxImageURL)
+
+		tmplikedcolors := make([]int, 0)
+		for _, vv := range strings.Split(v.LikedColors, ",") {
+			tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
+		}
+		tmpadjectives := make([]string, 0)
+		for _, vv := range strings.Split(v.LikedAdjectives, ",") {
+			tmpadjectives = append(tmpadjectives, vv)
+		}
+		comments := mapComment(tmplikedcolors, tmpadjectives)
+		result = append(result, &AestheticDataRsp{
+			AestheticData: list[k],
+			Comment:       comments,
+		})
+	}
+
+	sortedResult := make([]*AestheticDataRsp, 0)
+	for _, v := range aids {
+		for _, vv := range result {
+			if v == int(vv.ID) {
+				sortedResult = append(sortedResult, vv)
+				break
+			}
+		}
+	}
+
+	return &PageResponse{
+		List:     sortedResult,
 		Total:    total,
 		Page:     page,
 		PageSize: pageSize,

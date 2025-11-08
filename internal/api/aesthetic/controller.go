@@ -103,6 +103,42 @@ func (c *Controller) SaveAestheticData(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, data)
 }
 
+func (c *Controller) AddCollection(ctx *gin.Context) {
+	var req AddCollectionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	userID := c.GetUserID(ctx)
+	err := c.service.AddCollection(userID, &req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "保存数据失败: "+err.Error())
+		return
+	}
+
+	// 返回保存的数据
+	c.ResponseSuccess(ctx, gin.H{})
+}
+
+func (c *Controller) CancelCollection(ctx *gin.Context) {
+	var req CancelCollectionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	userID := c.GetUserID(ctx)
+	data, err := c.service.CancelCollection(userID, &req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "保存数据失败: "+err.Error())
+		return
+	}
+
+	// 返回保存的数据
+	c.ResponseSuccess(ctx, data)
+}
+
 // GetUserAestheticDataList 获取用户审美数据列表
 // @Summary 获取用户审美数据列表
 // @Description 小程序用户查看自己提交的审美数据列表
@@ -120,6 +156,20 @@ func (c *Controller) GetUserAestheticDataList(ctx *gin.Context) {
 
 	userID := c.GetUserID(ctx)
 	resp, err := c.service.GetUserAestheticDataList(userID, page, pageSize)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
+func (c *Controller) GetUserCollectionList(ctx *gin.Context) {
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
+
+	userID := c.GetUserID(ctx)
+	resp, err := c.service.GetUserCollectionList(userID, page, pageSize)
 	if err != nil {
 		c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
 		return
@@ -487,5 +537,4 @@ func (c *Controller) CertQuery(ctx *gin.Context) {
 			"cert_url": "https://plan-living.com/ncdcert/" + certfile,
 		})
 	}
-
 }

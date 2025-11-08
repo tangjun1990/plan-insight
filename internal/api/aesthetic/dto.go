@@ -39,6 +39,14 @@ type AestheticDataRequest struct {
 	LikedImages     []string `json:"liked_images" binding:"required,min=1,max=10"`     // 喜欢的图片
 }
 
+type AddCollectionRequest struct {
+	AID int `json:"aid" binding:"required"`
+}
+
+type CancelCollectionRequest struct {
+	AID int `json:"aid" binding:"required"`
+}
+
 // 审美数据列表查询请求
 type AestheticDataListRequest struct {
 	Page     int    `form:"page" binding:"min=1"`              // 页码
