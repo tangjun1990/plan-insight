@@ -129,7 +129,7 @@ func (c *Controller) CancelCollection(ctx *gin.Context) {
 	}
 
 	userID := c.GetUserID(ctx)
-	data, err := c.service.CancelCollection(userID, &req)
+	err := c.service.CancelCollection(userID, &req)
 	if err != nil {
 		c.ResponseError(ctx, 500, "保存数据失败: "+err.Error())
 		return
