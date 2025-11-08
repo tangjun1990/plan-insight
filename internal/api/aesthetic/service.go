@@ -2509,6 +2509,20 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		resultword = wordbaseoncolor
 	}
 
+	aid := cast.ToInt(data.ID)
+
+	var collectionTotal int64
+
+	// 计算总数
+	var isCollection int
+	if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Where("a_id = ?", aid).Count(&collectionTotal).Error; err != nil {
+		isCollection = 0
+	}
+
+	if collectionTotal >= 1 {
+		isCollection = 1
+	}
+
 	return &AestheticDataRsp{
 		AestheticData:      data,
 		Comment:            genComment(tmplikedcolors, tmpDislikedColors, tmpadjectives, tmpLikedImages),
@@ -2519,7 +2533,7 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		LikedAreaImageDesc: areaImageDesc,
 		Summary:            summary,
 		WordBaseOnColor:    resultword,
-		IsCollection:       1,
+		IsCollection:       isCollection,
 	}, nil
 }
 
