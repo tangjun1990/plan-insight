@@ -136,7 +136,7 @@ func (c *Controller) CancelCollection(ctx *gin.Context) {
 	}
 
 	// 返回保存的数据
-	c.ResponseSuccess(ctx, data)
+	c.ResponseSuccess(ctx, gin.H{})
 }
 
 // GetUserAestheticDataList 获取用户审美数据列表
