@@ -1733,12 +1733,9 @@ func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) er
 	if total < 1 {
 		return errors.New("您未收藏，不可取消")
 	}
-	collectionData := UserCollection{
-		AID:    uint(aid),
-		UserID: userID,
-	}
+
 	// 保存数据
-	if err := s.db.Delete(&collectionData).Error; err != nil {
+	if err := s.db.Where("aid = ?", uint(aid)).Where("user_id", userID).Delete(&UserCollection{}).Error; err != nil {
 		return err
 	}
 
