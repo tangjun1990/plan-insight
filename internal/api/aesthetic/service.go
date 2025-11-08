@@ -2519,6 +2519,7 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		LikedAreaImageDesc: areaImageDesc,
 		Summary:            summary,
 		WordBaseOnColor:    resultword,
+		IsCollection:       1,
 	}, nil
 }
 

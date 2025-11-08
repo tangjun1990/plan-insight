@@ -77,6 +77,7 @@ type AestheticDataRsp struct {
 
 	Summary         string   `json:"summary"`
 	WordBaseOnColor []string `json:"word_base_on_color"`
+	IsCollection    int      `json:is_collection`
 }
 
 // Admin 管理员模型
