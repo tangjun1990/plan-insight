@@ -40,11 +40,11 @@ type AestheticDataRequest struct {
 }
 
 type AddCollectionRequest struct {
-	AID int `json:"aid" binding:"required"`
+	AID string `json:"aid" binding:"required"`
 }
 
 type CancelCollectionRequest struct {
-	AID int `json:"aid" binding:"required"`
+	AID string `json:"aid" binding:"required"`
 }
 
 // 审美数据列表查询请求

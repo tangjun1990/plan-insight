@@ -1695,7 +1695,7 @@ func rgbToHex(r, g, b uint8) string {
 // ======== 审美数据相关 ========
 
 func (s *Service) AddCollection(userID uint, req *AddCollectionRequest) error {
-	aid := req.AID
+	aid := cast.ToInt(req.AID)
 
 	var total int64
 
@@ -1721,7 +1721,7 @@ func (s *Service) AddCollection(userID uint, req *AddCollectionRequest) error {
 }
 
 func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) error {
-	aid := req.AID
+	aid := cast.ToInt(req.AID)
 
 	var total int64
 
