@@ -36,7 +36,7 @@ type AestheticDataRequest struct {
 	LikedColors     []string `json:"liked_colors" binding:"required,min=1,max=10"`     // 喜欢的颜色
 	DislikedColors  []string `json:"disliked_colors" binding:"required,min=1,max=5"`   // 讨厌的颜色
 	LikedAdjectives []string `json:"liked_adjectives" binding:"required,min=1,max=10"` // 喜欢的形容词
-	LikedImages     []string `json:"liked_images" binding:"required,min=1,max=10"`     // 喜欢的图片
+	LikedImages     []string `json:"liked_images" binding:"required,min=1,max=12"`     // 喜欢的图片
 }
 
 type AddCollectionRequest struct {
