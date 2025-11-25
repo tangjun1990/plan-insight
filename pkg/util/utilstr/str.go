@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gofrs/uuid"
+	"github.com/spf13/cast"
 )
 
 var clearHtmlReg = regexp.MustCompile(`<[\S\s]+?>`)
@@ -46,6 +47,20 @@ func SortLikedImage(likedImageStr string) string {
 	})
 
 	return strings.Join(likedImage, ",")
+}
+
+func SortImageByConfig(likedImage []string) []string {
+	sortedcategorycfg := []int{1, 2, 3, 8, 5, 6, 9}
+
+	sorted := make([]string, len(likedImage))
+	for _, category := range sortedcategorycfg {
+		for _, image := range likedImage {
+			if strings.Split(image, "-")[0] == cast.ToString(category) {
+				sorted = append(sorted, image)
+			}
+		}
+	}
+	return sorted
 }
 
 func SortLikedImageSlice(likedImageStr []string) []string {
