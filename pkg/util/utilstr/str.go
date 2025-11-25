@@ -50,7 +50,7 @@ func SortLikedImage(likedImageStr string) string {
 }
 
 func SortImageByConfig(likedImage []string) []string {
-	sortedcategorycfg := []int{1, 2, 3, 8, 5, 6, 9}
+	sortedcategorycfg := []int{1, 2, 3, 4, 8, 5, 6, 9}
 
 	sorted := make([]string, 0)
 	for _, category := range sortedcategorycfg {
