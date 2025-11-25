@@ -52,7 +52,7 @@ func SortLikedImage(likedImageStr string) string {
 func SortImageByConfig(likedImage []string) []string {
 	sortedcategorycfg := []int{1, 2, 3, 8, 5, 6, 9}
 
-	sorted := make([]string, len(likedImage))
+	sorted := make([]string, 0)
 	for _, category := range sortedcategorycfg {
 		for _, image := range likedImage {
 			if strings.Split(image, "-")[0] == cast.ToString(category) {
