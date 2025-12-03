@@ -1502,6 +1502,23 @@ var globalImageV2 = []string{
 	"9-1-38.webp",
 	"9-1-39.webp",
 	"9-1-40.webp",
+	"9-1-41.webp",
+	"9-1-42.webp",
+	"9-1-43.webp",
+	"9-1-44.webp",
+	"9-1-45.webp",
+	"9-1-46.webp",
+	"9-1-47.webp",
+	"9-1-48.webp",
+	"9-1-49.webp",
+	"9-1-50.webp",
+	"9-1-51.webp",
+	"9-1-52.webp",
+	"9-1-53.webp",
+	"9-1-54.webp",
+	"9-1-55.webp",
+	"9-1-56.webp",
+	"9-1-57.webp",
 }
 
 type ImageCategoryItem struct {

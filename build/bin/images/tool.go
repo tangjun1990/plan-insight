@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
-
 	"path/filepath"
+	"strings"
 
 	"github.com/disintegration/imaging"
 )
@@ -19,7 +18,7 @@ func main2() {
 func main() {
 	var files []string
 
-	root := "./base3/"
+	root := "./base7/"
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		files = append(files, path)
 		return nil
@@ -28,17 +27,17 @@ func main() {
 		panic(err)
 	}
 	for _, file := range files {
-		targetFile := strings.Replace(file, "base3/", "formatted3/6-1-", -1)
+		targetFile := strings.Replace(file, "base7/", "formatted7/9-1-", -1)
 
-		// 服装270*480，汽车480*270，椅子和生活方式300*400, 图案和材质350*350
+		// 服装270*480，汽车480*270，椅子和生活方式300*400, 图案和材质350*350，空间300*400
 		if strings.Index(file, ".png") > 0 || strings.Index(file, ".jpg") > 0 || strings.Index(file, ".jpeg") > 0 {
-			resizeImage(file, targetFile, 350, 350)
+			resizeImage(file, targetFile, 300, 400)
 		}
 	}
 }
 
 func resizeImage(inputImage, targetImage string, width, height int) {
-	//读取本地文件，本地文件尺寸300*400
+	// 读取本地文件，本地文件尺寸300*400
 	imgData, _ := ioutil.ReadFile(inputImage)
 	buf := bytes.NewBuffer(imgData)
 	image, err := imaging.Decode(buf)
