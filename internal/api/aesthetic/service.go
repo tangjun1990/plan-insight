@@ -1508,7 +1508,7 @@ var globalImageV2 = []string{
 	"9-1-44.webp",
 	"9-1-45.webp",
 	"9-1-46.webp",
-	"9-1-47.webp",
+	//"9-1-47.webp",
 	"9-1-48.webp",
 	"9-1-49.webp",
 	"9-1-50.webp",
