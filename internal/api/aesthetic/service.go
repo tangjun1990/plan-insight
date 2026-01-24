@@ -1865,6 +1865,30 @@ func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) er
 	return nil
 }
 
+// CreateUserSolution 为用户创建方案（避免重复）
+func (s *Service) CreateUserSolution(userID uint, aid uint) (*UserSolution, error) {
+    var total int64
+    if err := s.db.Model(&UserSolution{}).
+        Where("user_id = ?", userID).
+        Where("a_id = ?", aid).
+        Count(&total).Error; err != nil {
+        return nil, err
+    }
+    if total > 0 {
+        return nil, errors.New("您已经对本报告生成过方案，请前往我的方案页面查看！")
+    }
+
+    us := &UserSolution{
+        UserID:    userID,
+        AID:       aid,
+        CreatedAt: time.Now(),
+    }
+    if err := s.db.Create(us).Error; err != nil {
+        return nil, err
+    }
+    return us, nil
+}
+
 // SaveAestheticData 保存审美数据
 func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*AestheticDataRsp, error) {
 	// 获取用户信息

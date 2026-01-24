@@ -101,6 +101,8 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/solution/list", controller.GetUserSolutionList)
 			// 方案详情接口：通过solution_id获取审美报告详情
 			userGroup.GET("/solution/detail", controller.GetUserSolutionDetail)
+			// 生成方案接口
+			userGroup.POST("/solution/create", controller.CreateUserSolution)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
 
@@ -166,10 +168,10 @@ func InitAdminUser(db *gorm.DB) error {
 
 // AutoMigrate 自动创建表结构
 func AutoMigrate(db *gorm.DB) error {
-	// 自动迁移表结构
-	if err := db.AutoMigrate(&User{}, &AestheticData{}, &Admin{}); err != nil {
-		return err
-	}
+    // 自动迁移表结构
+    if err := db.AutoMigrate(&User{}, &AestheticData{}, &Admin{}, &UserCollection{}, &UserSolution{}); err != nil {
+        return err
+    }
 
 	// 初始化管理员账号
 	return InitAdminUser(db)

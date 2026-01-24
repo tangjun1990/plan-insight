@@ -44,7 +44,12 @@ type AddCollectionRequest struct {
 }
 
 type CancelCollectionRequest struct {
-	AID string `json:"aid" binding:"required"`
+    AID string `json:"aid" binding:"required"`
+}
+
+// 生成方案请求
+type CreateSolutionRequest struct {
+    AID string `json:"aid" binding:"required"`
 }
 
 // 审美数据列表查询请求

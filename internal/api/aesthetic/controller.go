@@ -139,6 +139,49 @@ func (c *Controller) CancelCollection(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, gin.H{})
 }
 
+// CreateUserSolution 生成用户方案
+// @Summary 生成用户方案
+// @Description 基于审美报告ID创建用户方案，避免重复
+// @Tags 小程序
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "用户令牌"
+// @Param body body CreateSolutionRequest true "生成方案请求体"
+// @Success 200 {object} Response{data=map[string]interface{}} "成功响应"
+// @Router /api/aesthetic/solution/create [post]
+func (c *Controller) CreateUserSolution(ctx *gin.Context) {
+    var req CreateSolutionRequest
+    if err := ctx.ShouldBindJSON(&req); err != nil {
+        c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+        return
+    }
+
+    userID := c.GetUserID(ctx)
+    user, err := c.service.GetUserByID(userID)
+    if err != nil {
+        c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+        return
+    }
+    if !c.service.IsProActive(user) {
+        c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+        return
+    }
+
+    aid, convErr := strconv.Atoi(req.AID)
+    if convErr != nil || aid <= 0 {
+        c.ResponseError(ctx, 400, "无效的aid参数")
+        return
+    }
+
+    us, createErr := c.service.CreateUserSolution(userID, uint(aid))
+    if createErr != nil {
+        c.ResponseError(ctx, 500, createErr.Error())
+        return
+    }
+
+    c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID})
+}
+
 // GetUserAestheticDataList 获取用户审美数据列表
 // @Summary 获取用户审美数据列表
 // @Description 小程序用户查看自己提交的审美数据列表
