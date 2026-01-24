@@ -2414,75 +2414,98 @@ func (s *Service) GetUserCollectionList(userID uint, page, pageSize int) (*PageR
 
 // GetUserSolutionList 获取用户方案列表（通过 user_collection 的 aid 关联 aesthetic_data）
 func (s *Service) GetUserSolutionList(userID uint, page, pageSize int) (*PageResponse, error) {
-	var total int64
-	var userSoluton []UserSolution
-	// 计算总数
-	if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
-		return nil, err
-	}
-	// 分页查询收藏（方案）记录
-	if err := s.db.Where("user_id = ?", userID).
-		Order("id DESC").
-		Offset((page - 1) * pageSize).
-		Limit(pageSize).
-		Find(&userSoluton).Error; err != nil {
-		return nil, err
-	}
+    var total int64
+    var userSolutions []UserSolution
+    // 计算总数
+    if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
+        return nil, err
+    }
+    // 分页查询用户方案记录（保持按方案ID倒序的顺序）
+    if err := s.db.Where("user_id = ?", userID).
+        Order("id DESC").
+        Offset((page - 1) * pageSize).
+        Limit(pageSize).
+        Find(&userSolutions).Error; err != nil {
+        return nil, err
+    }
 
-	var aids []int
-	for _, v := range userSoluton {
-		aids = append(aids, int(v.AID))
-	}
+    if len(userSolutions) == 0 {
+        return &PageResponse{List: []*AestheticDataRsp{}, Total: total, Page: page, PageSize: pageSize}, nil
+    }
 
-	var list []AestheticData
-	if len(aids) == 0 {
-		return &PageResponse{List: []*AestheticDataRsp{}, Total: total, Page: page, PageSize: pageSize}, nil
-	}
+    // 收集AID并建立(solutionID->AID)顺序映射
+    aids := make([]int, 0, len(userSolutions))
+    orderedPairs := make([]struct{ sid, aid int }, 0, len(userSolutions))
+    for _, us := range userSolutions {
+        a := int(us.AID)
+        aids = append(aids, a)
+        orderedPairs = append(orderedPairs, struct{ sid, aid int }{sid: int(us.ID), aid: a})
+    }
 
-	// 查询对应的审美数据
-	if err := s.db.Where("id in ?", aids).
-		Order("id DESC").
-		Find(&list).Error; err != nil {
-		return nil, err
-	}
+    // 批量查询审美数据
+    var adList []AestheticData
+    if err := s.db.Where("id in ?", aids).Find(&adList).Error; err != nil {
+        return nil, err
+    }
 
-	result := make([]*AestheticDataRsp, 0)
-	for k, v := range list {
-		list[k].ColorImageURL = getColorImageURL(v.ColorImageURL)
-		list[k].BoxImageURL = getBoxImageURL(v.BoxImageURL)
+    // 建立 AID -> AestheticData 映射
+    adMap := make(map[int]AestheticData)
+    for _, v := range adList {
+        adMap[int(v.ID)] = v
+    }
 
-		tmplikedcolors := make([]int, 0)
-		for _, vv := range strings.Split(v.LikedColors, ",") {
-			tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
-		}
-		tmpadjectives := make([]string, 0)
-		for _, vv := range strings.Split(v.LikedAdjectives, ",") {
-			tmpadjectives = append(tmpadjectives, vv)
-		}
-		comments := mapComment(tmplikedcolors, tmpadjectives)
-		result = append(result, &AestheticDataRsp{
-			AestheticData: list[k],
-			Comment:       comments,
-		})
-	}
+    // 按userSolutions顺序构建返回结果，并设置solution_id
+    sortedResult := make([]*AestheticDataRsp, 0, len(orderedPairs))
+    for _, pair := range orderedPairs {
+        v, ok := adMap[pair.aid]
+        if !ok {
+            // 如果对应的审美数据不存在，跳过
+            continue
+        }
+        // 规范化图片URL
+        v.ColorImageURL = getColorImageURL(v.ColorImageURL)
+        v.BoxImageURL = getBoxImageURL(v.BoxImageURL)
 
-	// 按 aids 顺序排序
-	sortedResult := make([]*AestheticDataRsp, 0)
-	for _, v := range aids {
-		for _, vv := range result {
-			if v == int(vv.ID) {
-				sortedResult = append(sortedResult, vv)
-				break
-			}
-		}
-	}
+        // 生成评论
+        tmplikedcolors := make([]int, 0)
+        for _, vv := range strings.Split(v.LikedColors, ",") {
+            tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
+        }
+        tmpadjectives := make([]string, 0)
+        for _, vv := range strings.Split(v.LikedAdjectives, ",") {
+            tmpadjectives = append(tmpadjectives, vv)
+        }
+        comments := mapComment(tmplikedcolors, tmpadjectives)
 
-	return &PageResponse{
-		List:     sortedResult,
-		Total:    total,
-		Page:     page,
-		PageSize: pageSize,
-	}, nil
+        rsp := &AestheticDataRsp{
+            AestheticData: v,
+            Comment:       comments,
+            SolutionID:    pair.sid,
+        }
+        sortedResult = append(sortedResult, rsp)
+    }
+
+    return &PageResponse{
+        List:     sortedResult,
+        Total:    total,
+        Page:     page,
+        PageSize: pageSize,
+    }, nil
+}
+
+// GetUserSolutionDetail 获取用户方案详情：通过solution_id查user_solutions拿到aid再取审美报告详情
+func (s *Service) GetUserSolutionDetail(userID uint, solutionID uint) (*AestheticDataRsp, error) {
+    var us UserSolution
+    if err := s.db.Where("id = ? AND user_id = ?", solutionID, userID).First(&us).Error; err != nil {
+        return nil, err
+    }
+    // 复用审美报告详情逻辑
+    detail, err := s.GetAestheticDataDetail(us.AID, userID)
+    if err != nil {
+        return nil, err
+    }
+    detail.SolutionID = int(us.ID)
+    return detail, nil
 }
 
 // GetAestheticDataDetail 获取审美数据详情

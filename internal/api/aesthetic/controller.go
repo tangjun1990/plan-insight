@@ -203,6 +203,34 @@ func (c *Controller) GetUserSolutionList(ctx *gin.Context) {
     c.ResponseSuccess(ctx, resp)
 }
 
+// GetUserSolutionDetail 获取用户方案详情
+// @Summary 获取用户方案详情
+// @Description 通过solution_id查询user_solutions拿到aid，再返回审美报告详情
+// @Tags 小程序
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "用户令牌"
+// @Param solution_id query int true "方案ID"
+// @Success 200 {object} Response{data=AestheticDataRsp} "成功响应"
+// @Router /api/aesthetic/solution/detail [get]
+func (c *Controller) GetUserSolutionDetail(ctx *gin.Context) {
+    sidStr := ctx.Query("solution_id")
+    sid, err := strconv.Atoi(sidStr)
+    if err != nil || sid <= 0 {
+        c.ResponseError(ctx, 400, "无效的solution_id参数")
+        return
+    }
+
+    userID := c.GetUserID(ctx)
+    data, err := c.service.GetUserSolutionDetail(userID, uint(sid))
+    if err != nil {
+        c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
+        return
+    }
+
+    c.ResponseSuccess(ctx, data)
+}
+
 // GetAestheticDataDetail 获取审美数据详情
 // @Summary 获取审美数据详情
 // @Description 小程序用户查看自己提交的审美数据详情

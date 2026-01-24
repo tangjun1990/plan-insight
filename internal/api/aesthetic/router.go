@@ -99,6 +99,8 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/data/collection", controller.GetUserCollectionList)
 			// 方案列表接口（与收藏同源，按需区分）
 			userGroup.GET("/solution/list", controller.GetUserSolutionList)
+			// 方案详情接口：通过solution_id获取审美报告详情
+			userGroup.GET("/solution/detail", controller.GetUserSolutionDetail)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
 
