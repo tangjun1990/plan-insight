@@ -3012,9 +3012,9 @@ func getSolutionImages(boxNum int) []string {
 	return []string{
 		fmt.Sprintf("%s/solution/img/1/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 		fmt.Sprintf("%s/solution/img/2/%d.webp", kcfg.GetString("app.global.host"), boxNum),
-		fmt.Sprintf("%s/solution/img/3/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 		fmt.Sprintf("%s/solution/img/4/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 		fmt.Sprintf("%s/solution/img/5/%d.webp", kcfg.GetString("app.global.host"), boxNum),
+		fmt.Sprintf("%s/solution/img/3/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 	}
 }
 
