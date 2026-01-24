@@ -139,6 +139,18 @@
             background-color: #dc3545;
         }
         .hidden { display: none; }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            margin-bottom: 12px;
+        }
+        .search-input {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -188,6 +200,11 @@
                     <button class="logout-btn" onclick="handleLogout()">退出登录</button>
                 </div>
                 <h1>用户管理</h1>
+                <div class="search-bar">
+                    <input id="searchPhone" class="search-input" type="text" placeholder="请输入手机号" />
+                    <button class="action-btn enable-btn" onclick="handleSearch()">搜索</button>
+                    <button class="action-btn disable-btn" onclick="resetSearch()">重置</button>
+                </div>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -229,12 +246,20 @@
     <script>
         // 检查登录状态
         function checkLogin() {
+            if (isPreview()) return; // 预览模式跳过登录检查
             const tokenExpire = localStorage.getItem('tokenExpire');
             const isTokenValid = tokenExpire && (parseInt(tokenExpire) > Date.now());
             
             if (!isTokenValid || localStorage.getItem('isLoggedIn') !== 'true') {
                 window.location.href = 'login';
             }
+        }
+
+        function isPreview() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('preview') === '1';
+            } catch (e) { return false; }
         }
 
         // 退出登录
@@ -347,15 +372,42 @@
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
 
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = () => loadUserData(i, pageSize);
-                if (i === currentPage) {
-                    button.classList.add('active');
+            const addBtn = (label, page, disabled = false, active = false) => {
+                const btn = document.createElement('button');
+                btn.textContent = label;
+                if (disabled) {
+                    btn.disabled = true;
+                } else {
+                    btn.onclick = () => loadUserData(page, pageSize);
                 }
-                pagination.appendChild(button);
+                if (active) btn.classList.add('active');
+                pagination.appendChild(btn);
+            };
+
+            // 上一页
+            addBtn('上一页', Math.max(1, currentPage - 1), currentPage === 1);
+
+            if (totalPages <= 10) {
+                for (let i = 1; i <= totalPages; i++) {
+                    addBtn(String(i), i, false, i === currentPage);
+                }
+            } else {
+                // 前5页
+                for (let i = 1; i <= 5; i++) {
+                    addBtn(String(i), i, false, i === currentPage);
+                }
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '...';
+                ellipsis.style.margin = '0 6px';
+                pagination.appendChild(ellipsis);
+                // 后5页
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    addBtn(String(i), i, false, i === currentPage);
+                }
             }
+
+            // 下一页
+            addBtn('下一页', Math.min(totalPages, currentPage + 1), currentPage === totalPages);
         }
 
         // 切换用户状态
@@ -408,7 +460,7 @@
         async function loadUserData(page = 1, size = 10) {
             try {
                 showLoading();
-                const userData = await fetchUserList(page, size);
+                const userData = await fetchUserList(page, size, currentFilter || {});
                 renderUserTable(userData);
                 currentPage = page;
                 pageSize = size;
@@ -422,7 +474,7 @@
         // 显示加载状态
         function showLoading() {
             const tbody = document.getElementById('userTableBody');
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;">加载中...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">加载中...</td></tr>';
         }
 
         // 隐藏加载状态
@@ -433,10 +485,27 @@
         // 初始化
         let currentPage = 1;
         let pageSize = 10;
+        let currentFilter = { phone: '' };
+
+        function handleSearch() {
+            const phoneInput = document.getElementById('searchPhone');
+            const phone = phoneInput ? phoneInput.value.trim() : '';
+            currentFilter.phone = phone;
+            loadUserData(1, pageSize);
+        }
+
+        function resetSearch() {
+            const phoneInput = document.getElementById('searchPhone');
+            if (phoneInput) phoneInput.value = '';
+            currentFilter.phone = '';
+            loadUserData(1, pageSize);
+        }
         
         window.onload = function() {
             checkLogin();
-            loadUserData();
+            if (!isPreview()) {
+                loadUserData();
+            }
         };
     </script>
 </body>
