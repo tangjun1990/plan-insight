@@ -138,6 +138,39 @@
         .disable-btn {
             background-color: #dc3545;
         }
+        .hidden { display: none; }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: #fff;
+            width: 380px;
+            border-radius: 8px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 14px 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+        }
+        .modal-body { padding: 14px 16px; }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 12px 16px;
+            border-top: 1px solid #eee;
+        }
+        .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .radio-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid #eee; border-radius: 6px; }
     </style>
 </head>
 <body>
@@ -172,6 +205,24 @@
                     <tbody id="userTableBody"></tbody>
                 </table>
                 <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </div>
+    <!-- Pro 开通弹窗 -->
+    <div id="proModal" class="modal-overlay hidden" onclick="onModalBackdropClick(event)">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="proModalTitle">
+            <div class="modal-header" id="proModalTitle">选择开通Pro时长</div>
+            <div class="modal-body">
+                <div class="radio-group">
+                    <label class="radio-item"><input type="radio" name="proDuration" value="30" checked>30天</label>
+                    <label class="radio-item"><input type="radio" name="proDuration" value="90">90天</label>
+                    <label class="radio-item"><input type="radio" name="proDuration" value="180">180天</label>
+                    <label class="radio-item"><input type="radio" name="proDuration" value="365">365天</label>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn disable-btn" onclick="closeProModal()">取消</button>
+                <button class="action-btn enable-btn" onclick="confirmOpenPro()">确认开通</button>
             </div>
         </div>
     </div>
@@ -275,17 +326,7 @@
                       '<button class="action-btn ' + (user.status === 1 ? 'disable-btn' : 'enable-btn') + '" ' +
                       'onclick="toggleUserStatus(' + user.id + ', ' + user.status + ')">' +
                       (user.status === 1 ? '禁用' : '启用') + '</button>' +
-                      (isProActive
-                        ? '<span class="pro-status" style="margin-left:8px;">Pro有效期至：' + proExpireText + '</span>'
-                        : '<span class="pro-action" style="margin-left:8px;">'
-                          + '<select id="proDays-' + user.id + '" class="pro-select">'
-                          + '<option value="30">30天</option>'
-                          + '<option value="90">90天</option>'
-                          + '<option value="180">180天</option>'
-                          + '<option value="365">365天</option>'
-                          + '</select>'
-                          + '<button class="action-btn enable-btn" style="margin-left:6px;" onclick="openPro(' + user.id + ')">开通Pro</button>'
-                          + '</span>') +
+                      '<button class="action-btn enable-btn" style="margin-left:8px;" onclick="showProModal(' + user.id + ')">开通Pro</button>' +
                     '</td>';
                 tbody.appendChild(row);
             });
@@ -332,16 +373,34 @@
             }
         }
 
-        // 开通Pro
-        async function openPro(userId) {
+        // Pro 弹窗交互
+        let proModalUserId = null;
+        function showProModal(userId) {
+            proModalUserId = userId;
+            // default select 30 days
+            const first = document.querySelector('input[name="proDuration"][value="30"]');
+            if (first) first.checked = true;
+            document.getElementById('proModal').classList.remove('hidden');
+        }
+        function closeProModal() {
+            document.getElementById('proModal').classList.add('hidden');
+            proModalUserId = null;
+        }
+        async function confirmOpenPro() {
             try {
-                const select = document.getElementById('proDays-' + userId);
-                const days = parseInt(select && select.value ? select.value : '30', 10);
-                await fetchAPI('/admin/user/' + userId + '/pro/open', 'POST', { days });
+                const checked = document.querySelector('input[name="proDuration"]:checked');
+                const days = parseInt(checked ? checked.value : '30', 10);
+                await fetchAPI('/admin/user/' + proModalUserId + '/pro/open', 'POST', { days });
                 alert('开通成功');
+                closeProModal();
                 await loadUserData(currentPage, pageSize);
             } catch (error) {
                 console.error('开通Pro失败:', error);
+            }
+        }
+        function onModalBackdropClick(e) {
+            if (e.target && e.target.id === 'proModal') {
+                closeProModal();
             }
         }
 
