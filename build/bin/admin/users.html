@@ -164,6 +164,7 @@
                             <th>年龄</th>
                             <th>所在地区</th>
                             <th>注册时间</th>
+                            <th>Pro到期时间</th>
                             <th>状态</th>
                             <th>操作</th>
                         </tr>
@@ -258,17 +259,34 @@
 
             userData.list.forEach((user) => {
                 const row = document.createElement('tr');
+                const proExpireText = formatDate(user.pro_expire_at);
+                const now = new Date();
+                const isProActive = (user.is_pro === 1) && user.pro_expire_at && (new Date(user.pro_expire_at) > now);
                 row.innerHTML = '<td>' + (user.name || '-') + '</td>' +
                     '<td>' + (user.phone || '-') + '</td>' +
                     '<td>' + (user.gender || '-') + '</td>' +
                     '<td>' + (user.age || '-') + '</td>' +
                     '<td>' + (user.city || '-') + '</td>' +
                     '<td>' + formatDate(user.first_login_time) + '</td>' +
+                    '<td>' + (proExpireText || '-') + '</td>' +
                     '<td><span class="status-badge ' + (user.status === 1 ? 'status-active' : 'status-disabled') + '">' +
                     (user.status === 1 ? '正常' : '禁用中') + '</span></td>' +
-                    '<td><button class="action-btn ' + (user.status === 1 ? 'disable-btn' : 'enable-btn') + '" ' +
-                    'onclick="toggleUserStatus(' + user.id + ', ' + user.status + ')">' +
-                    (user.status === 1 ? '禁用' : '启用') + '</button></td>';
+                    '<td>' +
+                      '<button class="action-btn ' + (user.status === 1 ? 'disable-btn' : 'enable-btn') + '" ' +
+                      'onclick="toggleUserStatus(' + user.id + ', ' + user.status + ')">' +
+                      (user.status === 1 ? '禁用' : '启用') + '</button>' +
+                      (isProActive
+                        ? '<span class="pro-status" style="margin-left:8px;">Pro有效期至：' + proExpireText + '</span>'
+                        : '<span class="pro-action" style="margin-left:8px;">'
+                          + '<select id="proDays-' + user.id + '" class="pro-select">'
+                          + '<option value="30">30天</option>'
+                          + '<option value="90">90天</option>'
+                          + '<option value="180">180天</option>'
+                          + '<option value="365">365天</option>'
+                          + '</select>'
+                          + '<button class="action-btn enable-btn" style="margin-left:6px;" onclick="openPro(' + user.id + ')">开通Pro</button>'
+                          + '</span>') +
+                    '</td>';
                 tbody.appendChild(row);
             });
 
@@ -311,6 +329,19 @@
                 await loadUserData(currentPage, pageSize);
             } catch (error) {
                 console.error('切换用户状态失败:', error);
+            }
+        }
+
+        // 开通Pro
+        async function openPro(userId) {
+            try {
+                const select = document.getElementById('proDays-' + userId);
+                const days = parseInt(select && select.value ? select.value : '30', 10);
+                await fetchAPI('/admin/user/' + userId + '/pro/open', 'POST', { days });
+                alert('开通成功');
+                await loadUserData(currentPage, pageSize);
+            } catch (error) {
+                console.error('开通Pro失败:', error);
             }
         }
 

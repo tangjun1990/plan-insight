@@ -95,23 +95,28 @@ type AdminLoginResponse struct {
 
 // 用户列表查询请求
 type UserListRequest struct {
-	Page     int    `form:"page" binding:"min=1"`              // 页码
-	PageSize int    `form:"page_size" binding:"min=1,max=100"` // 每页条数
-	Phone    string `form:"phone"`                             // 手机号码
-	Status   *int   `form:"status"`                            // 状态
+    Page     int    `form:"page" binding:"min=1"`              // 页码
+    PageSize int    `form:"page_size" binding:"min=1,max=100"` // 每页条数
+    Phone    string `form:"phone"`                             // 手机号码
+    Status   *int   `form:"status"`                            // 状态
 }
 
 // 用户状态更新请求
 type UserStatusRequest struct {
-	Status int `json:"status" binding:"oneof=0 1"` // 状态 1:正常 0:禁用
+    Status int `json:"status" binding:"oneof=0 1"` // 状态 1:正常 0:禁用
 }
 
 // UserUpdateRequest 用户信息更新请求
 type UserUpdateRequest struct {
-	Name   string `json:"name"`   // 姓名
-	Gender string `json:"gender"` // 性别
-	Age    int    `json:"age"`    // 年龄
-	City   string `json:"city"`   // 城市
+    Name   string `json:"name"`   // 姓名
+    Gender string `json:"gender"` // 性别
+    Age    int    `json:"age"`    // 年龄
+    City   string `json:"city"`   // 城市
+}
+
+// OpenProRequest 管理端开通Pro请求
+type OpenProRequest struct {
+    Days int `json:"days" binding:"required,oneof=30 90 180 365"` // 开通时长（天）
 }
 
 type CertQueryRequest struct {

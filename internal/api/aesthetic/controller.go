@@ -194,6 +194,16 @@ func (c *Controller) GetUserSolutionList(ctx *gin.Context) {
     pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
 
     userID := c.GetUserID(ctx)
+    // Pro准入校验
+    user, err := c.service.GetUserByID(userID)
+    if err != nil {
+        c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+        return
+    }
+    if !c.service.IsProActive(user) {
+        c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+        return
+    }
     resp, err := c.service.GetUserSolutionList(userID, page, pageSize)
     if err != nil {
         c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
@@ -222,6 +232,16 @@ func (c *Controller) GetUserSolutionDetail(ctx *gin.Context) {
     }
 
     userID := c.GetUserID(ctx)
+    // Pro准入校验
+    user, err := c.service.GetUserByID(userID)
+    if err != nil {
+        c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+        return
+    }
+    if !c.service.IsProActive(user) {
+        c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+        return
+    }
     data, err := c.service.GetUserSolutionDetail(userID, uint(sid))
     if err != nil {
         c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
@@ -370,6 +390,38 @@ func (c *Controller) EnableUser(ctx *gin.Context) {
 	}
 
 	c.ResponseSuccess(ctx, nil)
+}
+
+// OpenUserPro 管理端开通Pro
+// @Summary 开通Pro
+// @Description 管理员为指定用户开通Pro，支持30/90/180/365天
+// @Tags 管理后台
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "管理员令牌"
+// @Param id path int true "用户ID"
+// @Param body body OpenProRequest true "开通时长（天）"
+// @Success 200 {object} Response "成功响应"
+// @Router /admin/user/{id}/pro/open [post]
+func (c *Controller) OpenUserPro(ctx *gin.Context) {
+    id, err := strconv.Atoi(ctx.Param("id"))
+    if err != nil {
+        c.ResponseError(ctx, 400, "无效的ID参数")
+        return
+    }
+
+    var req OpenProRequest
+    if err := ctx.ShouldBindJSON(&req); err != nil {
+        c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+        return
+    }
+
+    if err := c.service.UpdateUserPro(uint(id), req.Days); err != nil {
+        c.ResponseError(ctx, 500, "开通Pro失败: "+err.Error())
+        return
+    }
+
+    c.ResponseSuccess(ctx, nil)
 }
 
 // GetAestheticDataList 获取审美数据列表

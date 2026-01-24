@@ -186,12 +186,26 @@ func (s *Service) GetUserByToken(token string) (*User, error) {
 
 // GetUserByID 根据ID获取用户信息
 func (s *Service) GetUserByID(userID uint) (*User, error) {
-	var user User
-	result := s.db.First(&user, userID)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &user, nil
+    var user User
+    result := s.db.First(&user, userID)
+    if result.Error != nil {
+        return nil, result.Error
+    }
+    return &user, nil
+}
+
+// IsProActive 判断用户Pro是否处于有效期
+func (s *Service) IsProActive(user *User) bool {
+    if user == nil {
+        return false
+    }
+    if user.IsPro != 1 {
+        return false
+    }
+    if user.ProExpireAt == nil {
+        return false
+    }
+    return user.ProExpireAt.After(time.Now())
 }
 
 func getRandomString(length int) string {
@@ -2840,6 +2854,30 @@ func (s *Service) GetUserList(req *UserListRequest) (*PageResponse, error) {
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}, nil
+}
+
+// UpdateUserPro 管理员为用户开通Pro
+func (s *Service) UpdateUserPro(userID uint, days int) error {
+    var user User
+    if err := s.db.First(&user, userID).Error; err != nil {
+        return err
+    }
+
+    // 计算新的到期时间：若已开通且未过期，则在原到期基础上延长；否则从当前时间开始
+    now := time.Now()
+    var base time.Time
+    if user.IsPro == 1 && user.ProExpireAt != nil && user.ProExpireAt.After(now) {
+        base = *user.ProExpireAt
+    } else {
+        base = now
+    }
+    expire := base.Add(time.Duration(days) * 24 * time.Hour)
+
+    updates := map[string]interface{}{
+        "is_pro":        1,
+        "pro_expire_at": expire,
+    }
+    return s.db.Model(&User{}).Where("id = ?", userID).Updates(updates).Error
 }
 
 // UpdateUserStatus 更新用户状态
