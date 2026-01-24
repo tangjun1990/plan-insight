@@ -2414,75 +2414,75 @@ func (s *Service) GetUserCollectionList(userID uint, page, pageSize int) (*PageR
 
 // GetUserSolutionList 获取用户方案列表（通过 user_collection 的 aid 关联 aesthetic_data）
 func (s *Service) GetUserSolutionList(userID uint, page, pageSize int) (*PageResponse, error) {
-    var total int64
-    var userCollection []UserCollection
-    // 计算总数
-    if err := s.db.Model(&UserCollection{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
-        return nil, err
-    }
-    // 分页查询收藏（方案）记录
-    if err := s.db.Where("user_id = ?", userID).
-        Order("id DESC").
-        Offset((page - 1) * pageSize).
-        Limit(pageSize).
-        Find(&userCollection).Error; err != nil {
-        return nil, err
-    }
+	var total int64
+	var userSoluton []UserSolution
+	// 计算总数
+	if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
+		return nil, err
+	}
+	// 分页查询收藏（方案）记录
+	if err := s.db.Where("user_id = ?", userID).
+		Order("id DESC").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&userSoluton).Error; err != nil {
+		return nil, err
+	}
 
-    var aids []int
-    for _, v := range userCollection {
-        aids = append(aids, int(v.AID))
-    }
+	var aids []int
+	for _, v := range userSoluton {
+		aids = append(aids, int(v.AID))
+	}
 
-    var list []AestheticData
-    if len(aids) == 0 {
-        return &PageResponse{List: []*AestheticDataRsp{}, Total: total, Page: page, PageSize: pageSize}, nil
-    }
+	var list []AestheticData
+	if len(aids) == 0 {
+		return &PageResponse{List: []*AestheticDataRsp{}, Total: total, Page: page, PageSize: pageSize}, nil
+	}
 
-    // 查询对应的审美数据
-    if err := s.db.Where("id in ?", aids).
-        Order("id DESC").
-        Find(&list).Error; err != nil {
-        return nil, err
-    }
+	// 查询对应的审美数据
+	if err := s.db.Where("id in ?", aids).
+		Order("id DESC").
+		Find(&list).Error; err != nil {
+		return nil, err
+	}
 
-    result := make([]*AestheticDataRsp, 0)
-    for k, v := range list {
-        list[k].ColorImageURL = getColorImageURL(v.ColorImageURL)
-        list[k].BoxImageURL = getBoxImageURL(v.BoxImageURL)
+	result := make([]*AestheticDataRsp, 0)
+	for k, v := range list {
+		list[k].ColorImageURL = getColorImageURL(v.ColorImageURL)
+		list[k].BoxImageURL = getBoxImageURL(v.BoxImageURL)
 
-        tmplikedcolors := make([]int, 0)
-        for _, vv := range strings.Split(v.LikedColors, ",") {
-            tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
-        }
-        tmpadjectives := make([]string, 0)
-        for _, vv := range strings.Split(v.LikedAdjectives, ",") {
-            tmpadjectives = append(tmpadjectives, vv)
-        }
-        comments := mapComment(tmplikedcolors, tmpadjectives)
-        result = append(result, &AestheticDataRsp{
-            AestheticData: list[k],
-            Comment:       comments,
-        })
-    }
+		tmplikedcolors := make([]int, 0)
+		for _, vv := range strings.Split(v.LikedColors, ",") {
+			tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
+		}
+		tmpadjectives := make([]string, 0)
+		for _, vv := range strings.Split(v.LikedAdjectives, ",") {
+			tmpadjectives = append(tmpadjectives, vv)
+		}
+		comments := mapComment(tmplikedcolors, tmpadjectives)
+		result = append(result, &AestheticDataRsp{
+			AestheticData: list[k],
+			Comment:       comments,
+		})
+	}
 
-    // 按 aids 顺序排序
-    sortedResult := make([]*AestheticDataRsp, 0)
-    for _, v := range aids {
-        for _, vv := range result {
-            if v == int(vv.ID) {
-                sortedResult = append(sortedResult, vv)
-                break
-            }
-        }
-    }
+	// 按 aids 顺序排序
+	sortedResult := make([]*AestheticDataRsp, 0)
+	for _, v := range aids {
+		for _, vv := range result {
+			if v == int(vv.ID) {
+				sortedResult = append(sortedResult, vv)
+				break
+			}
+		}
+	}
 
-    return &PageResponse{
-        List:     sortedResult,
-        Total:    total,
-        Page:     page,
-        PageSize: pageSize,
-    }, nil
+	return &PageResponse{
+		List:     sortedResult,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
 }
 
 // GetAestheticDataDetail 获取审美数据详情

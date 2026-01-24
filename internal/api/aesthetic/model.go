@@ -55,6 +55,15 @@ type UserCollection struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+// UserSolution 用户收藏
+type UserSolution struct {
+	ID        uint      `gorm:"primarykey" json:"id"`
+	UserID    uint      `gorm:"user_id" json:"user_id"` // 用户ID
+	AID       uint      `json:"aid"`                    // 报告ID
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type ColorDescItem struct {
 	Num   string   `json:"num"`
 	Name  string   `json:"name"`
