@@ -36,6 +36,12 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	server.Static("/boximg", "./boximg")
 	server.Static("/colorimg", "./colorimg")
 	server.Static("/ncdcert", "./ncdcert")
+	server.Static("/solution/tag", "./solution/tag")
+	server.Static("/solution/img/1", "./solution/img/1")
+	server.Static("/solution/img/2", "./solution/img/2")
+	server.Static("/solution/img/3", "./solution/img/3")
+	server.Static("/solution/img/4", "./solution/img/4")
+	server.Static("/solution/img/5", "./solution/img/5")
 
 	// 添加根路由，提供index.html页面
 	server.GET("/", func(c *gin.Context) {
@@ -91,6 +97,8 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.POST("/data/cancelCollection", controller.CancelCollection)
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
 			userGroup.GET("/data/collection", controller.GetUserCollectionList)
+			// 方案列表接口（与收藏同源，按需区分）
+			userGroup.GET("/solution/list", controller.GetUserSolutionList)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/images", controller.GetImageList)
 

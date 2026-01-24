@@ -165,17 +165,42 @@ func (c *Controller) GetUserAestheticDataList(ctx *gin.Context) {
 }
 
 func (c *Controller) GetUserCollectionList(ctx *gin.Context) {
-	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
+    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+    pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
 
-	userID := c.GetUserID(ctx)
-	resp, err := c.service.GetUserCollectionList(userID, page, pageSize)
-	if err != nil {
-		c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
-		return
-	}
+    userID := c.GetUserID(ctx)
+    resp, err := c.service.GetUserCollectionList(userID, page, pageSize)
+    if err != nil {
+        c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
+        return
+    }
 
-	c.ResponseSuccess(ctx, resp)
+    c.ResponseSuccess(ctx, resp)
+}
+
+// GetUserSolutionList 获取用户方案列表
+// @Summary 获取用户方案列表
+// @Description 小程序用户查看自己的方案列表（基于收藏与审美数据关联）
+// @Tags 小程序
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "用户令牌"
+// @Param page query int false "页码，默认1" default(1)
+// @Param page_size query int false "每页条数，默认10" default(10)
+// @Success 200 {object} Response{data=PageResponse{list=[]AestheticData}} "成功响应"
+// @Router /api/aesthetic/solution/list [get]
+func (c *Controller) GetUserSolutionList(ctx *gin.Context) {
+    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+    pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
+
+    userID := c.GetUserID(ctx)
+    resp, err := c.service.GetUserSolutionList(userID, page, pageSize)
+    if err != nil {
+        c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
+        return
+    }
+
+    c.ResponseSuccess(ctx, resp)
 }
 
 // GetAestheticDataDetail 获取审美数据详情
