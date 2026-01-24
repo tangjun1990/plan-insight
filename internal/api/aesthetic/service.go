@@ -2414,98 +2414,98 @@ func (s *Service) GetUserCollectionList(userID uint, page, pageSize int) (*PageR
 
 // GetUserSolutionList 获取用户方案列表（通过 user_collection 的 aid 关联 aesthetic_data）
 func (s *Service) GetUserSolutionList(userID uint, page, pageSize int) (*PageResponse, error) {
-    var total int64
-    var userSolutions []UserSolution
-    // 计算总数
-    if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
-        return nil, err
-    }
-    // 分页查询用户方案记录（保持按方案ID倒序的顺序）
-    if err := s.db.Where("user_id = ?", userID).
-        Order("id DESC").
-        Offset((page - 1) * pageSize).
-        Limit(pageSize).
-        Find(&userSolutions).Error; err != nil {
-        return nil, err
-    }
+	var total int64
+	var userSolutions []UserSolution
+	// 计算总数
+	if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
+		return nil, err
+	}
+	// 分页查询用户方案记录（保持按方案ID倒序的顺序）
+	if err := s.db.Where("user_id = ?", userID).
+		Order("id DESC").
+		Offset((page - 1) * pageSize).
+		Limit(pageSize).
+		Find(&userSolutions).Error; err != nil {
+		return nil, err
+	}
 
-    if len(userSolutions) == 0 {
-        return &PageResponse{List: []*AestheticDataRsp{}, Total: total, Page: page, PageSize: pageSize}, nil
-    }
+	if len(userSolutions) == 0 {
+		return &PageResponse{List: []*AestheticDataRsp{}, Total: total, Page: page, PageSize: pageSize}, nil
+	}
 
-    // 收集AID并建立(solutionID->AID)顺序映射
-    aids := make([]int, 0, len(userSolutions))
-    orderedPairs := make([]struct{ sid, aid int }, 0, len(userSolutions))
-    for _, us := range userSolutions {
-        a := int(us.AID)
-        aids = append(aids, a)
-        orderedPairs = append(orderedPairs, struct{ sid, aid int }{sid: int(us.ID), aid: a})
-    }
+	// 收集AID并建立(solutionID->AID)顺序映射
+	aids := make([]int, 0, len(userSolutions))
+	orderedPairs := make([]struct{ sid, aid int }, 0, len(userSolutions))
+	for _, us := range userSolutions {
+		a := int(us.AID)
+		aids = append(aids, a)
+		orderedPairs = append(orderedPairs, struct{ sid, aid int }{sid: int(us.ID), aid: a})
+	}
 
-    // 批量查询审美数据
-    var adList []AestheticData
-    if err := s.db.Where("id in ?", aids).Find(&adList).Error; err != nil {
-        return nil, err
-    }
+	// 批量查询审美数据
+	var adList []AestheticData
+	if err := s.db.Where("id in ?", aids).Find(&adList).Error; err != nil {
+		return nil, err
+	}
 
-    // 建立 AID -> AestheticData 映射
-    adMap := make(map[int]AestheticData)
-    for _, v := range adList {
-        adMap[int(v.ID)] = v
-    }
+	// 建立 AID -> AestheticData 映射
+	adMap := make(map[int]AestheticData)
+	for _, v := range adList {
+		adMap[int(v.ID)] = v
+	}
 
-    // 按userSolutions顺序构建返回结果，并设置solution_id
-    sortedResult := make([]*AestheticDataRsp, 0, len(orderedPairs))
-    for _, pair := range orderedPairs {
-        v, ok := adMap[pair.aid]
-        if !ok {
-            // 如果对应的审美数据不存在，跳过
-            continue
-        }
-        // 规范化图片URL
-        v.ColorImageURL = getColorImageURL(v.ColorImageURL)
-        v.BoxImageURL = getBoxImageURL(v.BoxImageURL)
+	// 按userSolutions顺序构建返回结果，并设置solution_id
+	sortedResult := make([]*AestheticDataRsp, 0, len(orderedPairs))
+	for _, pair := range orderedPairs {
+		v, ok := adMap[pair.aid]
+		if !ok {
+			// 如果对应的审美数据不存在，跳过
+			continue
+		}
+		// 规范化图片URL
+		v.ColorImageURL = getColorImageURL(v.ColorImageURL)
+		v.BoxImageURL = getBoxImageURL(v.BoxImageURL)
 
-        // 生成评论
-        tmplikedcolors := make([]int, 0)
-        for _, vv := range strings.Split(v.LikedColors, ",") {
-            tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
-        }
-        tmpadjectives := make([]string, 0)
-        for _, vv := range strings.Split(v.LikedAdjectives, ",") {
-            tmpadjectives = append(tmpadjectives, vv)
-        }
-        comments := mapComment(tmplikedcolors, tmpadjectives)
+		// 生成评论
+		tmplikedcolors := make([]int, 0)
+		for _, vv := range strings.Split(v.LikedColors, ",") {
+			tmplikedcolors = append(tmplikedcolors, cast.ToInt(vv))
+		}
+		tmpadjectives := make([]string, 0)
+		for _, vv := range strings.Split(v.LikedAdjectives, ",") {
+			tmpadjectives = append(tmpadjectives, vv)
+		}
+		comments := mapComment(tmplikedcolors, tmpadjectives)
 
-        rsp := &AestheticDataRsp{
-            AestheticData: v,
-            Comment:       comments,
-            SolutionID:    pair.sid,
-        }
-        sortedResult = append(sortedResult, rsp)
-    }
+		rsp := &AestheticDataRsp{
+			AestheticData: v,
+			Comment:       comments,
+			SolutionID:    pair.sid,
+		}
+		sortedResult = append(sortedResult, rsp)
+	}
 
-    return &PageResponse{
-        List:     sortedResult,
-        Total:    total,
-        Page:     page,
-        PageSize: pageSize,
-    }, nil
+	return &PageResponse{
+		List:     sortedResult,
+		Total:    total,
+		Page:     page,
+		PageSize: pageSize,
+	}, nil
 }
 
 // GetUserSolutionDetail 获取用户方案详情：通过solution_id查user_solutions拿到aid再取审美报告详情
 func (s *Service) GetUserSolutionDetail(userID uint, solutionID uint) (*AestheticDataRsp, error) {
-    var us UserSolution
-    if err := s.db.Where("id = ? AND user_id = ?", solutionID, userID).First(&us).Error; err != nil {
-        return nil, err
-    }
-    // 复用审美报告详情逻辑
-    detail, err := s.GetAestheticDataDetail(us.AID, userID)
-    if err != nil {
-        return nil, err
-    }
-    detail.SolutionID = int(us.ID)
-    return detail, nil
+	var us UserSolution
+	if err := s.db.Where("id = ? AND user_id = ?", solutionID, userID).First(&us).Error; err != nil {
+		return nil, err
+	}
+	// 复用审美报告详情逻辑
+	detail, err := s.GetAestheticDataDetail(us.AID, userID)
+	if err != nil {
+		return nil, err
+	}
+	detail.SolutionID = int(us.ID)
+	return detail, nil
 }
 
 // GetAestheticDataDetail 获取审美数据详情
@@ -2690,6 +2690,19 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 	}
 
 	summary = fmt.Sprintf("“ %s%s派 ”", firstscorebox, secondscorebox)
+	firstscoreboxnum := getBoxNumByName(firstscorebox)
+	secondscoreboxnum := getBoxNumByName(secondscorebox)
+	solutionone := SolutionItem{
+		Icon:   getSolutionIcon(firstscoreboxnum),
+		Images: getSolutionImages(firstscoreboxnum),
+	}
+	solutiontwo := SolutionItem{
+		Icon:   getSolutionIcon(secondscoreboxnum),
+		Images: getSolutionImages(secondscoreboxnum),
+	}
+	solutionlist := make([]SolutionItem, 0)
+	solutionlist = append(solutionlist, solutionone)
+	solutionlist = append(solutionlist, solutiontwo)
 
 	// 取wordscoremap中分数最高的5个word
 	wordbaseoncolor := make([]string, 0)
@@ -2736,6 +2749,7 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		Summary:            summary,
 		WordBaseOnColor:    resultword,
 		IsCollection:       isCollection,
+		SolutionList:       solutionlist,
 	}, nil
 }
 
@@ -2978,6 +2992,29 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 		return s.analyzeRegions(dataList, req.Top, req.Dimension), nil
 	default:
 		return nil, errors.New("不支持的分析类型")
+	}
+}
+
+func getBoxNumByName(boxName string) int {
+	for _, v := range globalBox {
+		if v.name == boxName {
+			return v.Num
+		}
+	}
+	return 0
+}
+
+func getSolutionIcon(boxNum int) string {
+	return fmt.Sprintf("%s/solution/tag/%d.webp", kcfg.GetString("app.global.host"), boxNum)
+}
+
+func getSolutionImages(boxNum int) []string {
+	return []string{
+		fmt.Sprintf("%s/solution/img/1/%d.webp", kcfg.GetString("app.global.host"), boxNum),
+		fmt.Sprintf("%s/solution/img/2/%d.webp", kcfg.GetString("app.global.host"), boxNum),
+		fmt.Sprintf("%s/solution/img/3/%d.webp", kcfg.GetString("app.global.host"), boxNum),
+		fmt.Sprintf("%s/solution/img/4/%d.webp", kcfg.GetString("app.global.host"), boxNum),
+		fmt.Sprintf("%s/solution/img/5/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 	}
 }
 

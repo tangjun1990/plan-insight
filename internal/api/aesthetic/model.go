@@ -84,10 +84,16 @@ type AestheticDataRsp struct {
 	LikedLifeImageDesc []string        `json:"liked_life_image_desc"`
 	LikedAreaImageDesc []string        `json:"liked_area_image_desc"`
 
-	Summary         string   `json:"summary"`
-	WordBaseOnColor []string `json:"word_base_on_color"`
-	IsCollection    int      `json:is_collection`
-	SolutionID      int      `json:"solution_id"`
+	Summary         string         `json:"summary"`
+	WordBaseOnColor []string       `json:"word_base_on_color"`
+	IsCollection    int            `json:is_collection`
+	SolutionID      int            `json:"solution_id"`
+	SolutionList    []SolutionItem `json:"solution_list"`
+}
+
+type SolutionItem struct {
+	Icon   string   `json:"icon"`
+	Images []string `json:"images"`
 }
 
 // Admin 管理员模型
