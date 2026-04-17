@@ -15,13 +15,15 @@ import (
 
 // Controller 审美感知应用API控制器
 type Controller struct {
-	service *Service
+	service                  *Service
+	saveAestheticDataLimiter chan struct{}
 }
 
 // NewController 创建控制器实例
 func NewController(service *Service) *Controller {
 	return &Controller{
-		service: service,
+		service:                  service,
+		saveAestheticDataLimiter: make(chan struct{}, 1),
 	}
 }
 
@@ -92,6 +94,17 @@ func (c *Controller) SaveAestheticData(ctx *gin.Context) {
 		return
 	}
 
+	// 本地串行化高开销的保存流程，避免瞬时高并发压垮当前服务进程。
+	select {
+	case c.saveAestheticDataLimiter <- struct{}{}:
+		defer func() {
+			<-c.saveAestheticDataLimiter
+		}()
+	case <-ctx.Request.Context().Done():
+		c.ResponseError(ctx, 499, "请求已取消，请稍后重试")
+		return
+	}
+
 	userID := c.GetUserID(ctx)
 	data, err := c.service.SaveAestheticData(userID, &req)
 	if err != nil {
@@ -150,36 +163,36 @@ func (c *Controller) CancelCollection(ctx *gin.Context) {
 // @Success 200 {object} Response{data=map[string]interface{}} "成功响应"
 // @Router /api/aesthetic/solution/create [post]
 func (c *Controller) CreateUserSolution(ctx *gin.Context) {
-    var req CreateSolutionRequest
-    if err := ctx.ShouldBindJSON(&req); err != nil {
-        c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
-        return
-    }
+	var req CreateSolutionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
 
-    userID := c.GetUserID(ctx)
-    user, err := c.service.GetUserByID(userID)
-    if err != nil {
-        c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
-        return
-    }
-    if !c.service.IsProActive(user) {
-        c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
-        return
-    }
+	userID := c.GetUserID(ctx)
+	user, err := c.service.GetUserByID(userID)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+		return
+	}
+	if !c.service.IsProActive(user) {
+		c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+		return
+	}
 
-    aid, convErr := strconv.Atoi(req.AID)
-    if convErr != nil || aid <= 0 {
-        c.ResponseError(ctx, 400, "无效的aid参数")
-        return
-    }
+	aid, convErr := strconv.Atoi(req.AID)
+	if convErr != nil || aid <= 0 {
+		c.ResponseError(ctx, 400, "无效的aid参数")
+		return
+	}
 
-    us, createErr := c.service.CreateUserSolution(userID, uint(aid))
-    if createErr != nil {
-        c.ResponseError(ctx, 500, createErr.Error())
-        return
-    }
+	us, createErr := c.service.CreateUserSolution(userID, uint(aid))
+	if createErr != nil {
+		c.ResponseError(ctx, 500, createErr.Error())
+		return
+	}
 
-    c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID})
+	c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID})
 }
 
 // GetUserAestheticDataList 获取用户审美数据列表
@@ -208,17 +221,17 @@ func (c *Controller) GetUserAestheticDataList(ctx *gin.Context) {
 }
 
 func (c *Controller) GetUserCollectionList(ctx *gin.Context) {
-    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-    pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
 
-    userID := c.GetUserID(ctx)
-    resp, err := c.service.GetUserCollectionList(userID, page, pageSize)
-    if err != nil {
-        c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
-        return
-    }
+	userID := c.GetUserID(ctx)
+	resp, err := c.service.GetUserCollectionList(userID, page, pageSize)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
+		return
+	}
 
-    c.ResponseSuccess(ctx, resp)
+	c.ResponseSuccess(ctx, resp)
 }
 
 // GetUserSolutionList 获取用户方案列表
@@ -233,27 +246,27 @@ func (c *Controller) GetUserCollectionList(ctx *gin.Context) {
 // @Success 200 {object} Response{data=PageResponse{list=[]AestheticData}} "成功响应"
 // @Router /api/aesthetic/solution/list [get]
 func (c *Controller) GetUserSolutionList(ctx *gin.Context) {
-    page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
-    pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
+	page, _ := strconv.Atoi(ctx.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(ctx.DefaultQuery("page_size", "10"))
 
-    userID := c.GetUserID(ctx)
-    // Pro准入校验
-    user, err := c.service.GetUserByID(userID)
-    if err != nil {
-        c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
-        return
-    }
-    if !c.service.IsProActive(user) {
-        c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
-        return
-    }
-    resp, err := c.service.GetUserSolutionList(userID, page, pageSize)
-    if err != nil {
-        c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
-        return
-    }
+	userID := c.GetUserID(ctx)
+	// Pro准入校验
+	user, err := c.service.GetUserByID(userID)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+		return
+	}
+	if !c.service.IsProActive(user) {
+		c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+		return
+	}
+	resp, err := c.service.GetUserSolutionList(userID, page, pageSize)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
+		return
+	}
 
-    c.ResponseSuccess(ctx, resp)
+	c.ResponseSuccess(ctx, resp)
 }
 
 // GetUserSolutionDetail 获取用户方案详情
@@ -267,31 +280,31 @@ func (c *Controller) GetUserSolutionList(ctx *gin.Context) {
 // @Success 200 {object} Response{data=AestheticDataRsp} "成功响应"
 // @Router /api/aesthetic/solution/detail [get]
 func (c *Controller) GetUserSolutionDetail(ctx *gin.Context) {
-    sidStr := ctx.Query("solution_id")
-    sid, err := strconv.Atoi(sidStr)
-    if err != nil || sid <= 0 {
-        c.ResponseError(ctx, 400, "无效的solution_id参数")
-        return
-    }
+	sidStr := ctx.Query("solution_id")
+	sid, err := strconv.Atoi(sidStr)
+	if err != nil || sid <= 0 {
+		c.ResponseError(ctx, 400, "无效的solution_id参数")
+		return
+	}
 
-    userID := c.GetUserID(ctx)
-    // Pro准入校验
-    user, err := c.service.GetUserByID(userID)
-    if err != nil {
-        c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
-        return
-    }
-    if !c.service.IsProActive(user) {
-        c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
-        return
-    }
-    data, err := c.service.GetUserSolutionDetail(userID, uint(sid))
-    if err != nil {
-        c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
-        return
-    }
+	userID := c.GetUserID(ctx)
+	// Pro准入校验
+	user, err := c.service.GetUserByID(userID)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+		return
+	}
+	if !c.service.IsProActive(user) {
+		c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+		return
+	}
+	data, err := c.service.GetUserSolutionDetail(userID, uint(sid))
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
+		return
+	}
 
-    c.ResponseSuccess(ctx, data)
+	c.ResponseSuccess(ctx, data)
 }
 
 // GetAestheticDataDetail 获取审美数据详情
@@ -447,24 +460,24 @@ func (c *Controller) EnableUser(ctx *gin.Context) {
 // @Success 200 {object} Response "成功响应"
 // @Router /admin/user/{id}/pro/open [post]
 func (c *Controller) OpenUserPro(ctx *gin.Context) {
-    id, err := strconv.Atoi(ctx.Param("id"))
-    if err != nil {
-        c.ResponseError(ctx, 400, "无效的ID参数")
-        return
-    }
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		c.ResponseError(ctx, 400, "无效的ID参数")
+		return
+	}
 
-    var req OpenProRequest
-    if err := ctx.ShouldBindJSON(&req); err != nil {
-        c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
-        return
-    }
+	var req OpenProRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
 
-    if err := c.service.UpdateUserPro(uint(id), req.Days); err != nil {
-        c.ResponseError(ctx, 500, "开通Pro失败: "+err.Error())
-        return
-    }
+	if err := c.service.UpdateUserPro(uint(id), req.Days); err != nil {
+		c.ResponseError(ctx, 500, "开通Pro失败: "+err.Error())
+		return
+	}
 
-    c.ResponseSuccess(ctx, nil)
+	c.ResponseSuccess(ctx, nil)
 }
 
 // GetAestheticDataList 获取审美数据列表

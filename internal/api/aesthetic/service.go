@@ -186,26 +186,26 @@ func (s *Service) GetUserByToken(token string) (*User, error) {
 
 // GetUserByID 根据ID获取用户信息
 func (s *Service) GetUserByID(userID uint) (*User, error) {
-    var user User
-    result := s.db.First(&user, userID)
-    if result.Error != nil {
-        return nil, result.Error
-    }
-    return &user, nil
+	var user User
+	result := s.db.First(&user, userID)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
 }
 
 // IsProActive 判断用户Pro是否处于有效期
 func (s *Service) IsProActive(user *User) bool {
-    if user == nil {
-        return false
-    }
-    if user.IsPro != 1 {
-        return false
-    }
-    if user.ProExpireAt == nil {
-        return false
-    }
-    return user.ProExpireAt.After(time.Now())
+	if user == nil {
+		return false
+	}
+	if user.IsPro != 1 {
+		return false
+	}
+	if user.ProExpireAt == nil {
+		return false
+	}
+	return user.ProExpireAt.After(time.Now())
 }
 
 func getRandomString(length int) string {
@@ -1867,26 +1867,26 @@ func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) er
 
 // CreateUserSolution 为用户创建方案（避免重复）
 func (s *Service) CreateUserSolution(userID uint, aid uint) (*UserSolution, error) {
-    var total int64
-    if err := s.db.Model(&UserSolution{}).
-        Where("user_id = ?", userID).
-        Where("a_id = ?", aid).
-        Count(&total).Error; err != nil {
-        return nil, err
-    }
-    if total > 0 {
-        return nil, errors.New("您已经对本报告生成过方案，请前往我的方案页面查看！")
-    }
+	var total int64
+	if err := s.db.Model(&UserSolution{}).
+		Where("user_id = ?", userID).
+		Where("a_id = ?", aid).
+		Count(&total).Error; err != nil {
+		return nil, err
+	}
+	if total > 0 {
+		return nil, errors.New("您已经对本报告生成过方案，请前往我的方案页面查看！")
+	}
 
-    us := &UserSolution{
-        UserID:    userID,
-        AID:       aid,
-        CreatedAt: time.Now(),
-    }
-    if err := s.db.Create(us).Error; err != nil {
-        return nil, err
-    }
-    return us, nil
+	us := &UserSolution{
+		UserID:    userID,
+		AID:       aid,
+		CreatedAt: time.Now(),
+	}
+	if err := s.db.Create(us).Error; err != nil {
+		return nil, err
+	}
+	return us, nil
 }
 
 // SaveAestheticData 保存审美数据
@@ -2804,14 +2804,18 @@ func (s *Service) AdminLogin(req *AdminLoginRequest) (*AdminLoginResponse, error
 		return nil, result.Error
 	}
 
-	// 实际项目中应该对密码进行加密存储和验证
-	if admin.Password != req.Password {
-		return nil, errors.New("密码错误")
+	inputPasswordMD5 := hashPasswordMD5(req.Password)
+	if admin.Password != inputPasswordMD5 {
+		// 兼容历史明文密码，登录成功后自动升级为 MD5 存储。
+		if admin.Password != req.Password {
+			return nil, errors.New("密码错误")
+		}
+		admin.Password = inputPasswordMD5
 	}
 
 	// 生成token
 	now := time.Now()
-	expireAt := now.Add(24 * time.Hour) // token有效期24小时
+	expireAt := now.Add(2 * time.Hour) // token有效期2小时
 	token := fmt.Sprintf("admin_token_%d_%d", now.Unix(), now.UnixNano())
 
 	// 更新token
@@ -2882,26 +2886,26 @@ func (s *Service) GetUserList(req *UserListRequest) (*PageResponse, error) {
 
 // UpdateUserPro 管理员为用户开通Pro
 func (s *Service) UpdateUserPro(userID uint, days int) error {
-    var user User
-    if err := s.db.First(&user, userID).Error; err != nil {
-        return err
-    }
+	var user User
+	if err := s.db.First(&user, userID).Error; err != nil {
+		return err
+	}
 
-    // 计算新的到期时间：若已开通且未过期，则在原到期基础上延长；否则从当前时间开始
-    now := time.Now()
-    var base time.Time
-    if user.IsPro == 1 && user.ProExpireAt != nil && user.ProExpireAt.After(now) {
-        base = *user.ProExpireAt
-    } else {
-        base = now
-    }
-    expire := base.Add(time.Duration(days) * 24 * time.Hour)
+	// 计算新的到期时间：若已开通且未过期，则在原到期基础上延长；否则从当前时间开始
+	now := time.Now()
+	var base time.Time
+	if user.IsPro == 1 && user.ProExpireAt != nil && user.ProExpireAt.After(now) {
+		base = *user.ProExpireAt
+	} else {
+		base = now
+	}
+	expire := base.Add(time.Duration(days) * 24 * time.Hour)
 
-    updates := map[string]interface{}{
-        "is_pro":        1,
-        "pro_expire_at": expire,
-    }
-    return s.db.Model(&User{}).Where("id = ?", userID).Updates(updates).Error
+	updates := map[string]interface{}{
+		"is_pro":        1,
+		"pro_expire_at": expire,
+	}
+	return s.db.Model(&User{}).Where("id = ?", userID).Updates(updates).Error
 }
 
 // UpdateUserStatus 更新用户状态

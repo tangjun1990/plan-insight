@@ -157,8 +157,8 @@ func InitAdminUser(db *gorm.DB) error {
 	// 如果没有管理员账号，则创建一个默认管理员
 	if count == 0 {
 		admin := Admin{
-			Phone:    "13800138000", // 默认管理员手机号
-			Password: "admin123",    // 默认管理员密码
+			Phone:    "planadminncdchina",                       // 默认管理员手机号
+			Password: hashPasswordMD5("QdaiAyzusn1Gj23_1sjPQY"), // 默认管理员密码（MD5）
 		}
 		return db.Create(&admin).Error
 	}
@@ -168,10 +168,10 @@ func InitAdminUser(db *gorm.DB) error {
 
 // AutoMigrate 自动创建表结构
 func AutoMigrate(db *gorm.DB) error {
-    // 自动迁移表结构
-    if err := db.AutoMigrate(&User{}, &AestheticData{}, &Admin{}, &UserCollection{}, &UserSolution{}); err != nil {
-        return err
-    }
+	// 自动迁移表结构
+	if err := db.AutoMigrate(&User{}, &AestheticData{}, &Admin{}, &UserCollection{}, &UserSolution{}); err != nil {
+		return err
+	}
 
 	// 初始化管理员账号
 	return InitAdminUser(db)
