@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"image/gif"
 	"image/jpeg"
 	"image/png"
@@ -20,10 +21,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/disintegration/imaging"
 	"github.com/spf13/cast"
 	"github.com/tangjun1990/flygo/core/kcfg"
-	"github.com/tangjun1990/plan-insight/pkg/imagex"
 	"github.com/tangjun1990/plan-insight/pkg/util/utilstr"
 	"gorm.io/gorm"
 )
@@ -2099,6 +2098,8 @@ func mapComment(likedColors []int, likedAdjectives []string) []string {
 
 // DrawToBox 将用户所选择的颜色，形容词，图片都合并到抽屉图中
 func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []string) string {
+	ensureRenderIndexes()
+
 	tempDir := "./"
 
 	// 输入图片路径 (实际使用时请替换为实际图片路径)
@@ -2107,7 +2108,10 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 	// 输出图片路径
 	outputPath := filepath.Join(tempDir, fmt.Sprintf("boximg/output_%d_%d.jpg", time.Now().UnixNano(), rand.Intn(1000)+9000))
 
-	backgroundImage, _ := GetImageFromFile(inputPath)
+	backgroundImage, err := loadImageAsRGBA(inputPath)
+	if err != nil {
+		return ""
+	}
 
 	// 1.把图片合并到抽屉图
 	//var overlap *image.NRGBA
@@ -2149,44 +2153,26 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 		}
 	}
 	*/
-	_ = imaging.Save(backgroundImage, outputPath)
-
 	// 3.把喜欢的颜色合并到抽屉图
 	likedcolormap := make(map[int][]int, 0)
 	for _, v := range likedColor {
-		for _, vv := range globalBox {
-			for _, vvv := range vv.Colors {
-				if vvv == v {
-					if _, ok := likedcolormap[vv.Num]; ok {
-						likedcolormap[vv.Num] = append(likedcolormap[vv.Num], v)
-					} else {
-						likedcolormap[vv.Num] = []int{v}
-					}
-				}
-			}
+		if boxNum, ok := colorToBoxNum[v]; ok {
+			likedcolormap[boxNum] = append(likedcolormap[boxNum], v)
 		}
 	}
-	for _, v := range likedcolormap {
-		startX := 0
-		startY := 0
-		for _, col := range v {
-			for _, vv := range globalBox {
-				for _, vvv := range vv.Colors {
-					if vvv == col {
-						startX = vv.StartX
-						startY = vv.StartY
-					}
-				}
-			}
+	for boxNum, v := range likedcolormap {
+		box, ok := boxByNum[boxNum]
+		if !ok {
+			continue
 		}
+
+		startX := box.StartX
+		startY := box.StartY
 		for _, col := range v {
 			// 画喜欢的颜色，x不变，y增加250
 			curY := startY + 10
 			r, g, b := numToRGB(col)
-			// 画喜欢的颜色，使用矩形
-			err := imagex.DrawRectangleOnImage(outputPath, startX, curY, 100, 100, r, g, b, outputPath)
-			if err != nil {
-			}
+			drawSolidRectangleRGBA(backgroundImage, startX, curY, 100, 100, color.RGBA{R: r, G: g, B: b, A: 255})
 			// 如果是多个颜色，x增加100
 			startX = startX + 100
 		}
@@ -2195,39 +2181,23 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 	// 4.把不喜欢的颜色合并到抽屉图
 	dislikedcolormap := make(map[int][]int, 0)
 	for _, v := range dislikedColor {
-		for _, vv := range globalBox {
-			for _, vvv := range vv.Colors {
-				if vvv == v {
-					if _, ok := dislikedcolormap[vv.Num]; ok {
-						dislikedcolormap[vv.Num] = append(dislikedcolormap[vv.Num], v)
-					} else {
-						dislikedcolormap[vv.Num] = []int{v}
-					}
-				}
-			}
+		if boxNum, ok := colorToBoxNum[v]; ok {
+			dislikedcolormap[boxNum] = append(dislikedcolormap[boxNum], v)
 		}
 	}
-	for _, v := range dislikedcolormap {
-		startX := 0
-		startY := 0
-		for _, col := range v {
-			for _, vv := range globalBox {
-				for _, vvv := range vv.Colors {
-					if vvv == col {
-						startX = vv.StartX
-						startY = vv.StartY
-					}
-				}
-			}
+	for boxNum, v := range dislikedcolormap {
+		box, ok := boxByNum[boxNum]
+		if !ok {
+			continue
 		}
+
+		startX := box.StartX
+		startY := box.StartY
 		for _, col := range v {
 			// 画不喜欢的颜色，x不变，y增加250
 			curY := startY + 110
 			r, g, b := numToRGB(col)
-			// 画不喜欢的颜色，使用矩形
-			err := imagex.DrawCrossOnImage(outputPath, startX, curY, 100, 20, r, g, b, outputPath)
-			if err != nil {
-			}
+			drawCrossRGBA(backgroundImage, startX, curY, 100, 20, color.RGBA{R: r, G: g, B: b, A: 255})
 			// 如果是多个颜色，x增加55
 			startX = startX + 100
 		}
@@ -2236,31 +2206,28 @@ func DrawToBox(likedImages []string, likedColor, dislikedColor []int, words []st
 	// 把关键词合并到抽屉图
 	wordmap := make(map[int][]string, 0)
 	for _, v := range words {
-		for _, vv := range globalBox {
-			for _, vvv := range vv.Words {
-				if vvv == v {
-					if _, ok := wordmap[vv.Num]; ok {
-						wordmap[vv.Num] = append(wordmap[vv.Num], v)
-					} else {
-						wordmap[vv.Num] = []string{v}
-					}
-				}
-			}
+		if boxNum, ok := wordToBoxNum[v]; ok {
+			wordmap[boxNum] = append(wordmap[boxNum], v)
 		}
 	}
 	for vnum, v := range wordmap {
-		startX := 0
-		startY := 0
-		for _, vv := range globalBox {
-			if vv.Num == vnum {
-				startX = vv.StartX
-				startY = vv.StartY
-			}
+		box, ok := boxByNum[vnum]
+		if !ok {
+			continue
 		}
+
+		startX := box.StartX
+		startY := box.StartY
 		curY := startY + 230
 		tmpstring := strings.Join(v, ",")
-		imagex.DrawTextOnImage(outputPath, startX, curY, 60, tmpstring, 86, 102, 169, "./msyhbd.ttc", outputPath)
+		if err := drawLabelTextRGBA(backgroundImage, startX, curY, 60, tmpstring, color.RGBA{R: 86, G: 102, B: 169, A: 255}, "./msyhbd.ttc"); err != nil {
+			return ""
+		}
 		// 使用freetype将文字写入图片overlap中
+	}
+
+	if err := saveRenderedImage(outputPath, backgroundImage); err != nil {
+		return ""
 	}
 	return outputPath
 }
@@ -2275,10 +2242,12 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 	// 输出图片路径
 	outputPath := filepath.Join(tempDir, fmt.Sprintf("colorimg/output_%d_%d.jpg", time.Now().UnixNano(), rand.Intn(1000)+9000))
 
-	for k, v := range likedColorNum {
-		if k > 0 {
-			inputPath = outputPath
-		}
+	backgroundImage, err := loadImageAsRGBA(inputPath)
+	if err != nil {
+		return ""
+	}
+
+	for _, v := range likedColorNum {
 		xstep := ((v - 1) % 10)
 		ystep := (v - 1) / 10
 		// 设置矩形参数
@@ -2296,11 +2265,7 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 		}
 
 		// 画喜欢的颜色，使用矩形
-		err := imagex.DrawRectangleOnImage(inputPath, x, y, width, height, r, g, b, outputPath)
-		if err != nil {
-			fmt.Printf("处理图片时出错: %v\n", err)
-			return ""
-		}
+		drawSolidRectangleRGBA(backgroundImage, x, y, width, height, color.RGBA{R: r, G: g, B: b, A: 255})
 	}
 
 	for _, v := range disLikedColorNum {
@@ -2321,11 +2286,12 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 		}
 
 		// 画讨厌的颜色，使用三角形
-		err := imagex.DrawCrossOnImage(outputPath, x, y, width, 20, r, g, b, outputPath)
-		if err != nil {
-			fmt.Printf("处理图片时出错: %v\n", err)
-			return ""
-		}
+		drawCrossRGBA(backgroundImage, x, y, width, 20, color.RGBA{R: r, G: g, B: b, A: 255})
+	}
+
+	if err := saveRenderedImage(outputPath, backgroundImage); err != nil {
+		fmt.Printf("处理图片时出错: %v\n", err)
+		return ""
 	}
 
 	return outputPath
