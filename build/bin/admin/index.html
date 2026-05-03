@@ -118,6 +118,12 @@
         .pagination button {
             margin: 0 5px;
             padding: 5px 10px;
+            cursor: pointer;
+        }
+        .pagination button.active {
+            background-color: #007bff;
+            color: white;
+            border: none;
         }
         .chart-tabs {
             margin-top: 20px;
@@ -654,15 +660,42 @@
             totalCountSpan.style.marginRight = '15px';
             pagination.appendChild(totalCountSpan);
 
-            for (let i = 1; i <= totalPages; i++) {
+            const addBtn = (label, page, disabled = false, active = false) => {
                 const button = document.createElement('button');
-                button.textContent = i;
-                button.onclick = () => loadAestheticData(i, pageSize);
-                if (i === currentPage) {
+                button.textContent = label;
+                if (disabled) {
+                    button.disabled = true;
+                } else {
+                    button.onclick = () => loadAestheticData(page, pageSize);
+                }
+                if (active) {
                     button.classList.add('active');
                 }
                 pagination.appendChild(button);
+            };
+
+            addBtn('上一页', Math.max(1, currentPage - 1), currentPage === 1);
+
+            if (totalPages <= 10) {
+                for (let i = 1; i <= totalPages; i++) {
+                    addBtn(String(i), i, false, i === currentPage);
+                }
+            } else {
+                for (let i = 1; i <= 5; i++) {
+                    addBtn(String(i), i, false, i === currentPage);
+                }
+
+                const ellipsis = document.createElement('span');
+                ellipsis.textContent = '...';
+                ellipsis.style.margin = '0 6px';
+                pagination.appendChild(ellipsis);
+
+                for (let i = totalPages - 4; i <= totalPages; i++) {
+                    addBtn(String(i), i, false, i === currentPage);
+                }
             }
+
+            addBtn('下一页', Math.min(totalPages, currentPage + 1), currentPage === totalPages || totalPages === 0);
         }
 
         // 加载所有图表
