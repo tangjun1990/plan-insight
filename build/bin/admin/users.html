@@ -184,6 +184,27 @@
         }
         .radio-group { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .radio-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid #eee; border-radius: 6px; }
+        .batch-btn { background-color: #6f42c1; }
+        .batch-btn:hover { background-color: #5b34a1; }
+        .modal-wide { width: 520px; }
+        .form-label { display: block; font-weight: 600; margin-bottom: 8px; }
+        .phone-textarea {
+            width: 100%;
+            min-height: 180px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.6;
+        }
+        .form-help {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #666;
+        }
+        .duration-section { margin-top: 16px; }
     </style>
 </head>
 <body>
@@ -205,6 +226,7 @@
                     <input id="searchPhone" class="search-input" type="text" placeholder="请输入手机号" />
                     <button class="action-btn enable-btn" onclick="handleSearch()">搜索</button>
                     <button class="action-btn disable-btn" onclick="resetSearch()">重置</button>
+                    <button class="action-btn batch-btn" onclick="showBatchProModal()">批量开通Pro</button>
                 </div>
                 <table class="data-table">
                     <thead>
@@ -241,6 +263,29 @@
             <div class="modal-actions">
                 <button class="action-btn disable-btn" onclick="closeProModal()">取消</button>
                 <button class="action-btn enable-btn" onclick="confirmOpenPro()">确认开通</button>
+            </div>
+        </div>
+    </div>
+    <div id="batchProModal" class="modal-overlay hidden" onclick="onBatchModalBackdropClick(event)">
+        <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="batchProModalTitle">
+            <div class="modal-header" id="batchProModalTitle">批量开通Pro</div>
+            <div class="modal-body">
+                <label class="form-label" for="batchPhoneInput">手机号列表</label>
+                <textarea id="batchPhoneInput" class="phone-textarea" placeholder="请输入手机号，一行一个，最多200个"></textarea>
+                <div class="form-help">支持换行输入多个手机号，系统会自动去重并忽略空行，最多 200 个。</div>
+                <div class="duration-section">
+                    <label class="form-label">开通时长</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="batchProDuration" value="30" checked>30天</label>
+                        <label class="radio-item"><input type="radio" name="batchProDuration" value="90">90天</label>
+                        <label class="radio-item"><input type="radio" name="batchProDuration" value="180">180天</label>
+                        <label class="radio-item"><input type="radio" name="batchProDuration" value="365">365天</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn disable-btn" onclick="closeBatchProModal()">取消</button>
+                <button class="action-btn enable-btn" onclick="confirmBatchOpenPro()">确认开通</button>
             </div>
         </div>
     </div>
@@ -327,6 +372,10 @@
         // 禁用用户
         async function disableUser(userId) {
             return await fetchAPI('/admin/user/' + userId + '/disable', 'PUT');
+        }
+
+        async function batchOpenPro(phones, days) {
+            return await fetchAPI('/admin/user/pro/open/batch', 'POST', { phones, days });
         }
 
         // 渲染用户表格
@@ -454,6 +503,65 @@
         function onModalBackdropClick(e) {
             if (e.target && e.target.id === 'proModal') {
                 closeProModal();
+            }
+        }
+
+        function showBatchProModal() {
+            const first = document.querySelector('input[name="batchProDuration"][value="30"]');
+            if (first) first.checked = true;
+            const input = document.getElementById('batchPhoneInput');
+            if (input) input.value = '';
+            document.getElementById('batchProModal').classList.remove('hidden');
+        }
+
+        function closeBatchProModal() {
+            document.getElementById('batchProModal').classList.add('hidden');
+        }
+
+        function onBatchModalBackdropClick(e) {
+            if (e.target && e.target.id === 'batchProModal') {
+                closeBatchProModal();
+            }
+        }
+
+        function parseBatchPhones(rawText) {
+            const parts = rawText
+                .split(/\r?\n/)
+                .map(item => item.trim())
+                .filter(Boolean);
+            return Array.from(new Set(parts));
+        }
+
+        async function confirmBatchOpenPro() {
+            try {
+                const input = document.getElementById('batchPhoneInput');
+                const phones = parseBatchPhones(input ? input.value : '');
+                if (phones.length === 0) {
+                    alert('请先输入手机号');
+                    return;
+                }
+                if (phones.length > 200) {
+                    alert('单次最多支持200个手机号');
+                    return;
+                }
+
+                const checked = document.querySelector('input[name="batchProDuration"]:checked');
+                const days = parseInt(checked ? checked.value : '30', 10);
+                const result = await batchOpenPro(phones, days);
+
+                let message = '批量开通完成\n' +
+                    '输入数量：' + result.total_input + '\n' +
+                    '去重后数量：' + result.unique_phones + '\n' +
+                    '成功数量：' + result.success_count;
+                if (result.not_found_phones && result.not_found_phones.length > 0) {
+                    message += '\n未找到手机号：' + result.not_found_phones.join('、');
+                }
+
+                alert(message);
+                closeBatchProModal();
+                await loadUserData(currentPage, pageSize);
+            } catch (error) {
+                console.error('批量开通Pro失败:', error);
             }
         }
 

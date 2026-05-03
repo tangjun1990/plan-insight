@@ -44,12 +44,12 @@ type AddCollectionRequest struct {
 }
 
 type CancelCollectionRequest struct {
-    AID string `json:"aid" binding:"required"`
+	AID string `json:"aid" binding:"required"`
 }
 
 // 生成方案请求
 type CreateSolutionRequest struct {
-    AID string `json:"aid" binding:"required"`
+	AID string `json:"aid" binding:"required"`
 }
 
 // 审美数据列表查询请求
@@ -100,28 +100,43 @@ type AdminLoginResponse struct {
 
 // 用户列表查询请求
 type UserListRequest struct {
-    Page     int    `form:"page" binding:"min=1"`              // 页码
-    PageSize int    `form:"page_size" binding:"min=1,max=100"` // 每页条数
-    Phone    string `form:"phone"`                             // 手机号码
-    Status   *int   `form:"status"`                            // 状态
+	Page     int    `form:"page" binding:"min=1"`              // 页码
+	PageSize int    `form:"page_size" binding:"min=1,max=100"` // 每页条数
+	Phone    string `form:"phone"`                             // 手机号码
+	Status   *int   `form:"status"`                            // 状态
 }
 
 // 用户状态更新请求
 type UserStatusRequest struct {
-    Status int `json:"status" binding:"oneof=0 1"` // 状态 1:正常 0:禁用
+	Status int `json:"status" binding:"oneof=0 1"` // 状态 1:正常 0:禁用
 }
 
 // UserUpdateRequest 用户信息更新请求
 type UserUpdateRequest struct {
-    Name   string `json:"name"`   // 姓名
-    Gender string `json:"gender"` // 性别
-    Age    int    `json:"age"`    // 年龄
-    City   string `json:"city"`   // 城市
+	Name   string `json:"name"`   // 姓名
+	Gender string `json:"gender"` // 性别
+	Age    int    `json:"age"`    // 年龄
+	City   string `json:"city"`   // 城市
 }
 
 // OpenProRequest 管理端开通Pro请求
 type OpenProRequest struct {
-    Days int `json:"days" binding:"required,oneof=30 90 180 365"` // 开通时长（天）
+	Days int `json:"days" binding:"required,oneof=30 90 180 365"` // 开通时长（天）
+}
+
+// BatchOpenProRequest 管理端批量开通Pro请求
+type BatchOpenProRequest struct {
+	Phones []string `json:"phones" binding:"required"`                   // 手机号列表，最多200个
+	Days   int      `json:"days" binding:"required,oneof=30 90 180 365"` // 开通时长（天）
+}
+
+// BatchOpenProResponse 管理端批量开通Pro响应
+type BatchOpenProResponse struct {
+	TotalInput     int      `json:"total_input"`      // 输入手机号数量
+	UniquePhones   int      `json:"unique_phones"`    // 去重后手机号数量
+	SuccessCount   int      `json:"success_count"`    // 成功开通数量
+	UpdatedPhones  []string `json:"updated_phones"`   // 成功开通手机号
+	NotFoundPhones []string `json:"not_found_phones"` // 未找到的手机号
 }
 
 type CertQueryRequest struct {

@@ -480,6 +480,32 @@ func (c *Controller) OpenUserPro(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, nil)
 }
 
+// BatchOpenUserPro 管理端批量开通Pro
+// @Summary 批量开通Pro
+// @Description 管理员按手机号批量为用户开通Pro，支持30/90/180/365天
+// @Tags 管理后台
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "管理员令牌"
+// @Param body body BatchOpenProRequest true "批量开通请求"
+// @Success 200 {object} Response{data=BatchOpenProResponse} "成功响应"
+// @Router /admin/user/pro/open/batch [post]
+func (c *Controller) BatchOpenUserPro(ctx *gin.Context) {
+	var req BatchOpenProRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	resp, err := c.service.BatchUpdateUserPro(req.Phones, req.Days)
+	if err != nil {
+		c.ResponseError(ctx, 500, "批量开通Pro失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
 // GetAestheticDataList 获取审美数据列表
 // @Summary 获取审美数据列表
 // @Description 分页获取审美数据表中的数据

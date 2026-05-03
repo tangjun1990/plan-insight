@@ -2874,6 +2874,82 @@ func (s *Service) UpdateUserPro(userID uint, days int) error {
 	return s.db.Model(&User{}).Where("id = ?", userID).Updates(updates).Error
 }
 
+// BatchUpdateUserPro 管理员按手机号批量开通Pro
+func (s *Service) BatchUpdateUserPro(phones []string, days int) (*BatchOpenProResponse, error) {
+	normalizedPhones := make([]string, 0, len(phones))
+	seen := make(map[string]struct{}, len(phones))
+	for _, phone := range phones {
+		trimmed := strings.TrimSpace(phone)
+		if trimmed == "" {
+			continue
+		}
+		if _, ok := seen[trimmed]; ok {
+			continue
+		}
+		seen[trimmed] = struct{}{}
+		normalizedPhones = append(normalizedPhones, trimmed)
+	}
+
+	if len(normalizedPhones) == 0 {
+		return nil, errors.New("手机号不能为空")
+	}
+	if len(normalizedPhones) > 200 {
+		return nil, errors.New("单次最多支持200个手机号")
+	}
+
+	var users []User
+	if err := s.db.Where("phone IN ?", normalizedPhones).Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	userByPhone := make(map[string]User, len(users))
+	for _, user := range users {
+		userByPhone[user.Phone] = user
+	}
+
+	notFoundPhones := make([]string, 0)
+	updatedPhones := make([]string, 0, len(users))
+
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		now := time.Now()
+		for _, phone := range normalizedPhones {
+			user, ok := userByPhone[phone]
+			if !ok {
+				notFoundPhones = append(notFoundPhones, phone)
+				continue
+			}
+
+			base := now
+			if user.IsPro == 1 && user.ProExpireAt != nil && user.ProExpireAt.After(now) {
+				base = *user.ProExpireAt
+			}
+			expire := base.Add(time.Duration(days) * 24 * time.Hour)
+
+			updates := map[string]interface{}{
+				"is_pro":        1,
+				"pro_expire_at": expire,
+			}
+			if err := tx.Model(&User{}).Where("id = ?", user.ID).Updates(updates).Error; err != nil {
+				return err
+			}
+
+			updatedPhones = append(updatedPhones, phone)
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &BatchOpenProResponse{
+		TotalInput:     len(phones),
+		UniquePhones:   len(normalizedPhones),
+		SuccessCount:   len(updatedPhones),
+		UpdatedPhones:  updatedPhones,
+		NotFoundPhones: notFoundPhones,
+	}, nil
+}
+
 // UpdateUserStatus 更新用户状态
 func (s *Service) UpdateUserStatus(userID uint, status int) error {
 	return s.db.Model(&User{}).Where("id = ?", userID).Update("status", status).Error

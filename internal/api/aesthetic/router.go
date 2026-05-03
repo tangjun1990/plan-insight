@@ -139,6 +139,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			authAdminGroup.PUT("/user/:id/disable", controller.DisableUser)
 			authAdminGroup.PUT("/user/:id/enable", controller.EnableUser)
 			authAdminGroup.POST("/user/:id/pro/open", controller.OpenUserPro)
+			authAdminGroup.POST("/user/pro/open/batch", controller.BatchOpenUserPro)
 
 			// 审美数据管理
 			authAdminGroup.GET("/aesthetic/data/list", controller.GetAestheticDataList)
