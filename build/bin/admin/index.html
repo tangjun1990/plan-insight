@@ -565,6 +565,12 @@
             // 由渲染表格函数处理
         }
 
+        function formatGender(gender) {
+            if (gender === 'male' || gender === '男') return '男';
+            if (gender === 'female' || gender === '女') return '女';
+            return gender || '-';
+        }
+
         // 渲染数据表格
         function renderDataTable(data) {
             const tbody = document.getElementById('dataTableBody');
@@ -631,7 +637,7 @@
                 row.innerHTML = `
                     <td>${item.name || '-'}</td>
                     <td>${item.age || '-'}</td>
-                    <td>${item.gender === 'male' ? '男' : (item.gender === 'female' ? '女' : '-')}</td>
+                    <td>${formatGender(item.gender)}</td>
                     <td>${item.phone || '-'}</td>
                     <td>${item.city || '-'}</td>
                     <td>${likedColors}</td>
