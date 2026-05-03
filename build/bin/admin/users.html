@@ -60,6 +60,24 @@
             color: white;
             border: none;
         }
+        .pagination .ellipsis {
+            display: inline-block;
+            margin: 0 6px;
+            color: #666;
+        }
+        .pagination .jump-wrapper {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 12px;
+        }
+        .pagination .jump-input {
+            width: 64px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
         .page-layout {
             display: flex;
             min-height: 100vh;
@@ -422,6 +440,10 @@
             const pagination = document.getElementById('pagination');
             pagination.innerHTML = '';
 
+            if (totalPages <= 0) {
+                return;
+            }
+
             const addBtn = (label, page, disabled = false, active = false) => {
                 const btn = document.createElement('button');
                 btn.textContent = label;
@@ -434,30 +456,70 @@
                 pagination.appendChild(btn);
             };
 
+            const addEllipsis = () => {
+                const ellipsis = document.createElement('span');
+                ellipsis.className = 'ellipsis';
+                ellipsis.textContent = '...';
+                pagination.appendChild(ellipsis);
+            };
+
             // 上一页
             addBtn('上一页', Math.max(1, currentPage - 1), currentPage === 1);
 
-            if (totalPages <= 10) {
-                for (let i = 1; i <= totalPages; i++) {
-                    addBtn(String(i), i, false, i === currentPage);
-                }
-            } else {
-                // 前5页
-                for (let i = 1; i <= 5; i++) {
-                    addBtn(String(i), i, false, i === currentPage);
-                }
-                const ellipsis = document.createElement('span');
-                ellipsis.textContent = '...';
-                ellipsis.style.margin = '0 6px';
-                pagination.appendChild(ellipsis);
-                // 后5页
-                for (let i = totalPages - 4; i <= totalPages; i++) {
-                    addBtn(String(i), i, false, i === currentPage);
-                }
+            const startPage = Math.max(1, currentPage - 5);
+            const endPage = Math.min(totalPages, currentPage + 5);
+
+            if (startPage > 1) {
+                addBtn('1', 1, false, currentPage === 1);
+            }
+            if (startPage > 2) {
+                addEllipsis();
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                addBtn(String(i), i, false, i === currentPage);
+            }
+
+            if (endPage < totalPages - 1) {
+                addEllipsis();
+            }
+            if (endPage < totalPages) {
+                addBtn(String(totalPages), totalPages, false, currentPage === totalPages);
             }
 
             // 下一页
             addBtn('下一页', Math.min(totalPages, currentPage + 1), currentPage === totalPages);
+
+            const jumpWrapper = document.createElement('span');
+            jumpWrapper.className = 'jump-wrapper';
+
+            const jumpInput = document.createElement('input');
+            jumpInput.className = 'jump-input';
+            jumpInput.type = 'number';
+            jumpInput.min = '1';
+            jumpInput.max = String(totalPages);
+            jumpInput.placeholder = '页码';
+
+            const jumpBtn = document.createElement('button');
+            jumpBtn.textContent = '跳转';
+            jumpBtn.onclick = () => {
+                const targetPage = parseInt(jumpInput.value, 10);
+                if (!targetPage || targetPage < 1 || targetPage > totalPages) {
+                    alert('请输入有效页码');
+                    return;
+                }
+                loadUserData(targetPage, pageSize);
+            };
+
+            jumpInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    jumpBtn.click();
+                }
+            });
+
+            jumpWrapper.appendChild(jumpInput);
+            jumpWrapper.appendChild(jumpBtn);
+            pagination.appendChild(jumpWrapper);
         }
 
         // 切换用户状态
