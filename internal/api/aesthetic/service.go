@@ -123,6 +123,7 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 				LastLoginTime:  &now,
 				Token:          token,
 				TokenExpireAt:  &tokenExpire,
+				Source:         0, // 用户注册来源是plan
 			}
 			if err := s.db.Create(&user).Error; err != nil {
 				return nil, err
@@ -165,14 +166,26 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 // GetUserByToken 根据用户token获取用户信息
 func (s *Service) GetUserByToken(token string) (*User, error) {
 	var user User
-	result := s.db.Where("token = ?", token).First(&user)
-	if result.Error != nil {
-		return nil, result.Error
-	}
+	if strings.HasPrefix(token, "open_") {
+		result := s.db.Where("open_token = ?", token).First(&user)
+		if result.Error != nil {
+			return nil, result.Error
+		}
 
-	// 检查token是否过期
-	if user.TokenExpireAt != nil && user.TokenExpireAt.Before(time.Now()) {
-		return nil, errors.New("token已过期")
+		// 检查token是否过期
+		if user.OpenTokenExpireAt != nil && user.OpenTokenExpireAt.Before(time.Now()) {
+			return nil, errors.New("token已过期")
+		}
+	} else {
+		result := s.db.Where("token = ?", token).First(&user)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+
+		// 检查token是否过期
+		if user.TokenExpireAt != nil && user.TokenExpireAt.Before(time.Now()) {
+			return nil, errors.New("token已过期")
+		}
 	}
 
 	// 检查用户状态

@@ -8,30 +8,33 @@ import (
 
 // User 用户模型
 type User struct {
-    ID             uint           `gorm:"primarykey" json:"id"`
-    Name           string         `gorm:"size:50" json:"name"`              // 用户姓名
-    Phone          string         `gorm:"size:20;uniqueIndex" json:"phone"` // 手机号码
-    Gender         string         `gorm:"size:10" json:"gender"`            // 性别
-    Age            int            `json:"age"`                              // 年龄
-    City           string         `gorm:"size:50" json:"city"`              // 所在城市
-    Status         int            `gorm:"default:1" json:"status"`          // 状态 1:正常 0:禁用
-    IsPro          int            `gorm:"type:tinyint(1);default:0" json:"is_pro"` // 是否为Pro用户（1是，0否）
-    ProExpireAt    *time.Time     `json:"pro_expire_at"`                         // Pro到期时间
-    FirstLoginTime *time.Time     `json:"first_login_time"`                 // 首次登录时间
-    LastLoginTime  *time.Time     `json:"last_login_time"`                  // 上次登录时间
-    Token          string         `gorm:"size:255" json:"-"`                // 用户token
-    TokenExpireAt  *time.Time     `json:"-"`                                // token过期时间
-    WxOpenID       string         `gorm:"size:50;index" json:"-"`           // 微信小程序OpenID
-    CreatedAt      time.Time      `json:"created_at"`
-    UpdatedAt      time.Time      `json:"updated_at"`
-    DeletedAt      gorm.DeletedAt `gorm:"index" json:"-"`
+	ID                uint           `gorm:"primarykey" json:"id"`
+	Name              string         `gorm:"size:50" json:"name"`                     // 用户姓名
+	Phone             string         `gorm:"size:20;uniqueIndex" json:"phone"`        // 手机号码
+	Gender            string         `gorm:"size:10" json:"gender"`                   // 性别
+	Age               int            `json:"age"`                                     // 年龄
+	City              string         `gorm:"size:50" json:"city"`                     // 所在城市
+	Status            int            `gorm:"default:1" json:"status"`                 // 状态 1:正常 0:禁用
+	IsPro             int            `gorm:"type:tinyint(1);default:0" json:"is_pro"` // 是否为Pro用户（1是，0否）
+	ProExpireAt       *time.Time     `json:"pro_expire_at"`                           // Pro到期时间
+	FirstLoginTime    *time.Time     `json:"first_login_time"`                        // 首次登录时间
+	LastLoginTime     *time.Time     `json:"last_login_time"`                         // 上次登录时间
+	Token             string         `gorm:"size:255" json:"-"`                       // 用户token
+	TokenExpireAt     *time.Time     `json:"-"`                                       // token过期时间
+	OpenToken         string         `gorm:"size:255" json:"-"`                       // 用户token
+	OpenTokenExpireAt *time.Time     `json:"-"`
+	WxOpenID          string         `gorm:"size:50;index" json:"-"`  // 微信小程序OpenID
+	Source            int            `gorm:"default:0" json:"source"` // 来源 0:plan，1开放平台-华筑会
+	CreatedAt         time.Time      `json:"created_at"`
+	UpdatedAt         time.Time      `json:"updated_at"`
+	DeletedAt         gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 // AestheticData 审美数据模型
 type AestheticData struct {
-	ID              uint           `gorm:"primarykey" json:"id"`
-	UserID          uint           `gorm:"index" json:"user_id"`              // 用户ID
-	User            User           `gorm:"foreignKey:UserID" json:"user"`     // 关联用户
+	ID     uint `gorm:"primarykey" json:"id"`
+	UserID uint `gorm:"index" json:"user_id"` // 用户ID
+	// User            User           `gorm:"foreignKey:UserID" json:"user"`     // 关联用户
 	Name            string         `gorm:"size:50" json:"name"`               // 用户姓名
 	Gender          string         `gorm:"size:10" json:"gender"`             // 性别
 	Age             int            `json:"age"`                               // 年龄

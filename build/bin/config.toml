@@ -5,6 +5,10 @@ host = "http://127.0.0.1"
 wxappid = "wxef0626f813827ec5"
 wxappsecret = "29f05077d951de77e2284e90b54b918f"
 
+open_pubkey = "huazhuhui"
+open_prikey = "sah1IvQHw0b8E3STlJijOf1RBDMbSbAY"
+
+
 [server.http]
 port = 80
 grace = false

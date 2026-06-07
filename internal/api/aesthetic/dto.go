@@ -24,6 +24,30 @@ type WxAuthResponse struct {
 	UserInfo  interface{} `json:"user_info,omitempty"` // 用户信息
 }
 
+// 开放平台获取用户token请求
+type OpenUserAuthTokenRequest struct {
+	Phone    string `form:"phone" binding:"required,len=11"` // 用户手机号
+	WxOpenID string `form:"wx_open_id" binding:"required"`   // 微信小程序用户ID
+}
+
+// 开放平台用户token详情
+type OpenUserTokenItem struct {
+	Token    string `json:"token"`     // 用户token
+	ExpireAt int64  `json:"expire_at"` // 过期时间戳（秒）
+}
+
+// 开放平台获取用户token响应
+type OpenUserAuthTokenResponse struct {
+	UserToken OpenUserTokenItem `json:"user_token"`
+}
+
+// 开放平台获取审美报告列表请求
+type OpenAestheticListRequest struct {
+	Phone    string `form:"phone" binding:"required,len=11"`            // 用户手机号
+	Page     int    `form:"page" binding:"omitempty,min=1"`             // 页码
+	PageSize int    `form:"page_size" binding:"omitempty,min=1,max=20"` // 每页条数
+}
+
 // ======== 审美数据相关 ========
 
 // 审美数据请求

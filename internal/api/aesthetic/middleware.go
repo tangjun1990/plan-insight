@@ -32,9 +32,7 @@ func (m *AuthMiddleware) UserAuth() gin.HandlerFunc {
 		}
 
 		// 处理Bearer Token
-		if strings.HasPrefix(authHeader, "Bearer ") {
-			authHeader = authHeader[7:]
-		}
+		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 
 		// 验证token
 		user, err := m.service.GetUserByToken(authHeader)
@@ -66,9 +64,7 @@ func (m *AuthMiddleware) AdminAuth() gin.HandlerFunc {
 		}
 
 		// 处理Bearer Token
-		if strings.HasPrefix(authHeader, "Bearer ") {
-			authHeader = authHeader[7:]
-		}
+		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 
 		// 验证token
 		admin, err := m.service.GetAdminByToken(authHeader)
@@ -82,6 +78,32 @@ func (m *AuthMiddleware) AdminAuth() gin.HandlerFunc {
 
 		// 将管理员ID存入上下文
 		ctx.Set("adminID", admin.ID)
+		ctx.Next()
+	}
+}
+
+// OpenAPIAuth 开放平台鉴权中间件
+func (m *AuthMiddleware) OpenAPIAuth() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		authHeader := ctx.GetHeader("Authorization")
+		if authHeader == "" {
+			ctx.AbortWithStatusJSON(401, &Response{
+				Code:    401,
+				Message: "缺少开放平台鉴权信息",
+			})
+			return
+		}
+
+		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
+
+		if err := m.service.ValidateOpenAccessToken(strings.TrimSpace(authHeader)); err != nil {
+			ctx.AbortWithStatusJSON(401, &Response{
+				Code:    401,
+				Message: "开放平台鉴权失败: " + err.Error(),
+			})
+			return
+		}
+
 		ctx.Next()
 	}
 }

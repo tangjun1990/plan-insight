@@ -120,6 +120,14 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 		}
 	}
 
+	// 注册开放平台API
+	openGroup := server.Group("/open")
+	openGroup.Use(authMiddleware.OpenAPIAuth())
+	{
+		openGroup.GET("/user/authToken", controller.GetOpenUserAuthToken)
+		openGroup.GET("/aesthetic/getList", controller.GetOpenAestheticDataList)
+	}
+
 	// 注册管理后台相关API
 	adminGroup := server.Group("/admin")
 	{

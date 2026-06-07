@@ -77,6 +77,40 @@ func (c *Controller) WxAuth(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, resp)
 }
 
+// GetOpenUserAuthToken 开放平台获取用户token
+func (c *Controller) GetOpenUserAuthToken(ctx *gin.Context) {
+	var req OpenUserAuthTokenRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	resp, err := c.service.IssueOpenUserToken(req.Phone, req.WxOpenID)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取用户token失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
+// GetOpenAestheticDataList 开放平台获取用户审美报告列表
+func (c *Controller) GetOpenAestheticDataList(ctx *gin.Context) {
+	var req OpenAestheticListRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	resp, err := c.service.GetOpenAestheticDataList(&req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取审美报告列表失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
 // SaveAestheticData 保存审美数据
 // @Summary 保存审美数据
 // @Description 用户提交审美数据表单
