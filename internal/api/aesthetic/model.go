@@ -94,6 +94,8 @@ type AestheticDataRsp struct {
 	IsCollection    int            `json:is_collection`
 	SolutionID      int            `json:"solution_id"`
 	SolutionList    []SolutionItem `json:"solution_list"`
+
+	TargetSolutionID int `json:"target_solution_id"`
 }
 
 type SolutionItem struct {

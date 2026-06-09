@@ -2755,6 +2755,12 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		isCollection = 1
 	}
 
+	var targetSolutionID int
+	var targetSolution UserSolution
+	if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Where("a_id = ?", aid).First(&targetSolution).Error; err == nil {
+		targetSolutionID = int(targetSolution.ID)
+	}
+
 	return &AestheticDataRsp{
 		AestheticData:      data,
 		Comment:            genComment(tmplikedcolors, tmpDislikedColors, tmpadjectives, tmpLikedImages),
@@ -2767,6 +2773,7 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		WordBaseOnColor:    resultword,
 		IsCollection:       isCollection,
 		SolutionList:       solutionlist,
+		TargetSolutionID:   targetSolutionID,
 	}, nil
 }
 
