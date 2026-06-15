@@ -51,7 +51,20 @@ type OpenAestheticListRequest struct {
 // 开放平台生成方案请求
 type OpenCreateSolutionRequest struct {
 	Phone string `json:"phone" binding:"required,len=11"` // 用户手机号
-	AID   string `json:"report_id" binding:"required"`    // 报告ID
+	AID   int    `json:"report_id" binding:"required"`    // 报告ID
+}
+
+// 开放平台获取方案详情请求
+type OpenSolutionDetailRequest struct {
+	Phone      string `form:"phone" binding:"required,len=11"`      // 用户手机号
+	SolutionID int    `form:"solution_id" binding:"required,min=1"` // 方案ID
+}
+
+// 开放平台获取方案列表请求
+type OpenSolutionListRequest struct {
+	Phone    string `form:"phone" binding:"required,len=11"`            // 用户手机号
+	Page     int    `form:"page" binding:"omitempty,min=1"`             // 页码
+	PageSize int    `form:"page_size" binding:"omitempty,min=1,max=20"` // 每页条数
 }
 
 // ======== 审美数据相关 ========

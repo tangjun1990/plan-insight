@@ -2517,7 +2517,7 @@ func (s *Service) GetUserSolutionDetail(userID uint, solutionID uint) (*Aestheti
 		return nil, err
 	}
 	// 复用审美报告详情逻辑
-	detail, err := s.GetAestheticDataDetail(us.AID, userID)
+	detail, err := s.GetAestheticDataDetail(us.AID, userID, true)
 	if err != nil {
 		return nil, err
 	}
@@ -2526,7 +2526,7 @@ func (s *Service) GetUserSolutionDetail(userID uint, solutionID uint) (*Aestheti
 }
 
 // GetAestheticDataDetail 获取审美数据详情
-func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, error) {
+func (s *Service) GetAestheticDataDetail(id, userID uint, showSolutionDetal bool) (*AestheticDataRsp, error) {
 	var data AestheticData
 	if err := s.db.Where("id = ?", id).First(&data).Error; err != nil {
 		return nil, err
@@ -2718,8 +2718,10 @@ func (s *Service) GetAestheticDataDetail(id, userID uint) (*AestheticDataRsp, er
 		Images: getSolutionImages(secondscoreboxnum),
 	}
 	solutionlist := make([]SolutionItem, 0)
-	solutionlist = append(solutionlist, solutionone)
-	solutionlist = append(solutionlist, solutiontwo)
+	if showSolutionDetal {
+		solutionlist = append(solutionlist, solutionone)
+		solutionlist = append(solutionlist, solutiontwo)
+	}
 
 	// 取wordscoremap中分数最高的5个word
 	wordbaseoncolor := make([]string, 0)

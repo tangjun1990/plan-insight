@@ -3,6 +3,7 @@ package aesthetic
 import (
 	"encoding/base64"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
 	"testing"
@@ -27,6 +28,8 @@ func TestBuildOpenAccessToken(t *testing.T) {
 }
 
 func TestBuildOpenAuthorizationHeader(t *testing.T) {
+	// 增加随机因子
+	rand.Seed(time.Now().UnixNano())
 	header := BuildOpenAuthorizationHeader("huazhuhui", "sah1IvQHw0b8E3STlJijOf1RBDMbSbAY", time.Now())
 	fmt.Println(header)
 }

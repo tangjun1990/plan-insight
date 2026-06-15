@@ -111,6 +111,23 @@ func (c *Controller) GetOpenAestheticDataList(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, resp)
 }
 
+// GetOpenUserSolutionList 开放平台获取用户方案列表
+func (c *Controller) GetOpenUserSolutionList(ctx *gin.Context) {
+	var req OpenSolutionListRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	resp, err := c.service.GetOpenUserSolutionList(&req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取方案列表失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
 // OpenCreateUserSolution 开放平台生成用户方案
 func (c *Controller) OpenCreateUserSolution(ctx *gin.Context) {
 	var req OpenCreateSolutionRequest
@@ -126,6 +143,23 @@ func (c *Controller) OpenCreateUserSolution(ctx *gin.Context) {
 	}
 
 	c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID})
+}
+
+// GetOpenUserSolutionDetail 开放平台获取用户方案详情
+func (c *Controller) GetOpenUserSolutionDetail(ctx *gin.Context) {
+	var req OpenSolutionDetailRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	data, err := c.service.GetOpenUserSolutionDetail(&req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, data)
 }
 
 // SaveAestheticData 保存审美数据
@@ -376,7 +410,7 @@ func (c *Controller) GetAestheticDataDetail(ctx *gin.Context) {
 	}
 
 	userID := c.GetUserID(ctx)
-	data, err := c.service.GetAestheticDataDetail(uint(id), userID)
+	data, err := c.service.GetAestheticDataDetail(uint(id), userID, false)
 	if err != nil {
 		c.ResponseError(ctx, 500, "获取数据失败: "+err.Error())
 		return

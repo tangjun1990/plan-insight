@@ -126,7 +126,9 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	{
 		openGroup.GET("/user/authToken", controller.GetOpenUserAuthToken)
 		openGroup.GET("/aesthetic/getList", controller.GetOpenAestheticDataList)
+		openGroup.GET("/aesthetic/solution/getList", controller.GetOpenUserSolutionList)
 		openGroup.POST("/aesthetic/solution/create", controller.OpenCreateUserSolution)
+		openGroup.GET("/aesthetic/solution/get", controller.GetOpenUserSolutionDetail)
 	}
 
 	// 注册管理后台相关API

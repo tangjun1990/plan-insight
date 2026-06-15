@@ -18,6 +18,7 @@ const (
 )
 
 func buildOpenAccessSign(pubkey, prikey string, t time.Time) string {
+	fmt.Println(strconv.FormatInt(t.Unix(), 10))
 	return hashPasswordMD5(strings.TrimSpace(pubkey) + "|" + strings.TrimSpace(prikey) + "|" + strconv.FormatInt(t.Unix(), 10))
 }
 
@@ -200,7 +201,7 @@ func (s *Service) GetOpenAestheticDataList(req *OpenAestheticListRequest) (*Page
 
 	result := make([]*AestheticDataRsp, 0, len(list))
 	for _, item := range list {
-		detail, err := s.GetAestheticDataDetail(item.ID, userID)
+		detail, err := s.GetAestheticDataDetail(item.ID, userID, false)
 		if err != nil {
 			return nil, err
 		}
@@ -215,15 +216,47 @@ func (s *Service) GetOpenAestheticDataList(req *OpenAestheticListRequest) (*Page
 	}, nil
 }
 
+func (s *Service) GetOpenUserSolutionList(req *OpenSolutionListRequest) (*PageResponse, error) {
+	phone := strings.TrimSpace(req.Phone)
+	if !isValidPhoneNumber(phone) {
+		return nil, errors.New("手机号格式错误")
+	}
+
+	page := req.Page
+	if page <= 0 {
+		page = 1
+	}
+	pageSize := req.PageSize
+	if pageSize <= 0 {
+		pageSize = 10
+	}
+	if pageSize > 20 {
+		return nil, errors.New("page_size最大不超过20")
+	}
+
+	var user User
+	if err := s.db.Where("phone = ?", phone).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("用户不存在")
+		}
+		return nil, err
+	}
+	if user.Status == 0 {
+		return nil, errors.New("用户已被禁用")
+	}
+
+	return s.GetUserSolutionList(user.ID, page, pageSize)
+}
+
 func (s *Service) OpenCreateUserSolution(req *OpenCreateSolutionRequest) (*UserSolution, error) {
 	phone := strings.TrimSpace(req.Phone)
 	if !isValidPhoneNumber(phone) {
 		return nil, errors.New("手机号格式错误")
 	}
 
-	aid, err := strconv.Atoi(strings.TrimSpace(req.AID))
-	if err != nil || aid <= 0 {
-		return nil, errors.New("无效的aid参数")
+	aid := req.AID
+	if aid <= 0 {
+		return nil, errors.New("无效的报告ID参数")
 	}
 
 	var user User
@@ -246,4 +279,28 @@ func (s *Service) OpenCreateUserSolution(req *OpenCreateSolutionRequest) (*UserS
 	}
 
 	return s.CreateUserSolution(user.ID, uint(aid))
+}
+
+func (s *Service) GetOpenUserSolutionDetail(req *OpenSolutionDetailRequest) (*AestheticDataRsp, error) {
+	phone := strings.TrimSpace(req.Phone)
+	if !isValidPhoneNumber(phone) {
+		return nil, errors.New("手机号格式错误")
+	}
+
+	if req.SolutionID <= 0 {
+		return nil, errors.New("无效的solution_id参数")
+	}
+
+	var user User
+	if err := s.db.Where("phone = ?", phone).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("用户不存在")
+		}
+		return nil, err
+	}
+	if user.Status == 0 {
+		return nil, errors.New("用户已被禁用")
+	}
+
+	return s.GetUserSolutionDetail(user.ID, uint(req.SolutionID))
 }
