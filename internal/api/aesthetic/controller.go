@@ -111,6 +111,23 @@ func (c *Controller) GetOpenAestheticDataList(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, resp)
 }
 
+// OpenCreateUserSolution 开放平台生成用户方案
+func (c *Controller) OpenCreateUserSolution(ctx *gin.Context) {
+	var req OpenCreateSolutionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	us, err := c.service.OpenCreateUserSolution(&req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "生成方案失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID})
+}
+
 // SaveAestheticData 保存审美数据
 // @Summary 保存审美数据
 // @Description 用户提交审美数据表单

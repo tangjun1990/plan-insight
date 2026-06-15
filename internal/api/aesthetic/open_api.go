@@ -214,3 +214,36 @@ func (s *Service) GetOpenAestheticDataList(req *OpenAestheticListRequest) (*Page
 		PageSize: pageSize,
 	}, nil
 }
+
+func (s *Service) OpenCreateUserSolution(req *OpenCreateSolutionRequest) (*UserSolution, error) {
+	phone := strings.TrimSpace(req.Phone)
+	if !isValidPhoneNumber(phone) {
+		return nil, errors.New("手机号格式错误")
+	}
+
+	aid, err := strconv.Atoi(strings.TrimSpace(req.AID))
+	if err != nil || aid <= 0 {
+		return nil, errors.New("无效的aid参数")
+	}
+
+	var user User
+	if err := s.db.Where("phone = ?", phone).First(&user).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("用户不存在")
+		}
+		return nil, err
+	}
+	if user.Status == 0 {
+		return nil, errors.New("用户已被禁用")
+	}
+
+	var report AestheticData
+	if err := s.db.Where("id = ? AND user_id = ?", aid, user.ID).First(&report).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errors.New("报告不存在或不属于当前用户")
+		}
+		return nil, err
+	}
+
+	return s.CreateUserSolution(user.ID, uint(aid))
+}

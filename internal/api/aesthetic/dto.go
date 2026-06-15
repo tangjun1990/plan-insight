@@ -48,6 +48,12 @@ type OpenAestheticListRequest struct {
 	PageSize int    `form:"page_size" binding:"omitempty,min=1,max=20"` // 每页条数
 }
 
+// 开放平台生成方案请求
+type OpenCreateSolutionRequest struct {
+	Phone string `json:"phone" binding:"required,len=11"` // 用户手机号
+	AID   string `json:"report_id" binding:"required"`    // 报告ID
+}
+
 // ======== 审美数据相关 ========
 
 // 审美数据请求
