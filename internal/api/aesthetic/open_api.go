@@ -118,13 +118,11 @@ func (s *Service) IssueOpenUserToken(phone string, wxOpenID string) (*OpenUserAu
 		if user.Status == 0 {
 			return nil, errors.New("用户已被禁用")
 		}
-		if user.OpenToken == "" || user.OpenTokenExpireAt == nil || user.OpenTokenExpireAt.Before(now) || !strings.HasPrefix(user.OpenToken, "open_") {
-			user.OpenToken = generateOpenUserToken(phone)
-			user.OpenTokenExpireAt = &expireAt
-		} else {
-			expireAt = *user.OpenTokenExpireAt
-		}
+			
+		user.OpenToken = generateOpenUserToken(phone)
+		user.OpenTokenExpireAt = &expireAt
 		user.LastLoginTime = &now
+		
 		if err := s.db.Save(&user).Error; err != nil {
 			return nil, err
 		}
