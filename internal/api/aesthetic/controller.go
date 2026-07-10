@@ -50,6 +50,10 @@ func (c *Controller) GetUserID(ctx *gin.Context) uint {
 	return userID.(uint)
 }
 
+func (c *Controller) GetUserSource(ctx *gin.Context) int {
+	return ctx.GetInt("userSource")
+}
+
 // ======== 微信小程序用户相关 ========
 
 // WxAuth 微信小程序用户鉴权
@@ -191,7 +195,7 @@ func (c *Controller) SaveAestheticData(ctx *gin.Context) {
 	}
 
 	userID := c.GetUserID(ctx)
-	data, err := c.service.SaveAestheticData(userID, &req)
+	data, err := c.service.SaveAestheticData(userID, c.GetUserSource(ctx), &req)
 	if err != nil {
 		c.ResponseError(ctx, 500, "保存数据失败: "+err.Error())
 		return

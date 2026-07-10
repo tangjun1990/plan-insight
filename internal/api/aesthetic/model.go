@@ -46,6 +46,7 @@ type AestheticData struct {
 	LikedImages     string         `gorm:"type:text" json:"liked_images"`     // 喜欢的10张图片，JSON格式
 	ColorImageURL   string         `gorm:"size:255" json:"color_image_url"`   // 色彩分析图片URL
 	BoxImageURL     string         `gorm:"size:255" json:"box_image_url"`     // 坐标分析图片URL
+	Source             int            `json:"source"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`

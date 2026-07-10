@@ -46,6 +46,7 @@ func (m *AuthMiddleware) UserAuth() gin.HandlerFunc {
 
 		// 将用户ID存入上下文
 		ctx.Set("userID", user.ID)
+		ctx.Set("userSource", user.Source)
 		ctx.Next()
 	}
 }

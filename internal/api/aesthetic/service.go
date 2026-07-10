@@ -166,7 +166,10 @@ func (s *Service) WxAuth(req *WxAuthRequest) (*WxAuthResponse, error) {
 // GetUserByToken 根据用户token获取用户信息
 func (s *Service) GetUserByToken(token string) (*User, error) {
 	var user User
+	var source int = 0
 	if strings.HasPrefix(token, "open_") {
+		source = 1
+
 		result := s.db.Where("open_token = ?", token).First(&user)
 		if result.Error != nil {
 			return nil, result.Error
@@ -192,6 +195,8 @@ func (s *Service) GetUserByToken(token string) (*User, error) {
 	if user.Status == 0 {
 		return nil, errors.New("用户已被禁用")
 	}
+
+	user.Source = source
 
 	return &user, nil
 }
@@ -1902,7 +1907,7 @@ func (s *Service) CreateUserSolution(userID uint, aid uint) (*UserSolution, erro
 }
 
 // SaveAestheticData 保存审美数据
-func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*AestheticDataRsp, error) {
+func (s *Service) SaveAestheticData(userID uint, source int, req *AestheticDataRequest) (*AestheticDataRsp, error) {
 	// 获取用户信息
 	var user User
 	if err := s.db.First(&user, userID).Error; err != nil {
@@ -1967,6 +1972,7 @@ func (s *Service) SaveAestheticData(userID uint, req *AestheticDataRequest) (*Ae
 		LikedImages:     string(likedImagesJSON),
 		ColorImageURL:   trimBasePath(colorimg),
 		BoxImageURL:     trimBasePath(boximg),
+		Source: source,
 	}
 
 	// 保存数据
