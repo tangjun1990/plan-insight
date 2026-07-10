@@ -673,6 +673,36 @@ func (c *Controller) GetAestheticDataAnalysis(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, result)
 }
 
+// GetDashboardOverview 获取管理后台看板数据
+// @Summary 获取管理后台看板数据
+// @Description 获取近7/15/30天用户新增量与审美数据新增量，按天聚合并区分来源
+// @Tags 管理后台
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "管理员令牌"
+// @Param days query int false "日期范围，仅支持7/15/30" default(7)
+// @Success 200 {object} Response{data=DashboardOverviewResponse} "成功响应"
+// @Router /admin/dashboard/overview [get]
+func (c *Controller) GetDashboardOverview(ctx *gin.Context) {
+	var req DashboardOverviewRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	if req.Days <= 0 {
+		req.Days = 7
+	}
+
+	resp, err := c.service.GetDashboardOverview(&req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取看板数据失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
 // UpdateUserInfo 更新用户信息
 func (c *Controller) UpdateUserInfo(ctx *gin.Context) {
 	var req UserUpdateRequest

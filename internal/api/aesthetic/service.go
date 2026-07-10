@@ -1972,7 +1972,7 @@ func (s *Service) SaveAestheticData(userID uint, source int, req *AestheticDataR
 		LikedImages:     string(likedImagesJSON),
 		ColorImageURL:   trimBasePath(colorimg),
 		BoxImageURL:     trimBasePath(boximg),
-		Source: source,
+		Source:          source,
 	}
 
 	// 保存数据
@@ -3129,6 +3129,109 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 	default:
 		return nil, errors.New("不支持的分析类型")
 	}
+}
+
+type dashboardAggregateRow struct {
+	Day    time.Time `json:"day"`
+	Source int       `json:"source"`
+	Count  int       `json:"count"`
+}
+
+func buildDashboardTrend(days []time.Time, rows []dashboardAggregateRow) ([]DashboardTrendItem, DashboardMetricSummary) {
+	trend := make([]DashboardTrendItem, 0, len(days))
+	summary := DashboardMetricSummary{}
+	countByDate := make(map[string]DashboardMetricSummary, len(days))
+
+	for _, row := range rows {
+		dayKey := row.Day.Format("2006-01-02")
+		item := countByDate[dayKey]
+		item.Total += row.Count
+		if row.Source == 1 {
+			item.Moxiang += row.Count
+		} else {
+			item.Plan += row.Count
+		}
+		countByDate[dayKey] = item
+	}
+
+	for _, day := range days {
+		dayKey := day.Format("2006-01-02")
+		item := countByDate[dayKey]
+		trendItem := DashboardTrendItem{
+			Date:    dayKey,
+			Total:   item.Total,
+			Plan:    item.Plan,
+			Moxiang: item.Moxiang,
+		}
+		trend = append(trend, trendItem)
+
+		summary.Total += trendItem.Total
+		summary.Plan += trendItem.Plan
+		summary.Moxiang += trendItem.Moxiang
+	}
+
+	return trend, summary
+}
+
+func (s *Service) queryDashboardRows(model interface{}, startDate time.Time, endDate time.Time) ([]dashboardAggregateRow, error) {
+	rows := make([]dashboardAggregateRow, 0)
+	err := s.db.Model(model).
+		Select("DATE(created_at) AS day, source, COUNT(*) AS count").
+		Where("created_at >= ? AND created_at < ?", startDate, endDate).
+		Group("DATE(created_at), source").
+		Order("DATE(created_at) ASC, source ASC").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return rows, nil
+}
+
+// GetDashboardOverview 获取管理后台看板数据
+func (s *Service) GetDashboardOverview(req *DashboardOverviewRequest) (*DashboardOverviewResponse, error) {
+	days := req.Days
+	if days != 7 && days != 15 && days != 30 {
+		days = 7
+	}
+
+	now := time.Now()
+	location := now.Location()
+	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, location)
+	startDate := endDate.AddDate(0, 0, -(days - 1)).Add(-24 * time.Hour)
+
+	dayList := make([]time.Time, 0, days)
+	currentDay := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, location)
+	for i := 0; i < days; i += 1 {
+		dayList = append(dayList, currentDay.AddDate(0, 0, i))
+	}
+
+	userRows, err := s.queryDashboardRows(&User{}, currentDay, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	aestheticRows, err := s.queryDashboardRows(&AestheticData{}, currentDay, endDate)
+	if err != nil {
+		return nil, err
+	}
+
+	userTrend, userSummary := buildDashboardTrend(dayList, userRows)
+	aestheticTrend, aestheticSummary := buildDashboardTrend(dayList, aestheticRows)
+
+	return &DashboardOverviewResponse{
+		Days:      days,
+		StartDate: dayList[0].Format("2006-01-02"),
+		EndDate:   dayList[len(dayList)-1].Format("2006-01-02"),
+		Users: DashboardMetricBlock{
+			Summary: userSummary,
+			Trend:   userTrend,
+		},
+		AestheticData: DashboardMetricBlock{
+			Summary: aestheticSummary,
+			Trend:   aestheticTrend,
+		},
+	}, nil
 }
 
 func getBoxNumByName(boxName string) int {

@@ -182,6 +182,41 @@ type BatchOpenProResponse struct {
 	NotFoundPhones []string `json:"not_found_phones"` // 未找到的手机号
 }
 
+// DashboardOverviewRequest 管理后台看板查询请求
+type DashboardOverviewRequest struct {
+	Days int `form:"days" binding:"omitempty,oneof=7 15 30"` // 日期范围（天）
+}
+
+// DashboardMetricSummary 看板指标汇总
+type DashboardMetricSummary struct {
+	Total   int `json:"total"`   // 总量
+	Plan    int `json:"plan"`    // 来源=0，璞览
+	Moxiang int `json:"moxiang"` // 来源=1，茉香
+}
+
+// DashboardTrendItem 看板按天趋势项
+type DashboardTrendItem struct {
+	Date    string `json:"date"`    // 日期，格式 YYYY-MM-DD
+	Total   int    `json:"total"`   // 总量
+	Plan    int    `json:"plan"`    // 来源=0，璞览
+	Moxiang int    `json:"moxiang"` // 来源=1，茉香
+}
+
+// DashboardMetricBlock 看板单个指标块
+type DashboardMetricBlock struct {
+	Summary DashboardMetricSummary `json:"summary"`
+	Trend   []DashboardTrendItem   `json:"trend"`
+}
+
+// DashboardOverviewResponse 管理后台看板响应
+type DashboardOverviewResponse struct {
+	Days          int                  `json:"days"`
+	StartDate     string               `json:"start_date"`
+	EndDate       string               `json:"end_date"`
+	Users         DashboardMetricBlock `json:"users"`
+	AestheticData DashboardMetricBlock `json:"aesthetic_data"`
+}
+
 type CertQueryRequest struct {
 	CertType   string `json:"cert_type"`
 	Name       string `json:"name"`
