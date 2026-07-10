@@ -275,7 +275,7 @@ func (c *Controller) CreateUserSolution(ctx *gin.Context) {
 		return
 	}
 
-	us, createErr := c.service.CreateUserSolution(userID, uint(aid))
+	us, createErr := c.service.CreateUserSolution(userID, uint(aid), 0)
 	if createErr != nil {
 		c.ResponseError(ctx, 500, createErr.Error())
 		return

@@ -276,7 +276,7 @@ func (s *Service) OpenCreateUserSolution(req *OpenCreateSolutionRequest) (*UserS
 		return nil, err
 	}
 
-	return s.CreateUserSolution(user.ID, uint(aid))
+	return s.CreateUserSolution(user.ID, uint(aid), 1)
 }
 
 func (s *Service) GetOpenUserSolutionDetail(req *OpenSolutionDetailRequest) (*AestheticDataRsp, error) {

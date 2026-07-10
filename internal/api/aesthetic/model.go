@@ -66,6 +66,7 @@ type UserSolution struct {
 	ID        uint      `gorm:"primarykey" json:"id"`
 	UserID    uint      `gorm:"user_id" json:"user_id"` // 用户ID
 	AID       uint      `json:"aid"`                    // 报告ID
+	Source    int       `json:"source"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

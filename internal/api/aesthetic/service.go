@@ -1883,7 +1883,7 @@ func (s *Service) CancelCollection(userID uint, req *CancelCollectionRequest) er
 }
 
 // CreateUserSolution 为用户创建方案（避免重复）
-func (s *Service) CreateUserSolution(userID uint, aid uint) (*UserSolution, error) {
+func (s *Service) CreateUserSolution(userID uint, aid uint, source int) (*UserSolution, error) {
 	var total int64
 	if err := s.db.Model(&UserSolution{}).
 		Where("user_id = ?", userID).
@@ -1898,6 +1898,7 @@ func (s *Service) CreateUserSolution(userID uint, aid uint) (*UserSolution, erro
 	us := &UserSolution{
 		UserID:    userID,
 		AID:       aid,
+		Source: source,
 		CreatedAt: time.Now(),
 	}
 	if err := s.db.Create(us).Error; err != nil {
