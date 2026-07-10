@@ -122,7 +122,7 @@ func (s *Service) IssueOpenUserToken(phone string, wxOpenID string) (*OpenUserAu
 		user.OpenToken = generateOpenUserToken(phone)
 		user.OpenTokenExpireAt = &expireAt
 		user.LastLoginTime = &now
-		
+
 		if err := s.db.Save(&user).Error; err != nil {
 			return nil, err
 		}
@@ -189,7 +189,7 @@ func (s *Service) GetOpenAestheticDataList(req *OpenAestheticListRequest) (*Page
 	}
 
 	var list []AestheticData
-	if err := s.db.Where("phone = ?", phone).
+	if err := s.db.Where("user_id = ?", user.ID).
 		Order("created_at DESC").
 		Offset((page - 1) * pageSize).
 		Limit(pageSize).
