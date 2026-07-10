@@ -252,9 +252,8 @@
                         <tr>
                             <th>姓名</th>
                             <th>手机号</th>
-                            <th>性别</th>
-                            <th>年龄</th>
-                            <th>所在地区</th>
+                            <th>来源</th>
+
                             <th>注册时间</th>
                             <th>Pro到期时间</th>
                             <th>状态</th>
@@ -409,9 +408,8 @@
                 const isProActive = (user.is_pro === 1) && user.pro_expire_at && (new Date(user.pro_expire_at) > now);
                 row.innerHTML = '<td>' + (user.name || '-') + '</td>' +
                     '<td>' + (user.phone || '-') + '</td>' +
-                    '<td>' + (user.gender || '-') + '</td>' +
-                    '<td>' + (user.age || '-') + '</td>' +
-                    '<td>' + (user.city || '-') + '</td>' +
+                    '<td>' + formatSource(user.source) + '</td>' +
+
                     '<td>' + formatDate(user.first_login_time) + '</td>' +
                     '<td>' + (proExpireText || '-') + '</td>' +
                     '<td><span class="status-badge ' + (user.status === 1 ? 'status-active' : 'status-disabled') + '">' +
@@ -426,6 +424,12 @@
             });
 
             renderPagination(userData.total, userData.page, userData.page_size);
+        }
+
+        function formatSource(source) {
+            if (source === 0 || source === '0') return '璞览';
+            if (source === 1 || source === '1') return '茉香';
+            return '-';
         }
 
         // 格式化日期
