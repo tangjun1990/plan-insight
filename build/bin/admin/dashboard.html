@@ -277,17 +277,24 @@
             document.getElementById(prefix + 'Moxiang').textContent = summary.moxiang || 0;
         }
 
-        function renderTrendChart(chart, elementId, title, trend) {
+        function getOrInitChart(elementId, chart) {
             const chartDom = document.getElementById(elementId);
-            if (!chart) {
-                chart = echarts.init(chartDom);
+            if (chart && !chart.isDisposed()) {
+                return chart;
             }
+            return echarts.init(chartDom);
+        }
+
+        function renderTrendChart(chart, elementId, title, trend) {
+            chart = getOrInitChart(elementId, chart);
 
             const dates = trend.map(item => item.date);
             const totalData = trend.map(item => item.total);
             const planData = trend.map(item => item.plan);
             const moxiangData = trend.map(item => item.moxiang);
 
+            chart.hideLoading();
+            chart.clear();
             chart.setOption({
                 title: {
                     text: title
@@ -345,8 +352,14 @@
 
         function setLoadingState() {
             document.getElementById('dateHint').textContent = '加载中...';
-            document.getElementById('userTrendChart').innerHTML = '<div class="loading">加载中...</div>';
-            document.getElementById('aestheticTrendChart').innerHTML = '<div class="loading">加载中...</div>';
+            userTrendChart = getOrInitChart('userTrendChart', userTrendChart);
+            aestheticTrendChart = getOrInitChart('aestheticTrendChart', aestheticTrendChart);
+            userTrendChart.showLoading('default', {
+                text: '加载中...'
+            });
+            aestheticTrendChart.showLoading('default', {
+                text: '加载中...'
+            });
         }
 
         async function loadDashboard(days) {
@@ -359,13 +372,17 @@
                 setMetricValues('user', data.users.summary || {});
                 setMetricValues('aesthetic', data.aesthetic_data.summary || {});
 
-                document.getElementById('userTrendChart').innerHTML = '';
-                document.getElementById('aestheticTrendChart').innerHTML = '';
                 userTrendChart = renderTrendChart(userTrendChart, 'userTrendChart', '用户新增趋势', data.users.trend || []);
                 aestheticTrendChart = renderTrendChart(aestheticTrendChart, 'aestheticTrendChart', '审美数据新增趋势', data.aesthetic_data.trend || []);
             } catch (error) {
                 console.error('加载看板失败:', error);
                 document.getElementById('dateHint').textContent = '加载失败：' + error.message;
+                if (userTrendChart && !userTrendChart.isDisposed()) {
+                    userTrendChart.hideLoading();
+                }
+                if (aestheticTrendChart && !aestheticTrendChart.isDisposed()) {
+                    aestheticTrendChart.hideLoading();
+                }
                 alert('加载看板失败：' + error.message);
             }
         }
