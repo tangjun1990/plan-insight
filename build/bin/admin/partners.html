@@ -205,7 +205,6 @@
                         <thead>
                             <tr>
                                 <th>合作方名称</th>
-                                <th>来源标识</th>
                                 <th>用户量</th>
                                 <th>审美数据量</th>
                                 <th>生成方案量</th>
@@ -289,7 +288,6 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.name || '-'}</td>
-                    <td>${item.source ?? '-'}</td>
                     <td>${item.user_count ?? 0}</td>
                     <td>${item.aesthetic_data_count ?? 0}</td>
                     <td>${item.solution_count ?? 0}</td>
