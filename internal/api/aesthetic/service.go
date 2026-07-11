@@ -3244,6 +3244,42 @@ func (s *Service) GetDashboardOverview(req *DashboardOverviewRequest) (*Dashboar
 	}, nil
 }
 
+// GetPartnerAdminList 获取管理后台合作方列表
+func (s *Service) GetPartnerAdminList() ([]PartnerAdminItem, error) {
+	const moxiangSource = 1
+
+	var userCount int64
+	if err := s.db.Model(&User{}).Where("source = ?", moxiangSource).Count(&userCount).Error; err != nil {
+		return nil, err
+	}
+
+	var aestheticDataCount int64
+	if err := s.db.Model(&AestheticData{}).Where("source = ?", moxiangSource).Count(&aestheticDataCount).Error; err != nil {
+		return nil, err
+	}
+
+	var solutionCount int64
+	if err := s.db.Model(&UserSolution{}).Where("source = ?", moxiangSource).Count(&solutionCount).Error; err != nil {
+		return nil, err
+	}
+
+	items := []PartnerAdminItem{
+		{
+			Name:                   "茉香",
+			Source:                 moxiangSource,
+			UserCount:              userCount,
+			AestheticDataCount:     aestheticDataCount,
+			SolutionCount:          solutionCount,
+			OpenPubkey:             strings.TrimSpace(kcfg.GetString("app.global.open_pubkey")),
+			OpenPrikey:             strings.TrimSpace(kcfg.GetString("app.global.open_prikey")),
+			SolutionRemainingCount: "无限",
+			SolutionExceedStrategy: "忽略",
+		},
+	}
+
+	return items, nil
+}
+
 func getBoxNumByName(boxName string) int {
 	for _, v := range globalBox {
 		if v.name == boxName {

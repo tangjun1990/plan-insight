@@ -703,6 +703,25 @@ func (c *Controller) GetDashboardOverview(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, resp)
 }
 
+// GetPartnerAdminList 获取管理后台合作方列表
+// @Summary 获取管理后台合作方列表
+// @Description 获取合作方列表以及用户量、审美数据量、生成方案量、密钥和策略信息
+// @Tags 管理后台
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "管理员令牌"
+// @Success 200 {object} Response{data=[]PartnerAdminItem} "成功响应"
+// @Router /admin/partner/list [get]
+func (c *Controller) GetPartnerAdminList(ctx *gin.Context) {
+	resp, err := c.service.GetPartnerAdminList()
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取合作方列表失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
 // UpdateUserInfo 更新用户信息
 func (c *Controller) UpdateUserInfo(ctx *gin.Context) {
 	var req UserUpdateRequest

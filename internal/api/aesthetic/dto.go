@@ -219,6 +219,19 @@ type DashboardOverviewResponse struct {
 	AestheticData DashboardMetricBlock `json:"aesthetic_data"`
 }
 
+// PartnerAdminItem 管理后台合作方列表项
+type PartnerAdminItem struct {
+	Name                   string `json:"name"`                     // 合作方名称
+	Source                 int    `json:"source"`                   // 合作方来源标识
+	UserCount              int64  `json:"user_count"`               // 用户量
+	AestheticDataCount     int64  `json:"aesthetic_data_count"`     // 审美数据量
+	SolutionCount          int64  `json:"solution_count"`           // 生成方案量
+	OpenPubkey             string `json:"open_pubkey"`              // 开放平台公钥
+	OpenPrikey             string `json:"open_prikey"`              // 开放平台私钥
+	SolutionRemainingCount string `json:"solution_remaining_count"` // 方案生成剩余次数
+	SolutionExceedStrategy string `json:"solution_exceed_strategy"` // 方案超限策略
+}
+
 type CertQueryRequest struct {
 	CertType   string `json:"cert_type"`
 	Name       string `json:"name"`

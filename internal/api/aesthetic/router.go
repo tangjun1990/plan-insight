@@ -76,6 +76,9 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	server.GET("/admin/dashboard", func(c *gin.Context) {
 		c.File("./admin/dashboard.html")
 	})
+	server.GET("/admin/partners", func(c *gin.Context) {
+		c.File("./admin/partners.html")
+	})
 	server.GET("/admin/users", func(c *gin.Context) {
 		c.File("./admin/users.html")
 	})
@@ -154,6 +157,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			authAdminGroup.PUT("/user/:id/enable", controller.EnableUser)
 			authAdminGroup.POST("/user/:id/pro/open", controller.OpenUserPro)
 			authAdminGroup.POST("/user/pro/open/batch", controller.BatchOpenUserPro)
+			authAdminGroup.GET("/partner/list", controller.GetPartnerAdminList)
 
 			// 审美数据管理
 			authAdminGroup.GET("/dashboard/overview", controller.GetDashboardOverview)
