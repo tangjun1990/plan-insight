@@ -3270,6 +3270,7 @@ func (s *Service) GetPartnerAdminList() ([]PartnerAdminItem, error) {
 			UserCount:              userCount,
 			AestheticDataCount:     aestheticDataCount,
 			SolutionCount:          solutionCount,
+			Status:                 "合作中",
 			OpenPubkey:             strings.TrimSpace(kcfg.GetString("app.global.open_pubkey")),
 			OpenPrikey:             strings.TrimSpace(kcfg.GetString("app.global.open_prikey")),
 			SolutionRemainingCount: "无限",

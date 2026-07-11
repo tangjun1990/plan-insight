@@ -226,6 +226,7 @@ type PartnerAdminItem struct {
 	UserCount              int64  `json:"user_count"`               // 用户量
 	AestheticDataCount     int64  `json:"aesthetic_data_count"`     // 审美数据量
 	SolutionCount          int64  `json:"solution_count"`           // 生成方案量
+	Status                 string `json:"status"`                   // 合作状态
 	OpenPubkey             string `json:"open_pubkey"`              // 开放平台公钥
 	OpenPrikey             string `json:"open_prikey"`              // 开放平台私钥
 	SolutionRemainingCount string `json:"solution_remaining_count"` // 方案生成剩余次数

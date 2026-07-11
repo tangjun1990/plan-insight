@@ -112,6 +112,74 @@
             font-size: 12px;
             word-break: break-all;
         }
+        .key-link {
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #e8f7ee;
+            color: #1f9254;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            width: 560px;
+            max-width: calc(100vw - 32px);
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #eee;
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-field {
+            margin-bottom: 16px;
+        }
+        .modal-field:last-child {
+            margin-bottom: 0;
+        }
+        .modal-label {
+            margin-bottom: 6px;
+            color: #6b7280;
+            font-size: 13px;
+        }
+        .modal-actions {
+            padding: 12px 20px 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .modal-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -141,8 +209,8 @@
                                 <th>用户量</th>
                                 <th>审美数据量</th>
                                 <th>生成方案量</th>
-                                <th>开放平台公钥</th>
-                                <th>开放平台私钥</th>
+                                <th>状态</th>
+                                <th>密钥信息</th>
                                 <th>方案生成剩余次数</th>
                                 <th>方案超限策略</th>
                             </tr>
@@ -155,8 +223,28 @@
             </div>
         </div>
     </div>
+    <div id="keyModal" class="modal-overlay" onclick="onKeyModalBackdropClick(event)">
+        <div class="modal">
+            <div class="modal-header">密钥信息</div>
+            <div class="modal-body">
+                <div class="modal-field">
+                    <div class="modal-label">开放平台公钥</div>
+                    <div id="modalPubkey" class="mono">-</div>
+                </div>
+                <div class="modal-field">
+                    <div class="modal-label">开放平台私钥</div>
+                    <div id="modalPrikey" class="mono">-</div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn" onclick="closeKeyModal()">关闭</button>
+            </div>
+        </div>
+    </div>
 
     <script>
+        let partnerListCache = [];
+
         function checkLogin() {
             const tokenExpire = localStorage.getItem('tokenExpire');
             const isTokenValid = tokenExpire && (parseInt(tokenExpire, 10) > Date.now());
@@ -195,8 +283,9 @@
                 return;
             }
 
+            partnerListCache = list;
             tbody.innerHTML = '';
-            list.forEach(item => {
+            list.forEach((item, index) => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.name || '-'}</td>
@@ -204,13 +293,31 @@
                     <td>${item.user_count ?? 0}</td>
                     <td>${item.aesthetic_data_count ?? 0}</td>
                     <td>${item.solution_count ?? 0}</td>
-                    <td class="mono">${item.open_pubkey || '-'}</td>
-                    <td class="mono">${item.open_prikey || '-'}</td>
+                    <td><span class="status-badge">${item.status || '-'}</span></td>
+                    <td><span class="key-link" onclick="showKeyModal(${index})">***</span></td>
                     <td>${item.solution_remaining_count || '-'}</td>
                     <td>${item.solution_exceed_strategy || '-'}</td>
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        function showKeyModal(index) {
+            const item = partnerListCache[index];
+            if (!item) return;
+            document.getElementById('modalPubkey').textContent = item.open_pubkey || '-';
+            document.getElementById('modalPrikey').textContent = item.open_prikey || '-';
+            document.getElementById('keyModal').classList.add('show');
+        }
+
+        function closeKeyModal() {
+            document.getElementById('keyModal').classList.remove('show');
+        }
+
+        function onKeyModalBackdropClick(event) {
+            if (event.target && event.target.id === 'keyModal') {
+                closeKeyModal();
+            }
         }
 
         async function loadPartnerList() {
