@@ -106,6 +106,7 @@ type AestheticDataListRequest struct {
 	Province string `form:"province"`                          // 省份
 	City     string `form:"city"`                              // 所在城市
 	Phone    string `form:"phone"`                             // 手机号码
+	Source   *int   `form:"source" binding:"omitempty,oneof=0 1"`
 }
 
 // 审美数据统计分析请求
@@ -118,6 +119,7 @@ type AestheticAnalysisRequest struct {
 	AgeMax       int    `form:"age_max"`                          // 最大年龄
 	City         string `form:"city"`                             // 按城市过滤
 	Province     string `form:"province"`                         // 省份
+	Source       *int   `form:"source" binding:"omitempty,oneof=0 1"`
 }
 
 // 审美数据分析结果项

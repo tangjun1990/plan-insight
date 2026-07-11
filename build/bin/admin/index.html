@@ -307,6 +307,14 @@
                         </select>
                     </div>
                     <div class="filter-item">
+                        <label class="filter-label">来源</label>
+                        <select id="source" class="filter-select">
+                            <option value="">全部</option>
+                            <option value="0">璞览</option>
+                            <option value="1">茉香</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
                         <label class="filter-label">省份</label>
                         <select id="province" class="filter-select" onchange="onProvinceChange()">
                             <option value="">全部</option>
@@ -333,10 +341,12 @@
                     <thead>
                         <tr>
                             <th>用户姓名</th>
+                            <th>来源</th>
                             <th>年龄</th>
                             <th>性别</th>
                             <th>手机号</th>
                             <th>地区</th>
+                            <th>创建时间</th>
                             <th>喜欢的颜色</th>
                             <th>讨厌的颜色</th>
                             <th>喜欢的形容词</th>
@@ -457,6 +467,10 @@
             if (filters.gender) {
                 queryParams += '&gender=' + encodeURIComponent(filters.gender);
             }
+
+            if (filters.source !== undefined && filters.source !== null && filters.source !== '') {
+                queryParams += '&source=' + filters.source;
+            }
             
             if (filters.age_min) {
                 queryParams += '&age_min=' + filters.age_min;
@@ -492,6 +506,10 @@
             if (filters.gender) {
                 queryParams += '&gender=' + encodeURIComponent(filters.gender);
             }
+
+            if (filters.source !== undefined && filters.source !== null && filters.source !== '') {
+                queryParams += '&source=' + filters.source;
+            }
             
             if (filters.age_min) {
                 queryParams += '&age_min=' + filters.age_min;
@@ -520,6 +538,7 @@
         function applyFilters() {
             const ageRange = document.getElementById('ageRange').value;
             const gender = document.getElementById('gender').value;
+            const source = document.getElementById('source').value;
             const locationInfo = getSelectedLocation();
             const topN = document.getElementById('topN').value;
             
@@ -527,6 +546,10 @@
             
             if (gender) {
                 currentFilters.gender = gender;
+            }
+
+            if (source !== '') {
+                currentFilters.source = parseInt(source, 10);
             }
             
             // 使用省市联动的结果
@@ -576,7 +599,7 @@
         // 显示表格加载状态
         function showTableLoading() {
             const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '<tr><td colspan="11" style="text-align: center;">加载中...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="13" style="text-align: center;">加载中...</td></tr>';
         }
 
         // 隐藏表格加载状态
@@ -588,6 +611,18 @@
             if (gender === 'male' || gender === '男') return '男';
             if (gender === 'female' || gender === '女') return '女';
             return gender || '-';
+        }
+
+        function formatSource(source) {
+            if (source === 0 || source === '0') return '璞览';
+            if (source === 1 || source === '1') return '茉香';
+            return '-';
+        }
+
+        function formatDateTime(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return isNaN(date.getTime()) ? dateStr : date.toLocaleString('zh-CN');
         }
 
         // 渲染数据表格
@@ -655,10 +690,12 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.name || '-'}</td>
+                    <td>${formatSource(item.source)}</td>
                     <td>${item.age || '-'}</td>
                     <td>${formatGender(item.gender)}</td>
                     <td>${item.phone || '-'}</td>
                     <td>${item.city || '-'}</td>
+                    <td>${formatDateTime(item.created_at)}</td>
                     <td>${likedColors}</td>
                     <td>${dislikedColors}</td>
                     <td>${likedAdjectives}</td>

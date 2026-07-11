@@ -1898,7 +1898,7 @@ func (s *Service) CreateUserSolution(userID uint, aid uint, source int) (*UserSo
 	us := &UserSolution{
 		UserID:    userID,
 		AID:       aid,
-		Source: source,
+		Source:    source,
 		CreatedAt: time.Now(),
 	}
 	if err := s.db.Create(us).Error; err != nil {
@@ -3030,6 +3030,10 @@ func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResp
 		query = query.Where("phone LIKE ?", "%"+req.Phone+"%")
 	}
 
+	if req.Source != nil {
+		query = query.Where("source = ?", *req.Source)
+	}
+
 	// 计算总数
 	if err := query.Count(&total).Error; err != nil {
 		return nil, err
@@ -3108,6 +3112,11 @@ func (s *Service) GetAestheticDataAnalysis(req *AestheticAnalysisRequest) ([]Ana
 		}
 		query = query.Where("city IN ?", cityinprovince)
 
+	}
+
+	// 获取符合条件的数据
+	if req.Source != nil {
+		query = query.Where("source = ?", *req.Source)
 	}
 
 	// 获取符合条件的数据
