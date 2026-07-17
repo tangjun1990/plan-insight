@@ -2257,7 +2257,7 @@ func DrawColor(likedColorNum, disLikedColorNum []int) string {
 	tempDir := "./"
 
 	// 输入图片路径 (实际使用时请替换为实际图片路径)
-	inputPath := filepath.Join(tempDir, "colorbase-3.jpg")
+	inputPath := filepath.Join(tempDir, "colorbase-4.jpg")
 
 	// 输出图片路径
 	outputPath := filepath.Join(tempDir, fmt.Sprintf("colorimg/output_%d_%d.jpg", time.Now().UnixNano(), rand.Intn(1000)+9000))
