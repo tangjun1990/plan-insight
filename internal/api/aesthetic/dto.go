@@ -109,6 +109,12 @@ type AestheticDataListRequest struct {
 	Source   *int   `form:"source" binding:"omitempty,oneof=0 1"`
 }
 
+// AestheticDataAdminItem 管理后台审美数据列表项
+type AestheticDataAdminItem struct {
+	AestheticData
+	AccountPhone string `json:"account_phone"` // 账户手机号（users.phone）
+}
+
 // 审美数据统计分析请求
 type AestheticAnalysisRequest struct {
 	AnalysisType string `form:"analysis_type" binding:"required"` // 分析类型: color, disliked_color, adjective, image, region

@@ -341,6 +341,7 @@
                 <table class="data-table">
                     <thead>
                         <tr>
+                            <th>账户手机号</th>
                             <th>用户姓名</th>
                             <th>来源</th>
                             <th>年龄</th>
@@ -600,7 +601,7 @@
         // 显示表格加载状态
         function showTableLoading() {
             const tbody = document.getElementById('dataTableBody');
-            tbody.innerHTML = '<tr><td colspan="13" style="text-align: center;">加载中...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="14" style="text-align: center;">加载中...</td></tr>';
         }
 
         // 隐藏表格加载状态
@@ -690,6 +691,7 @@
                 
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td>${item.account_phone || '-'}</td>
                     <td>${item.name || '-'}</td>
                     <td>${formatSource(item.source)}</td>
                     <td>${item.age || '-'}</td>

@@ -2987,25 +2987,26 @@ func (s *Service) UpdateUserStatus(userID uint, status int) error {
 // GetAestheticDataList 获取审美数据列表(管理后台)
 func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResponse, error) {
 	var total int64
-	var list []AestheticData
+	var list []AestheticDataAdminItem
 
-	query := s.db.Model(&AestheticData{})
+	query := s.db.Model(&AestheticData{}).
+		Joins("LEFT JOIN users ON users.id = aesthetic_data.user_id AND users.deleted_at IS NULL")
 
 	// 应用筛选条件
 	if req.Name != "" {
-		query = query.Where("name LIKE ?", "%"+req.Name+"%")
+		query = query.Where("aesthetic_data.name LIKE ?", "%"+req.Name+"%")
 	}
 
 	if req.Gender != "" {
-		query = query.Where("gender = ?", req.Gender)
+		query = query.Where("aesthetic_data.gender = ?", req.Gender)
 	}
 
 	if req.AgeMin > 0 {
-		query = query.Where("age >= ?", req.AgeMin)
+		query = query.Where("aesthetic_data.age >= ?", req.AgeMin)
 	}
 
 	if req.AgeMax > 0 {
-		query = query.Where("age <= ?", req.AgeMax)
+		query = query.Where("aesthetic_data.age <= ?", req.AgeMax)
 	}
 
 	if req.Province != "" {
@@ -3018,20 +3019,20 @@ func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResp
 				}
 			}
 		}
-		query = query.Where("city IN ?", cityinprovince)
+		query = query.Where("aesthetic_data.city IN ?", cityinprovince)
 
 	}
 
 	if req.City != "" {
-		query = query.Where("city LIKE ?", "%"+req.City+"%")
+		query = query.Where("aesthetic_data.city LIKE ?", "%"+req.City+"%")
 	}
 
 	if req.Phone != "" {
-		query = query.Where("phone LIKE ?", "%"+req.Phone+"%")
+		query = query.Where("aesthetic_data.phone LIKE ?", "%"+req.Phone+"%")
 	}
 
 	if req.Source != nil {
-		query = query.Where("source = ?", *req.Source)
+		query = query.Where("aesthetic_data.source = ?", *req.Source)
 	}
 
 	// 计算总数
@@ -3040,7 +3041,9 @@ func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResp
 	}
 
 	// 分页查询
-	if err := query.Order("created_at DESC").
+	if err := query.
+		Select("aesthetic_data.*, users.phone AS account_phone").
+		Order("aesthetic_data.created_at DESC").
 		Offset((req.Page - 1) * req.PageSize).
 		Limit(req.PageSize).
 		Find(&list).Error; err != nil {
