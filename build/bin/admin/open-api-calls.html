@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>看板 - 审美数据分析系统</title>
+    <title>开放接口调用分析 - 审美数据分析系统</title>
     <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
     <style>
         body {
@@ -84,6 +84,12 @@
             color: #6b7280;
             font-size: 14px;
         }
+        .actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
         .range-buttons {
             display: flex;
             gap: 10px;
@@ -102,18 +108,19 @@
             border-color: #2563eb;
             color: #fff;
         }
+        .path-filter {
+            padding: 10px 14px;
+            border: 1px solid #d0d7de;
+            border-radius: 8px;
+            background: white;
+            color: #374151;
+            font-size: 14px;
+            min-width: 280px;
+        }
         .date-hint {
             margin-bottom: 20px;
             color: #6b7280;
             font-size: 14px;
-        }
-        .section {
-            margin-bottom: 24px;
-        }
-        .section-title {
-            margin: 0 0 16px;
-            font-size: 20px;
-            color: #111827;
         }
         .metrics-grid {
             display: grid;
@@ -146,11 +153,6 @@
         .chart {
             height: 420px;
         }
-        .loading {
-            text-align: center;
-            color: #6b7280;
-            padding: 60px 0;
-        }
         @media (max-width: 960px) {
             .metrics-grid {
                 grid-template-columns: 1fr;
@@ -163,8 +165,8 @@
         <div class="sidebar">
             <h2>审美数据分析系统</h2>
             <ul class="nav-menu">
-                <li class="active"><a href="dashboard">看板</a></li>
-                <li><a href="open-api-calls">开放接口调用分析</a></li>
+                <li><a href="dashboard">看板</a></li>
+                <li class="active"><a href="open-api-calls">开放接口调用分析</a></li>
                 <li><a href="index">审美数据分析</a></li>
                 <li><a href="users">用户管理</a></li>
                 <li><a href="partners">合作方管理</a></li>
@@ -177,57 +179,44 @@
                 </div>
                 <div class="toolbar">
                     <div>
-                        <h1>数据看板</h1>
-                        <div class="toolbar-desc">按天查看用户新增量与审美数据新增量，并区分璞览与茉香来源</div>
+                        <h1>开放接口调用分析</h1>
+                        <div class="toolbar-desc">统计近 7/15/30 天开放接口调用总量、成功量和成功率，当前默认来源为茉香</div>
                     </div>
-                    <div class="range-buttons">
-                        <button class="range-btn active" data-days="7">近7天</button>
-                        <button class="range-btn" data-days="15">近15天</button>
-                        <button class="range-btn" data-days="30">近30天</button>
+                    <div class="actions">
+                        <select id="pathFilter" class="path-filter">
+                            <option value="">全部接口</option>
+                            <option value="/open/user/authToken">/open/user/authToken</option>
+                            <option value="/open/aesthetic/getList">/open/aesthetic/getList</option>
+                            <option value="/open/aesthetic/solution/getList">/open/aesthetic/solution/getList</option>
+                            <option value="/open/aesthetic/solution/create">/open/aesthetic/solution/create</option>
+                            <option value="/open/aesthetic/solution/get">/open/aesthetic/solution/get</option>
+                        </select>
+                        <div class="range-buttons">
+                            <button class="range-btn active" data-days="7">近7天</button>
+                            <button class="range-btn" data-days="15">近15天</button>
+                            <button class="range-btn" data-days="30">近30天</button>
+                        </div>
                     </div>
                 </div>
                 <div class="date-hint" id="dateHint">加载中...</div>
 
-                <div class="section">
-                    <h2 class="section-title">用户新增量</h2>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">总量</div>
-                            <div class="metric-value" id="userTotal">-</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">璞览</div>
-                            <div class="metric-value" id="userPlan">-</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">茉香</div>
-                            <div class="metric-value" id="userMoxiang">-</div>
-                        </div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">调用总量</div>
+                        <div class="metric-value" id="totalCount">-</div>
                     </div>
-                    <div class="chart-card">
-                        <div id="userTrendChart" class="chart"></div>
+                    <div class="metric-card">
+                        <div class="metric-label">成功量</div>
+                        <div class="metric-value" id="successCount">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">成功率</div>
+                        <div class="metric-value" id="successRate">-</div>
                     </div>
                 </div>
 
-                <div class="section">
-                    <h2 class="section-title">审美数据新增量</h2>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="metric-label">总量</div>
-                            <div class="metric-value" id="aestheticTotal">-</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">璞览</div>
-                            <div class="metric-value" id="aestheticPlan">-</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="metric-label">茉香</div>
-                            <div class="metric-value" id="aestheticMoxiang">-</div>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <div id="aestheticTrendChart" class="chart"></div>
-                    </div>
+                <div class="chart-card">
+                    <div id="openApiTrendChart" class="chart"></div>
                 </div>
             </div>
         </div>
@@ -235,8 +224,7 @@
 
     <script>
         let currentDays = 7;
-        let userTrendChart = null;
-        let aestheticTrendChart = null;
+        let trendChart = null;
 
         function checkLogin() {
             const tokenExpire = localStorage.getItem('tokenExpire');
@@ -269,43 +257,51 @@
             return data.data;
         }
 
-        async function fetchDashboardOverview(days) {
-            return fetchAPI('/admin/dashboard/overview?days=' + days);
-        }
-
-        function setMetricValues(prefix, summary) {
-            document.getElementById(prefix + 'Total').textContent = summary.total || 0;
-            document.getElementById(prefix + 'Plan').textContent = summary.plan || 0;
-            document.getElementById(prefix + 'Moxiang').textContent = summary.moxiang || 0;
-        }
-
-        function getOrInitChart(elementId, chart) {
-            const chartDom = document.getElementById(elementId);
-            if (chart && !chart.isDisposed()) {
-                return chart;
+        async function fetchOpenAPICallOverview(days, path) {
+            let url = '/admin/open-api-call/overview?days=' + days;
+            if (path) {
+                url += '&path=' + encodeURIComponent(path);
             }
-            return echarts.init(chartDom);
+            return fetchAPI(url);
         }
 
-        function renderTrendChart(chart, elementId, title, trend) {
-            chart = getOrInitChart(elementId, chart);
+        function getOrInitChart() {
+            const chartDom = document.getElementById('openApiTrendChart');
+            if (trendChart && !trendChart.isDisposed()) {
+                return trendChart;
+            }
+            trendChart = echarts.init(chartDom);
+            return trendChart;
+        }
 
+        function formatPercent(value) {
+            return (Number(value) || 0).toFixed(2) + '%';
+        }
+
+        function setMetricValues(summary) {
+            document.getElementById('totalCount').textContent = summary.total || 0;
+            document.getElementById('successCount').textContent = summary.success || 0;
+            document.getElementById('successRate').textContent = formatPercent(summary.success_rate);
+        }
+
+        function renderTrendChart(trend) {
+            const chart = getOrInitChart();
             const dates = trend.map(item => item.date);
             const totalData = trend.map(item => item.total);
-            const planData = trend.map(item => item.plan);
-            const moxiangData = trend.map(item => item.moxiang);
+            const successData = trend.map(item => item.success);
+            const successRateData = trend.map(item => Number(item.success_rate || 0).toFixed(2));
 
             chart.hideLoading();
             chart.clear();
             chart.setOption({
                 title: {
-                    text: title
+                    text: '开放接口调用趋势'
                 },
                 tooltip: {
                     trigger: 'axis'
                 },
                 legend: {
-                    data: ['总量', '璞览', '茉香']
+                    data: ['调用总量', '成功量', '成功率']
                 },
                 grid: {
                     left: '3%',
@@ -317,13 +313,25 @@
                     type: 'category',
                     data: dates
                 },
-                yAxis: {
-                    type: 'value',
-                    minInterval: 1
-                },
+                yAxis: [
+                    {
+                        type: 'value',
+                        name: '次数',
+                        minInterval: 1
+                    },
+                    {
+                        type: 'value',
+                        name: '成功率',
+                        min: 0,
+                        max: 100,
+                        axisLabel: {
+                            formatter: '{value}%'
+                        }
+                    }
+                ],
                 series: [
                     {
-                        name: '总量',
+                        name: '调用总量',
                         type: 'line',
                         smooth: true,
                         data: totalData,
@@ -331,61 +339,51 @@
                         itemStyle: { color: '#111827' }
                     },
                     {
-                        name: '璞览',
+                        name: '成功量',
                         type: 'line',
                         smooth: true,
-                        data: planData,
+                        data: successData,
                         lineStyle: { width: 3 },
                         itemStyle: { color: '#2563eb' }
                     },
                     {
-                        name: '茉香',
+                        name: '成功率',
                         type: 'line',
                         smooth: true,
-                        data: moxiangData,
+                        yAxisIndex: 1,
+                        data: successRateData,
                         lineStyle: { width: 3 },
                         itemStyle: { color: '#10b981' }
                     }
                 ]
             });
-
-            return chart;
         }
 
         function setLoadingState() {
             document.getElementById('dateHint').textContent = '加载中...';
-            userTrendChart = getOrInitChart('userTrendChart', userTrendChart);
-            aestheticTrendChart = getOrInitChart('aestheticTrendChart', aestheticTrendChart);
-            userTrendChart.showLoading('default', {
-                text: '加载中...'
-            });
-            aestheticTrendChart.showLoading('default', {
+            const chart = getOrInitChart();
+            chart.showLoading('default', {
                 text: '加载中...'
             });
         }
 
-        async function loadDashboard(days) {
+        async function loadOverview(days) {
             try {
                 setLoadingState();
-                const data = await fetchDashboardOverview(days);
+                const path = document.getElementById('pathFilter').value;
+                const data = await fetchOpenAPICallOverview(days, path);
                 currentDays = data.days || days;
-                document.getElementById('dateHint').textContent = '统计区间：' + data.start_date + ' 至 ' + data.end_date;
-
-                setMetricValues('user', data.users.summary || {});
-                setMetricValues('aesthetic', data.aesthetic_data.summary || {});
-
-                userTrendChart = renderTrendChart(userTrendChart, 'userTrendChart', '用户新增趋势', data.users.trend || []);
-                aestheticTrendChart = renderTrendChart(aestheticTrendChart, 'aestheticTrendChart', '审美数据新增趋势', data.aesthetic_data.trend || []);
+                const selectedPathText = data.path ? ('，接口：' + data.path) : '，接口：全部';
+                document.getElementById('dateHint').textContent = '统计区间：' + data.start_date + ' 至 ' + data.end_date + selectedPathText;
+                setMetricValues(data.summary || {});
+                renderTrendChart(data.trend || []);
             } catch (error) {
-                console.error('加载看板失败:', error);
+                console.error('加载开放接口调用分析失败:', error);
                 document.getElementById('dateHint').textContent = '加载失败：' + error.message;
-                if (userTrendChart && !userTrendChart.isDisposed()) {
-                    userTrendChart.hideLoading();
+                if (trendChart && !trendChart.isDisposed()) {
+                    trendChart.hideLoading();
                 }
-                if (aestheticTrendChart && !aestheticTrendChart.isDisposed()) {
-                    aestheticTrendChart.hideLoading();
-                }
-                alert('加载看板失败：' + error.message);
+                alert('加载开放接口调用分析失败：' + error.message);
             }
         }
 
@@ -395,20 +393,29 @@
                 button.addEventListener('click', () => {
                     buttons.forEach(item => item.classList.remove('active'));
                     button.classList.add('active');
-                    loadDashboard(parseInt(button.getAttribute('data-days'), 10));
+                    loadOverview(parseInt(button.getAttribute('data-days'), 10));
                 });
             });
         }
 
+        function initPathFilter() {
+            const pathFilter = document.getElementById('pathFilter');
+            pathFilter.addEventListener('change', () => {
+                loadOverview(currentDays);
+            });
+        }
+
         window.addEventListener('resize', function() {
-            if (userTrendChart) userTrendChart.resize();
-            if (aestheticTrendChart) aestheticTrendChart.resize();
+            if (trendChart) {
+                trendChart.resize();
+            }
         });
 
         window.onload = function() {
             checkLogin();
             initRangeButtons();
-            loadDashboard(currentDays);
+            initPathFilter();
+            loadOverview(currentDays);
         };
     </script>
 </body>

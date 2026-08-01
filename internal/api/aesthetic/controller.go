@@ -54,6 +54,31 @@ func (c *Controller) GetUserSource(ctx *gin.Context) int {
 	return ctx.GetInt("userSource")
 }
 
+func (c *Controller) logOpenAPICall(ctx *gin.Context, userPhone string, resultCode int) {
+	normalizedPhone := strings.TrimSpace(userPhone)
+	var userID uint
+	if normalizedPhone != "" {
+		if user, err := c.service.GetUserByPhone(normalizedPhone); err == nil {
+			userID = user.ID
+			normalizedPhone = user.Phone
+		}
+	}
+
+	if err := c.service.CreateOpenAPICallLog(userID, normalizedPhone, ctx.FullPath(), 1, resultCode); err != nil {
+		fmt.Println("记录开放接口调用日志失败:", err)
+	}
+}
+
+func (c *Controller) responseOpenAPISuccess(ctx *gin.Context, userPhone string, data interface{}) {
+	c.logOpenAPICall(ctx, userPhone, 0)
+	c.ResponseSuccess(ctx, data)
+}
+
+func (c *Controller) responseOpenAPIError(ctx *gin.Context, userPhone string, code int, message string) {
+	c.logOpenAPICall(ctx, userPhone, code)
+	c.ResponseError(ctx, code, message)
+}
+
 // ======== 微信小程序用户相关 ========
 
 // WxAuth 微信小程序用户鉴权
@@ -85,85 +110,85 @@ func (c *Controller) WxAuth(ctx *gin.Context) {
 func (c *Controller) GetOpenUserAuthToken(ctx *gin.Context) {
 	var req OpenUserAuthTokenRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 400, "请求参数错误: "+err.Error())
 		return
 	}
 
 	resp, err := c.service.IssueOpenUserToken(req.Phone, req.WxOpenID)
 	if err != nil {
-		c.ResponseError(ctx, 500, "获取用户token失败: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 500, "获取用户token失败: "+err.Error())
 		return
 	}
 
-	c.ResponseSuccess(ctx, resp)
+	c.responseOpenAPISuccess(ctx, req.Phone, resp)
 }
 
 // GetOpenAestheticDataList 开放平台获取用户审美报告列表
 func (c *Controller) GetOpenAestheticDataList(ctx *gin.Context) {
 	var req OpenAestheticListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 400, "请求参数错误: "+err.Error())
 		return
 	}
 
 	resp, err := c.service.GetOpenAestheticDataList(&req)
 	if err != nil {
-		c.ResponseError(ctx, 500, "获取审美报告列表失败: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 500, "获取审美报告列表失败: "+err.Error())
 		return
 	}
 
-	c.ResponseSuccess(ctx, resp)
+	c.responseOpenAPISuccess(ctx, req.Phone, resp)
 }
 
 // GetOpenUserSolutionList 开放平台获取用户方案列表
 func (c *Controller) GetOpenUserSolutionList(ctx *gin.Context) {
 	var req OpenSolutionListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 400, "请求参数错误: "+err.Error())
 		return
 	}
 
 	resp, err := c.service.GetOpenUserSolutionList(&req)
 	if err != nil {
-		c.ResponseError(ctx, 500, "获取方案列表失败: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 500, "获取方案列表失败: "+err.Error())
 		return
 	}
 
-	c.ResponseSuccess(ctx, resp)
+	c.responseOpenAPISuccess(ctx, req.Phone, resp)
 }
 
 // OpenCreateUserSolution 开放平台生成用户方案
 func (c *Controller) OpenCreateUserSolution(ctx *gin.Context) {
 	var req OpenCreateSolutionRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 400, "请求参数错误: "+err.Error())
 		return
 	}
 
 	us, err := c.service.OpenCreateUserSolution(&req)
 	if err != nil {
-		c.ResponseError(ctx, 500, "生成方案失败: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 500, "生成方案失败: "+err.Error())
 		return
 	}
 
-	c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID})
+	c.responseOpenAPISuccess(ctx, req.Phone, gin.H{"solution_id": us.ID})
 }
 
 // GetOpenUserSolutionDetail 开放平台获取用户方案详情
 func (c *Controller) GetOpenUserSolutionDetail(ctx *gin.Context) {
 	var req OpenSolutionDetailRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 400, "请求参数错误: "+err.Error())
 		return
 	}
 
 	data, err := c.service.GetOpenUserSolutionDetail(&req)
 	if err != nil {
-		c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
+		c.responseOpenAPIError(ctx, req.Phone, 500, "获取方案详情失败: "+err.Error())
 		return
 	}
 
-	c.ResponseSuccess(ctx, data)
+	c.responseOpenAPISuccess(ctx, req.Phone, data)
 }
 
 // SaveAestheticData 保存审美数据
@@ -697,6 +722,27 @@ func (c *Controller) GetDashboardOverview(ctx *gin.Context) {
 	resp, err := c.service.GetDashboardOverview(&req)
 	if err != nil {
 		c.ResponseError(ctx, 500, "获取看板数据失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, resp)
+}
+
+// GetOpenAPICallOverview 获取开放接口调用分析
+func (c *Controller) GetOpenAPICallOverview(ctx *gin.Context) {
+	var req OpenAPICallOverviewRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		c.ResponseError(ctx, 400, "请求参数错误: "+err.Error())
+		return
+	}
+
+	if req.Days <= 0 {
+		req.Days = 7
+	}
+
+	resp, err := c.service.GetOpenAPICallOverview(&req)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取开放接口调用分析失败: "+err.Error())
 		return
 	}
 

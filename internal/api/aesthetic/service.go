@@ -211,6 +211,29 @@ func (s *Service) GetUserByID(userID uint) (*User, error) {
 	return &user, nil
 }
 
+// GetUserByPhone 根据手机号获取用户信息
+func (s *Service) GetUserByPhone(phone string) (*User, error) {
+	var user User
+	result := s.db.Where("phone = ?", strings.TrimSpace(phone)).First(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &user, nil
+}
+
+// CreateOpenAPICallLog 记录开放平台接口调用日志
+func (s *Service) CreateOpenAPICallLog(userID uint, userPhone string, path string, source int, resultCode int) error {
+	logItem := OpenAPICallLog{
+		UserID:     userID,
+		UserPhone:  strings.TrimSpace(userPhone),
+		Path:       strings.TrimSpace(path),
+		Source:     source,
+		ResultCode: resultCode,
+		CreatedAt:  time.Now(),
+	}
+	return s.db.Create(&logItem).Error
+}
+
 // IsProActive 判断用户Pro是否处于有效期
 func (s *Service) IsProActive(user *User) bool {
 	if user == nil {
@@ -3170,6 +3193,19 @@ type dashboardAggregateRow struct {
 	Count  int       `json:"count"`
 }
 
+type openAPICallAggregateRow struct {
+	Day     time.Time `json:"day"`
+	Total   int       `json:"total"`
+	Success int       `json:"success"`
+}
+
+func calculateSuccessRate(total int, success int) float64 {
+	if total <= 0 {
+		return 0
+	}
+	return float64(success) * 100 / float64(total)
+}
+
 func buildDashboardTrend(days []time.Time, rows []dashboardAggregateRow) ([]DashboardTrendItem, DashboardMetricSummary) {
 	trend := make([]DashboardTrendItem, 0, len(days))
 	summary := DashboardMetricSummary{}
@@ -3221,6 +3257,54 @@ func (s *Service) queryDashboardRows(model interface{}, startDate time.Time, end
 	return rows, nil
 }
 
+func buildOpenAPICallTrend(days []time.Time, rows []openAPICallAggregateRow) ([]OpenAPICallTrendItem, OpenAPICallMetricSummary) {
+	trend := make([]OpenAPICallTrendItem, 0, len(days))
+	summary := OpenAPICallMetricSummary{}
+	rowByDate := make(map[string]openAPICallAggregateRow, len(rows))
+
+	for _, row := range rows {
+		rowByDate[row.Day.Format("2006-01-02")] = row
+	}
+
+	for _, day := range days {
+		dayKey := day.Format("2006-01-02")
+		row := rowByDate[dayKey]
+		trendItem := OpenAPICallTrendItem{
+			Date:        dayKey,
+			Total:       row.Total,
+			Success:     row.Success,
+			SuccessRate: calculateSuccessRate(row.Total, row.Success),
+		}
+		trend = append(trend, trendItem)
+		summary.Total += trendItem.Total
+		summary.Success += trendItem.Success
+	}
+
+	summary.SuccessRate = calculateSuccessRate(summary.Total, summary.Success)
+	return trend, summary
+}
+
+func (s *Service) queryOpenAPICallRows(startDate time.Time, endDate time.Time, path string) ([]openAPICallAggregateRow, error) {
+	rows := make([]openAPICallAggregateRow, 0)
+	query := s.db.Model(&OpenAPICallLog{}).
+		Select("DATE(created_at) AS day, COUNT(*) AS total, SUM(CASE WHEN result_code = 0 THEN 1 ELSE 0 END) AS success").
+		Where("created_at >= ? AND created_at < ?", startDate, endDate).
+		Where("source = ?", 1)
+
+	if strings.TrimSpace(path) != "" {
+		query = query.Where("path = ?", strings.TrimSpace(path))
+	}
+
+	if err := query.
+		Group("DATE(created_at)").
+		Order("DATE(created_at) ASC").
+		Scan(&rows).Error; err != nil {
+		return nil, err
+	}
+
+	return rows, nil
+}
+
 // GetDashboardOverview 获取管理后台看板数据
 func (s *Service) GetDashboardOverview(req *DashboardOverviewRequest) (*DashboardOverviewResponse, error) {
 	days := req.Days
@@ -3264,6 +3348,40 @@ func (s *Service) GetDashboardOverview(req *DashboardOverviewRequest) (*Dashboar
 			Summary: aestheticSummary,
 			Trend:   aestheticTrend,
 		},
+	}, nil
+}
+
+// GetOpenAPICallOverview 获取开放接口调用分析
+func (s *Service) GetOpenAPICallOverview(req *OpenAPICallOverviewRequest) (*OpenAPICallOverviewResponse, error) {
+	days := req.Days
+	if days != 7 && days != 15 && days != 30 {
+		days = 7
+	}
+
+	now := time.Now()
+	location := now.Location()
+	endDate := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, location)
+	startDate := endDate.AddDate(0, 0, -(days - 1)).Add(-24 * time.Hour)
+
+	dayList := make([]time.Time, 0, days)
+	currentDay := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, location)
+	for i := 0; i < days; i += 1 {
+		dayList = append(dayList, currentDay.AddDate(0, 0, i))
+	}
+
+	rows, err := s.queryOpenAPICallRows(currentDay, endDate, req.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	trend, summary := buildOpenAPICallTrend(dayList, rows)
+	return &OpenAPICallOverviewResponse{
+		Days:      days,
+		StartDate: dayList[0].Format("2006-01-02"),
+		EndDate:   dayList[len(dayList)-1].Format("2006-01-02"),
+		Path:      strings.TrimSpace(req.Path),
+		Summary:   summary,
+		Trend:     trend,
 	}, nil
 }
 

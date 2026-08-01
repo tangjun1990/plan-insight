@@ -97,17 +97,17 @@ type CreateSolutionRequest struct {
 
 // 审美数据列表查询请求
 type AestheticDataListRequest struct {
-	Page     int    `form:"page" binding:"min=1"`              // 页码
-	PageSize int    `form:"page_size" binding:"min=1,max=100"` // 每页条数
-	Name     string `form:"name"`                              // 姓名
-	Gender   string `form:"gender"`                            // 性别
-	AgeMin   int    `form:"age_min"`                           // 最小年龄
-	AgeMax   int    `form:"age_max"`                           // 最大年龄
-	Province string `form:"province"`                          // 省份
-	City     string `form:"city"`                              // 所在城市
-	Phone    string `form:"phone"`                             // 手机号码
-	AccountPhone string `form:"account_phone"`                 // 账户手机号
-	Source   *int   `form:"source" binding:"omitempty,oneof=0 1"`
+	Page         int    `form:"page" binding:"min=1"`              // 页码
+	PageSize     int    `form:"page_size" binding:"min=1,max=100"` // 每页条数
+	Name         string `form:"name"`                              // 姓名
+	Gender       string `form:"gender"`                            // 性别
+	AgeMin       int    `form:"age_min"`                           // 最小年龄
+	AgeMax       int    `form:"age_max"`                           // 最大年龄
+	Province     string `form:"province"`                          // 省份
+	City         string `form:"city"`                              // 所在城市
+	Phone        string `form:"phone"`                             // 手机号码
+	AccountPhone string `form:"account_phone"`                     // 账户手机号
+	Source       *int   `form:"source" binding:"omitempty,oneof=0 1"`
 }
 
 // AestheticDataAdminItem 管理后台审美数据列表项
@@ -238,6 +238,37 @@ type PartnerAdminItem struct {
 	OpenPrikey             string `json:"open_prikey"`              // 开放平台私钥
 	SolutionRemainingCount string `json:"solution_remaining_count"` // 方案生成剩余次数
 	SolutionExceedStrategy string `json:"solution_exceed_strategy"` // 方案超限策略
+}
+
+// OpenAPICallOverviewRequest 开放接口调用分析查询请求
+type OpenAPICallOverviewRequest struct {
+	Days int    `form:"days" binding:"omitempty,oneof=7 15 30"` // 日期范围（天）
+	Path string `form:"path"`                                   // 接口路径筛选
+}
+
+// OpenAPICallMetricSummary 开放接口调用汇总
+type OpenAPICallMetricSummary struct {
+	Total       int     `json:"total"`        // 调用总量
+	Success     int     `json:"success"`      // 成功量
+	SuccessRate float64 `json:"success_rate"` // 成功率
+}
+
+// OpenAPICallTrendItem 开放接口调用按天趋势项
+type OpenAPICallTrendItem struct {
+	Date        string  `json:"date"`         // 日期，格式 YYYY-MM-DD
+	Total       int     `json:"total"`        // 调用总量
+	Success     int     `json:"success"`      // 成功量
+	SuccessRate float64 `json:"success_rate"` // 成功率
+}
+
+// OpenAPICallOverviewResponse 开放接口调用分析响应
+type OpenAPICallOverviewResponse struct {
+	Days      int                      `json:"days"`
+	StartDate string                   `json:"start_date"`
+	EndDate   string                   `json:"end_date"`
+	Path      string                   `json:"path"`
+	Summary   OpenAPICallMetricSummary `json:"summary"`
+	Trend     []OpenAPICallTrendItem   `json:"trend"`
 }
 
 type CertQueryRequest struct {

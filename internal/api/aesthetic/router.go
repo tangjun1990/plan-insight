@@ -76,6 +76,9 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	server.GET("/admin/dashboard", func(c *gin.Context) {
 		c.File("./admin/dashboard.html")
 	})
+	server.GET("/admin/open-api-calls", func(c *gin.Context) {
+		c.File("./admin/open-api-calls.html")
+	})
 	server.GET("/admin/partners", func(c *gin.Context) {
 		c.File("./admin/partners.html")
 	})
@@ -161,6 +164,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 
 			// 审美数据管理
 			authAdminGroup.GET("/dashboard/overview", controller.GetDashboardOverview)
+			authAdminGroup.GET("/open-api-call/overview", controller.GetOpenAPICallOverview)
 			authAdminGroup.GET("/aesthetic/data/list", controller.GetAestheticDataList)
 			authAdminGroup.GET("/aesthetic/data/analysis", controller.GetAestheticDataAnalysis)
 		}
@@ -189,7 +193,7 @@ func InitAdminUser(db *gorm.DB) error {
 // AutoMigrate 自动创建表结构
 func AutoMigrate(db *gorm.DB) error {
 	// 自动迁移表结构
-	if err := db.AutoMigrate(&User{}, &AestheticData{}, &Admin{}, &UserCollection{}, &UserSolution{}); err != nil {
+	if err := db.AutoMigrate(&User{}, &AestheticData{}, &Admin{}, &UserCollection{}, &UserSolution{}, &OpenAPICallLog{}); err != nil {
 		return err
 	}
 

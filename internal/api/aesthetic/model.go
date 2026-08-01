@@ -46,7 +46,7 @@ type AestheticData struct {
 	LikedImages     string         `gorm:"type:text" json:"liked_images"`     // 喜欢的10张图片，JSON格式
 	ColorImageURL   string         `gorm:"size:255" json:"color_image_url"`   // 色彩分析图片URL
 	BoxImageURL     string         `gorm:"size:255" json:"box_image_url"`     // 坐标分析图片URL
-	Source             int            `json:"source"`
+	Source          int            `json:"source"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
 	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
@@ -69,6 +69,17 @@ type UserSolution struct {
 	Source    int       `json:"source"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+// OpenAPICallLog 开放平台接口调用日志
+type OpenAPICallLog struct {
+	ID         uint      `gorm:"primarykey" json:"id"`
+	UserID     uint      `gorm:"index" json:"user_id"`            // 用户ID
+	UserPhone  string    `gorm:"size:20;index" json:"user_phone"` // 用户手机号
+	Path       string    `gorm:"size:128;index" json:"path"`      // 接口路径
+	Source     int       `gorm:"index" json:"source"`             // 调用来源
+	ResultCode int       `gorm:"index" json:"result_code"`        // 结果码
+	CreatedAt  time.Time `gorm:"index" json:"created_at"`         // 调用时间
 }
 
 type ColorDescItem struct {

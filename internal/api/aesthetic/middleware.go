@@ -18,6 +18,10 @@ func NewAuthMiddleware(service *Service) *AuthMiddleware {
 	}
 }
 
+func (m *AuthMiddleware) recordOpenAPIFailedCall(ctx *gin.Context, resultCode int) {
+	_ = m.service.CreateOpenAPICallLog(0, "", ctx.FullPath(), 1, resultCode)
+}
+
 // UserAuth 微信小程序用户鉴权中间件
 func (m *AuthMiddleware) UserAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
@@ -88,6 +92,7 @@ func (m *AuthMiddleware) OpenAPIAuth() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.GetHeader("Authorization")
 		if authHeader == "" {
+			m.recordOpenAPIFailedCall(ctx, 401)
 			ctx.AbortWithStatusJSON(401, &Response{
 				Code:    401,
 				Message: "缺少开放平台鉴权信息",
@@ -98,6 +103,7 @@ func (m *AuthMiddleware) OpenAPIAuth() gin.HandlerFunc {
 		authHeader = strings.TrimPrefix(authHeader, "Bearer ")
 
 		if err := m.service.ValidateOpenAccessToken(strings.TrimSpace(authHeader)); err != nil {
+			m.recordOpenAPIFailedCall(ctx, 401)
 			ctx.AbortWithStatusJSON(401, &Response{
 				Code:    401,
 				Message: "开放平台鉴权失败: " + err.Error(),
