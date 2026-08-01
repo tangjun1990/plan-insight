@@ -57,6 +57,21 @@
             box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
             background-color: #fff;
         }
+        .filter-input {
+            padding: 10px 14px;
+            font-size: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: #f7f7f7;
+            color: #333;
+            transition: all 0.2s ease;
+        }
+        .filter-input:focus {
+            outline: none;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 2px rgba(0, 113, 227, 0.2);
+            background-color: #fff;
+        }
         .filter-button {
             background-color: #0071e3;
             color: white;
@@ -290,6 +305,10 @@
                 </div>
                 <div class="filter-section">
                     <div class="filter-item">
+                        <label class="filter-label">账户手机号</label>
+                        <input id="accountPhone" class="filter-input" placeholder="请输入账户手机号" />
+                    </div>
+                    <div class="filter-item">
                         <label class="filter-label">年龄范围</label>
                         <select id="ageRange" class="filter-select">
                             <option value="">全部</option>
@@ -493,6 +512,10 @@
             if (filters.phone) {
                 queryParams += '&phone=' + encodeURIComponent(filters.phone);
             }
+
+            if (filters.account_phone) {
+                queryParams += '&account_phone=' + encodeURIComponent(filters.account_phone);
+            }
             
             return await fetchAPI('/admin/aesthetic/data/list?' + queryParams);
         }
@@ -539,6 +562,7 @@
         // 应用筛选条件
         function applyFilters() {
             const ageRange = document.getElementById('ageRange').value;
+            const accountPhone = document.getElementById('accountPhone').value.trim();
             const gender = document.getElementById('gender').value;
             const source = document.getElementById('source').value;
             const locationInfo = getSelectedLocation();
@@ -548,6 +572,10 @@
             
             if (gender) {
                 currentFilters.gender = gender;
+            }
+
+            if (accountPhone) {
+                currentFilters.account_phone = accountPhone;
             }
 
             if (source !== '') {

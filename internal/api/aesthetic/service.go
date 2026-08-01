@@ -3031,6 +3031,26 @@ func (s *Service) GetAestheticDataList(req *AestheticDataListRequest) (*PageResp
 		query = query.Where("aesthetic_data.phone LIKE ?", "%"+req.Phone+"%")
 	}
 
+	if req.AccountPhone != "" {
+		var userIDs []uint
+		if err := s.db.Model(&User{}).
+			Where("phone LIKE ?", "%"+req.AccountPhone+"%").
+			Pluck("id", &userIDs).Error; err != nil {
+			return nil, err
+		}
+
+		if len(userIDs) == 0 {
+			return &PageResponse{
+				List:     []AestheticDataAdminItem{},
+				Total:    0,
+				Page:     req.Page,
+				PageSize: req.PageSize,
+			}, nil
+		}
+
+		query = query.Where("aesthetic_data.user_id IN ?", userIDs)
+	}
+
 	if req.Source != nil {
 		query = query.Where("aesthetic_data.source = ?", *req.Source)
 	}

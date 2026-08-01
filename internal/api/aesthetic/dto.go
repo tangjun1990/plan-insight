@@ -106,6 +106,7 @@ type AestheticDataListRequest struct {
 	Province string `form:"province"`                          // 省份
 	City     string `form:"city"`                              // 所在城市
 	Phone    string `form:"phone"`                             // 手机号码
+	AccountPhone string `form:"account_phone"`                 // 账户手机号
 	Source   *int   `form:"source" binding:"omitempty,oneof=0 1"`
 }
 
