@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,6 +18,13 @@ import (
 type Controller struct {
 	service                  *Service
 	saveAestheticDataLimiter chan struct{}
+	adminLoginRiskMu         sync.Mutex
+	adminLoginRiskMap        map[string]*adminLoginRiskState
+}
+
+type adminLoginRiskState struct {
+	failedAt    []time.Time
+	lockedUntil time.Time
 }
 
 // NewController 创建控制器实例
@@ -24,7 +32,80 @@ func NewController(service *Service) *Controller {
 	return &Controller{
 		service:                  service,
 		saveAestheticDataLimiter: make(chan struct{}, 1),
+		adminLoginRiskMap:        make(map[string]*adminLoginRiskState),
 	}
+}
+
+const (
+	adminLoginFailureWindow = 10 * time.Minute
+	adminLoginMaxFailures   = 5
+	adminLoginLockDuration  = 60 * time.Minute
+)
+
+func (c *Controller) getAdminLoginRiskState(phone string) *adminLoginRiskState {
+	state, ok := c.adminLoginRiskMap[phone]
+	if !ok {
+		state = &adminLoginRiskState{}
+		c.adminLoginRiskMap[phone] = state
+	}
+	return state
+}
+
+func filterRecentFailedAt(failedAt []time.Time, now time.Time) []time.Time {
+	if len(failedAt) == 0 {
+		return failedAt
+	}
+
+	filtered := make([]time.Time, 0, len(failedAt))
+	for _, ts := range failedAt {
+		if now.Sub(ts) <= adminLoginFailureWindow {
+			filtered = append(filtered, ts)
+		}
+	}
+	return filtered
+}
+
+func (c *Controller) isAdminLoginLocked(phone string, now time.Time) bool {
+	c.adminLoginRiskMu.Lock()
+	defer c.adminLoginRiskMu.Unlock()
+
+	state := c.getAdminLoginRiskState(phone)
+	state.failedAt = filterRecentFailedAt(state.failedAt, now)
+	if !state.lockedUntil.IsZero() && now.Before(state.lockedUntil) {
+		return true
+	}
+
+	if !state.lockedUntil.IsZero() && !now.Before(state.lockedUntil) {
+		state.lockedUntil = time.Time{}
+	}
+	return false
+}
+
+func (c *Controller) recordAdminLoginSuccess(phone string) {
+	c.adminLoginRiskMu.Lock()
+	defer c.adminLoginRiskMu.Unlock()
+
+	if state, ok := c.adminLoginRiskMap[phone]; ok {
+		state.failedAt = nil
+		state.lockedUntil = time.Time{}
+	}
+}
+
+func (c *Controller) recordAdminLoginPasswordFailure(phone string, now time.Time) bool {
+	c.adminLoginRiskMu.Lock()
+	defer c.adminLoginRiskMu.Unlock()
+
+	state := c.getAdminLoginRiskState(phone)
+	state.failedAt = filterRecentFailedAt(state.failedAt, now)
+	state.failedAt = append(state.failedAt, now)
+
+	if len(state.failedAt) > adminLoginMaxFailures {
+		state.lockedUntil = now.Add(adminLoginLockDuration)
+		state.failedAt = nil
+		return true
+	}
+
+	return false
 }
 
 // ResponseSuccess 返回成功响应
@@ -466,10 +547,28 @@ func (c *Controller) AdminLogin(ctx *gin.Context) {
 		return
 	}
 
+	req.Phone = strings.TrimSpace(req.Phone)
+	now := time.Now()
+	if req.Phone != "" && c.isAdminLoginLocked(req.Phone, now) {
+		c.ResponseError(ctx, 429, "该账号密码错误次数过多，已被限制登录，请60分钟后再试")
+		return
+	}
+
 	resp, err := c.service.AdminLogin(&req)
 	if err != nil {
+		if req.Phone != "" && strings.Contains(err.Error(), "密码错误") {
+			locked := c.recordAdminLoginPasswordFailure(req.Phone, now)
+			if locked {
+				c.ResponseError(ctx, 429, "该账号密码错误次数过多，已被限制登录，请60分钟后再试")
+				return
+			}
+		}
 		c.ResponseError(ctx, 500, "登录失败: "+err.Error())
 		return
+	}
+
+	if req.Phone != "" {
+		c.recordAdminLoginSuccess(req.Phone)
 	}
 
 	c.ResponseSuccess(ctx, resp)
