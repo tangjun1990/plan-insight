@@ -118,7 +118,7 @@ func (s *Service) IssueOpenUserToken(phone string, wxOpenID string) (*OpenUserAu
 		if user.Status == 0 {
 			return nil, errors.New("用户已被禁用")
 		}
-			
+
 		user.OpenToken = generateOpenUserToken(phone)
 		user.OpenTokenExpireAt = &expireAt
 		user.LastLoginTime = &now
@@ -184,12 +184,13 @@ func (s *Service) GetOpenAestheticDataList(req *OpenAestheticListRequest) (*Page
 	}
 
 	var total int64
-	if err := s.db.Model(&AestheticData{}).Where("phone = ?", phone).Count(&total).Error; err != nil {
+	if err := s.db.Model(&AestheticData{}).Where("source", 1).Where("user_id = ?", user.ID).Count(&total).Error; err != nil {
 		return nil, err
 	}
 
 	var list []AestheticData
 	if err := s.db.Where("user_id = ?", user.ID).
+		Where("source", 1).
 		Order("created_at DESC").
 		Offset((page - 1) * pageSize).
 		Limit(pageSize).
