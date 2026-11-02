@@ -56,6 +56,35 @@ func buildColorDescItemsV3(colorNums []int) []ColorDescItem {
 	return rsp
 }
 
+func buildTopColorWordsV3(colorNums []int, limit int) []string {
+	wordScores := make(map[string]int)
+	for _, num := range colorNums {
+		for _, item := range globalColor {
+			if item.Num != num {
+				continue
+			}
+			for _, word := range item.Words {
+				wordScores[word]++
+			}
+			break
+		}
+	}
+	words := make([]string, 0, len(wordScores))
+	for word := range wordScores {
+		words = append(words, word)
+	}
+	sort.Slice(words, func(i, j int) bool {
+		if wordScores[words[i]] == wordScores[words[j]] {
+			return words[i] < words[j]
+		}
+		return wordScores[words[i]] > wordScores[words[j]]
+	})
+	if limit > 0 && len(words) > limit {
+		words = words[:limit]
+	}
+	return words
+}
+
 func getColorBarDetailsV3(nums []int) []ColorbarDetailV3 {
 	rsp := make([]ColorbarDetailV3, 0)
 	for _, num := range nums {

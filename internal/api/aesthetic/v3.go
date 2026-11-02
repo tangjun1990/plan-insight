@@ -634,10 +634,12 @@ type ColorbarDetailV3 struct {
 
 type AestheticDataRspV3 struct {
 	AestheticDataRsp
-	Tag        []string           `json:"tag"`
-	Attitude   string             `json:"attitude"`
-	ColorBars  []ColorbarDetailV3 `json:"colorbars"`
-	Background string             `json:"background"`
+	Tag                []string           `json:"tag"`
+	Attitude           string             `json:"attitude"`
+	ColorBars          []ColorbarDetailV3 `json:"colorbars"`
+	Background         string             `json:"background"`
+	LikedColorWords    []string           `json:"liked_color_words"`
+	DislikedColorWords []string           `json:"disliked_color_words"`
 }
 
 func (c *Controller) GetUserAestheticDataListV3(ctx *gin.Context) {
@@ -751,7 +753,9 @@ func (s *Service) GetAestheticDataDetailV3(id, userID uint, showSolutionDetal bo
 		targetSolutionID = int(targetSolution.ID)
 	}
 	background := getBackgroundURLV3(primaryBox.Num)
-	return &AestheticDataRspV3{AestheticDataRsp: AestheticDataRsp{AestheticData: data, Comment: comment, LikedColorDesc: buildColorDescItemsV3(likedColors), DislikedColorDesc: buildColorDescItemsV3(dislikedColors), LikedAdjectiveDesc: likedAdjectives, LikedLifeImageDesc: likedLifeImageDesc, LikedAreaImageDesc: likedAreaImageDesc, Summary: summary, WordBaseOnColor: resultWord, IsCollection: isCollection, SolutionList: solutionList, TargetSolutionID: targetSolutionID}, Tag: primaryBox.Tag, Attitude: primaryBox.Attitude, ColorBars: getColorBarDetailsV3(primaryBox.ColorBars), Background: background}, nil
+	likedColorWords := buildTopColorWordsV3(likedColors, 6)
+	dislikedColorWords := buildTopColorWordsV3(dislikedColors, 6)
+	return &AestheticDataRspV3{AestheticDataRsp: AestheticDataRsp{AestheticData: data, Comment: comment, LikedColorDesc: buildColorDescItemsV3(likedColors), DislikedColorDesc: buildColorDescItemsV3(dislikedColors), LikedAdjectiveDesc: likedAdjectives, LikedLifeImageDesc: likedLifeImageDesc, LikedAreaImageDesc: likedAreaImageDesc, Summary: summary, WordBaseOnColor: resultWord, IsCollection: isCollection, SolutionList: solutionList, TargetSolutionID: targetSolutionID}, Tag: primaryBox.Tag, Attitude: primaryBox.Attitude, ColorBars: getColorBarDetailsV3(primaryBox.ColorBars), Background: background, LikedColorWords: likedColorWords, DislikedColorWords: dislikedColorWords}, nil
 }
 
 func getBackgroundURLV3(boxNum int) string {
