@@ -669,14 +669,15 @@ func (c *Controller) GetAestheticDataDetailV3(ctx *gin.Context) {
 	c.ResponseSuccess(ctx, data)
 }
 
+// v3列表获取全部数据，而不是只获取version为3的数据
 func (s *Service) GetUserAestheticDataListV3(userID uint, page, pageSize int) (*PageResponse, error) {
 	var total int64
 	var list []AestheticData
 
-	if err := s.db.Model(&AestheticData{}).Where("user_id = ? AND version = ?", userID, 3).Count(&total).Error; err != nil {
+	if err := s.db.Model(&AestheticData{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
 		return nil, err
 	}
-	if err := s.db.Where("user_id = ? AND version = ?", userID, 3).
+	if err := s.db.Where("user_id = ?", userID).
 		Order("created_at DESC").
 		Offset((page - 1) * pageSize).
 		Limit(pageSize).
