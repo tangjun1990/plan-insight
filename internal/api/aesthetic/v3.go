@@ -589,9 +589,6 @@ func (c *Controller) GetColorbarListV3(ctx *gin.Context) {
 func (c *Controller) GetImageListV3(ctx *gin.Context) {
 	gender := ctx.Query("gender")
 	imageSource := globalImageV3
-	if gender == "男" {
-		imageSource = globalImageV3
-	}
 
 	imageData := make(map[string][]map[string]interface{})
 	for _, category := range globalImageCategory {
@@ -603,6 +600,13 @@ func (c *Controller) GetImageListV3(ctx *gin.Context) {
 			}
 			categoryID := cast.ToInt(parts[0])
 			if categoryID != category.CategoryID {
+				continue
+			}
+			genderPart := parts[1]
+			if categoryID == 1 && gender == "男" && genderPart != "2" {
+				continue
+			}
+			if categoryID == 1 && gender == "女" && genderPart != "1" {
 				continue
 			}
 
