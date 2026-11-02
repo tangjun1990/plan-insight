@@ -66,10 +66,12 @@ type UserCollection struct {
 
 // UserSolution 用户收藏
 type UserSolution struct {
-	ID        uint      `gorm:"primarykey" json:"id"`
-	UserID    uint      `gorm:"user_id" json:"user_id"` // 用户ID
-	AID       uint      `json:"aid"`                    // 报告ID
-	Source    int       `json:"source"`
+	ID     uint   `gorm:"primarykey" json:"id"`
+	UserID uint   `gorm:"user_id" json:"user_id"` // 用户ID
+	AID    uint   `json:"aid"`                    // 报告ID
+	Source int    `json:"source"`
+	Extra  string `json:"extra"` // 扩展信息，json格式包含图片列表和已刷新次数
+	// 其他字段...
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

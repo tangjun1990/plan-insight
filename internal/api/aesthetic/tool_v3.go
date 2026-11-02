@@ -2,8 +2,11 @@ package aesthetic
 
 import (
 	"fmt"
+	"math/rand"
+	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/spf13/cast"
 	"github.com/tangjun1990/flygo/core/kcfg"
@@ -37,6 +40,45 @@ func getSolutionImagesV3(boxNum int) []string {
 		fmt.Sprintf("%s/solution/img/5/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 		fmt.Sprintf("%s/solution/img/3/%d.webp", kcfg.GetString("app.global.host"), boxNum),
 	}
+}
+
+type SolutionImageGroupExtraV3 struct {
+	Num    int      `json:"num"`
+	Images []string `json:"images"`
+}
+
+type UserSolutionExtraV3 struct {
+	RefreshCount int                       `json:"refresh_count"`
+	Images       []SolutionImageGroupExtraV3 `json:"images"`
+}
+
+func normalizeSolutionImageRelPathV3(path string) string { return strings.TrimPrefix(filepath.ToSlash(path), "./") }
+func getSolutionImageURLV3(path string) string { return fmt.Sprintf("%s/%s", kcfg.GetString("app.global.host"), strings.TrimPrefix(normalizeSolutionImageRelPathV3(path), "/")) }
+func buildSolutionItemsFromExtraV3(groups []SolutionImageGroupExtraV3) []SolutionItem {
+	rsp := make([]SolutionItem, 0, len(groups))
+	for _, group := range groups {
+		images := make([]string, 0, len(group.Images))
+		for _, image := range group.Images { images = append(images, getSolutionImageURLV3(image)) }
+		rsp = append(rsp, SolutionItem{Icon: getSolutionIconV3(group.Num), Images: images})
+	}
+	return rsp
+}
+func getRandomSolutionImageRelPathsV3(boxNum, count int) ([]string, error) {
+	matches, err := filepath.Glob(filepath.Join(".", "solutionv3", "img", fmt.Sprintf("%d-1-*", boxNum)))
+	if err != nil { return nil, err }
+	if len(matches) < count { return nil, fmt.Errorf("box %d 的方案图片不足%d张", boxNum, count) }
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	r.Shuffle(len(matches), func(i, j int) { matches[i], matches[j] = matches[j], matches[i] })
+	rsp := make([]string, 0, count)
+	for _, match := range matches[:count] { rsp = append(rsp, normalizeSolutionImageRelPathV3(match)) }
+	return rsp, nil
+}
+func buildUserSolutionExtraV3(primaryBoxNum, secondaryBoxNum int) (*UserSolutionExtraV3, error) {
+	groups := make([]SolutionImageGroupExtraV3, 0, 2)
+	if primaryBoxNum > 0 { images, err := getRandomSolutionImageRelPathsV3(primaryBoxNum, 3); if err != nil { return nil, err }; groups = append(groups, SolutionImageGroupExtraV3{Num: primaryBoxNum, Images: images}) }
+	if secondaryBoxNum > 0 && secondaryBoxNum != primaryBoxNum { images, err := getRandomSolutionImageRelPathsV3(secondaryBoxNum, 3); if err != nil { return nil, err }; groups = append(groups, SolutionImageGroupExtraV3{Num: secondaryBoxNum, Images: images}) }
+	if len(groups) == 0 { return nil, fmt.Errorf("未找到可用方案图片") }
+	return &UserSolutionExtraV3{RefreshCount: 0, Images: groups}, nil
 }
 
 func buildColorDescItemsV3(colorNums []int) []ColorDescItem {

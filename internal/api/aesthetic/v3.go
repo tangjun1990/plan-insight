@@ -580,6 +580,11 @@ var globalBoxV3 = []boxItemV3{
 	},
 }
 
+type SolutionItemV3 struct {
+	BoxName string   `json:"box_name"`
+	Images  []string `json:"images"`
+}
+
 func (c *Controller) GetColorbarListV3(ctx *gin.Context) {
 	colorbars := c.service.GetIndexColorbar()
 
@@ -640,6 +645,7 @@ type AestheticDataRspV3 struct {
 	Background         string             `json:"background"`
 	LikedColorWords    []string           `json:"liked_color_words"`
 	DislikedColorWords []string           `json:"disliked_color_words"`
+	RefreshCount       int                `json:"refresh_count"`
 }
 
 func (c *Controller) GetUserAestheticDataListV3(ctx *gin.Context) {
@@ -667,6 +673,89 @@ func (c *Controller) GetAestheticDataDetailV3(ctx *gin.Context) {
 		return
 	}
 	c.ResponseSuccess(ctx, data)
+}
+
+func (c *Controller) CreateUserSolutionV3(ctx *gin.Context) {
+	var req CreateSolutionRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil { c.ResponseError(ctx, 400, "请求参数错误: "+err.Error()); return }
+	userID := c.GetUserID(ctx)
+	user, err := c.service.GetUserByID(userID)
+	if err != nil { c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error()); return }
+	if !c.service.IsProActive(user) { c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！"); return }
+	aid, convErr := strconv.Atoi(req.AID)
+	if convErr != nil || aid <= 0 { c.ResponseError(ctx, 400, "无效的aid参数"); return }
+	us, extra, createErr := c.service.CreateUserSolutionV3(userID, uint(aid), 0)
+	if createErr != nil { c.ResponseError(ctx, 500, createErr.Error()); return }
+	c.ResponseSuccess(ctx, gin.H{"solution_id": us.ID, "refresh_count": extra.RefreshCount, "solution_list": buildSolutionItemsFromExtraV3(extra.Images)})
+}
+
+func (c *Controller) GetUserSolutionDetailV3(ctx *gin.Context) {
+	sidStr := ctx.Query("solution_id")
+	sid, err := strconv.Atoi(sidStr)
+	if err != nil || sid <= 0 {
+		c.ResponseError(ctx, 400, "无效的solution_id参数")
+		return
+	}
+
+	userID := c.GetUserID(ctx)
+	// Pro准入校验
+	user, err := c.service.GetUserByID(userID)
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取用户信息失败: "+err.Error())
+		return
+	}
+	if !c.service.IsProActive(user) {
+		c.ResponseError(ctx, 403, "您未开通pro版，请联系PLAN客服开通！")
+		return
+	}
+	data, err := c.service.GetUserSolutionDetailV3(userID, uint(sid))
+	if err != nil {
+		c.ResponseError(ctx, 500, "获取方案详情失败: "+err.Error())
+		return
+	}
+
+	c.ResponseSuccess(ctx, data)
+}
+
+func (s *Service) CreateUserSolutionV3(userID uint, aid uint, source int) (*UserSolution, *UserSolutionExtraV3, error) {
+	var total int64
+	if err := s.db.Model(&UserSolution{}).Where("user_id = ?", userID).Where("a_id = ?", aid).Count(&total).Error; err != nil { return nil, nil, err }
+	if total > 0 { return nil, nil, fmt.Errorf("您已经对本报告生成过方案，请前往我的方案页面查看！") }
+	var data AestheticData
+	if err := s.db.Where("id = ? AND user_id = ? AND version = ?", aid, userID, 3).First(&data).Error; err != nil { return nil, nil, fmt.Errorf("未找到对应的v3审美报告") }
+	likedColors, likedColorBars := []int{}, []int{}
+	likedAdjectives, likedImages := []string{}, []string{}
+	_ = json.Unmarshal([]byte(data.LikedColors), &likedColors)
+	_ = json.Unmarshal([]byte(data.LikedColorbars), &likedColorBars)
+	_ = json.Unmarshal([]byte(data.LikedAdjectives), &likedAdjectives)
+	_ = json.Unmarshal([]byte(data.LikedImages), &likedImages)
+	_, primaryBox, secondaryBox, _ := buildAestheticSummaryV3(likedColors, likedColorBars, likedAdjectives, likedImages)
+	extra, err := buildUserSolutionExtraV3(primaryBox.Num, secondaryBox.Num)
+	if err != nil { return nil, nil, err }
+	extraJSON, err := json.Marshal(extra)
+	if err != nil { return nil, nil, err }
+	us := &UserSolution{UserID: userID, AID: aid, Source: source, Extra: string(extraJSON), CreatedAt: time.Now()}
+	if err := s.db.Create(us).Error; err != nil { return nil, nil, err }
+	return us, extra, nil
+}
+
+// GetUserSolutionDetail 获取用户方案详情：通过solution_id查user_solutions拿到aid再取审美报告详情
+func (s *Service) GetUserSolutionDetailV3(userID uint, solutionID uint) (*AestheticDataRspV3, error) {
+	var us UserSolution
+	if err := s.db.Where("id = ? AND user_id = ?", solutionID, userID).First(&us).Error; err != nil { return nil, err }
+	detail, err := s.GetAestheticDataDetailV3(us.AID, userID, true)
+	if err != nil { return nil, err }
+	refreshCount := 0
+	if us.Extra != "" {
+		var extra UserSolutionExtraV3
+		if err := json.Unmarshal([]byte(us.Extra), &extra); err == nil {
+			if solutionList := buildSolutionItemsFromExtraV3(extra.Images); len(solutionList) > 0 { detail.SolutionList = solutionList }
+			refreshCount = extra.RefreshCount
+		}
+	}
+	detail.SolutionID = int(us.ID)
+	detail.RefreshCount = refreshCount
+	return detail, nil
 }
 
 // v3列表获取全部数据，而不是只获取version为3的数据

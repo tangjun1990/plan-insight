@@ -40,6 +40,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	server.Static("/colorimg", "./colorimg")
 	server.Static("/ncdcert", "./ncdcert")
 	server.Static("/solution/tag", "./solution/tag")
+	server.Static("/solutionv3/img", "./solutionv3/img")
 	server.Static("/solution/img/1", "./solution/img/1")
 	server.Static("/solution/img/2", "./solution/img/2")
 	server.Static("/solution/img/3", "./solution/img/3")
@@ -114,8 +115,10 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.GET("/solution/list", controller.GetUserSolutionList)
 			// 方案详情接口：通过solution_id获取审美报告详情
 			userGroup.GET("/solution/detail", controller.GetUserSolutionDetail)
+			userGroup.GET("/v3/solution/detail", controller.GetUserSolutionDetailV3)
 			// 生成方案接口
 			userGroup.POST("/solution/create", controller.CreateUserSolution)
+			userGroup.POST("/v3/solution/create", controller.CreateUserSolutionV3)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
 			userGroup.GET("/v3/data/:id", controller.GetAestheticDataDetailV3)
 			userGroup.GET("/images", controller.GetImageList)
