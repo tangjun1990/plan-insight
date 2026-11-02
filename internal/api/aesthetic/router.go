@@ -33,6 +33,9 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 	server.LoadHTMLGlob("./*.html")
 	server.Static("/img", "./insimg")
 	server.Static("/imgv2", "./insimgv2")
+	server.Static("/imgv3", "./insimgv3")
+	server.Static("/background", "./background")
+	server.Static("/colorbar", "./colorbar")
 	server.Static("/boximg", "./boximg")
 	server.Static("/colorimg", "./colorimg")
 	server.Static("/ncdcert", "./ncdcert")
@@ -105,6 +108,7 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			userGroup.POST("/data/addCollection", controller.AddCollection)
 			userGroup.POST("/data/cancelCollection", controller.CancelCollection)
 			userGroup.GET("/data/list", controller.GetUserAestheticDataList)
+			userGroup.GET("/v3/data/list", controller.GetUserAestheticDataListV3)
 			userGroup.GET("/data/collection", controller.GetUserCollectionList)
 			// 方案列表接口（与收藏同源，按需区分）
 			userGroup.GET("/solution/list", controller.GetUserSolutionList)
@@ -113,10 +117,17 @@ func RegisterRouter(server *kin.Component, db *gorm.DB) {
 			// 生成方案接口
 			userGroup.POST("/solution/create", controller.CreateUserSolution)
 			userGroup.GET("/data/:id", controller.GetAestheticDataDetail)
+			userGroup.GET("/v3/data/:id", controller.GetAestheticDataDetailV3)
 			userGroup.GET("/images", controller.GetImageList)
+			userGroup.GET("/v3/images", controller.GetImageListV3)
 
 			userGroup.GET("/colors", controller.GetColorList)
 			userGroup.GET("/words", controller.GetWordList)
+			userGroup.GET("/v3/words", controller.GetWordListV3)
+
+			userGroup.GET("/v3/colorbars", controller.GetColorbarListV3)
+
+			userGroup.POST("/v3/data", controller.SaveAestheticDataV3)
 
 		}
 

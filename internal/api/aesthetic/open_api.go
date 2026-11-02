@@ -184,13 +184,14 @@ func (s *Service) GetOpenAestheticDataList(req *OpenAestheticListRequest) (*Page
 	}
 
 	var total int64
-	if err := s.db.Model(&AestheticData{}).Where("source", 1).Where("user_id = ?", user.ID).Count(&total).Error; err != nil {
+	if err := s.db.Model(&AestheticData{}).Where("source", 1).Where("user_id = ? AND version = ?", user.ID, 2).Count(&total).Error; err != nil {
 		return nil, err
 	}
 
 	var list []AestheticData
 	if err := s.db.Where("user_id = ?", user.ID).
 		Where("source", 1).
+		Where("version = ?", 2).
 		Order("created_at DESC").
 		Offset((page - 1) * pageSize).
 		Limit(pageSize).

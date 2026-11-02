@@ -35,21 +35,24 @@ type AestheticData struct {
 	ID     uint `gorm:"primarykey" json:"id"`
 	UserID uint `gorm:"index" json:"user_id"` // 用户ID
 	// User            User           `gorm:"foreignKey:UserID" json:"user"`     // 关联用户
-	Name            string         `gorm:"size:50" json:"name"`               // 用户姓名
-	Gender          string         `gorm:"size:10" json:"gender"`             // 性别
-	Age             int            `json:"age"`                               // 年龄
-	City            string         `gorm:"size:50" json:"city"`               // 所在城市
-	Phone           string         `gorm:"size:20" json:"phone"`              // 手机号码
-	LikedColors     string         `gorm:"type:text" json:"liked_colors"`     // 喜欢的10个颜色，JSON格式
-	DislikedColors  string         `gorm:"type:text" json:"disliked_colors"`  // 讨厌的5个颜色，JSON格式
-	LikedAdjectives string         `gorm:"type:text" json:"liked_adjectives"` // 喜欢的10个形容词，JSON格式
-	LikedImages     string         `gorm:"type:text" json:"liked_images"`     // 喜欢的10张图片，JSON格式
-	ColorImageURL   string         `gorm:"size:255" json:"color_image_url"`   // 色彩分析图片URL
-	BoxImageURL     string         `gorm:"size:255" json:"box_image_url"`     // 坐标分析图片URL
-	Source          int            `json:"source"`
-	CreatedAt       time.Time      `json:"created_at"`
-	UpdatedAt       time.Time      `json:"updated_at"`
-	DeletedAt       gorm.DeletedAt `gorm:"index" json:"-"`
+	Name            string `gorm:"size:50" json:"name"`               // 用户姓名
+	Gender          string `gorm:"size:10" json:"gender"`             // 性别
+	Age             int    `json:"age"`                               // 年龄
+	City            string `gorm:"size:50" json:"city"`               // 所在城市
+	Phone           string `gorm:"size:20" json:"phone"`              // 手机号码
+	LikedColors     string `gorm:"type:text" json:"liked_colors"`     // 喜欢的10个颜色，JSON格式
+	DislikedColors  string `gorm:"type:text" json:"disliked_colors"`  // 讨厌的5个颜色，JSON格式
+	LikedColorbars  string `gorm:"type:text" json:"liked_colorbars"`  // 喜欢的3个颜色条，JSON格式
+	LikedAdjectives string `gorm:"type:text" json:"liked_adjectives"` // 喜欢的10个形容词，JSON格式
+	LikedImages     string `gorm:"type:text" json:"liked_images"`     // 喜欢的10张图片，JSON格式
+	ColorImageURL   string `gorm:"size:255" json:"color_image_url"`   // 色彩分析图片URL
+	BoxImageURL     string `gorm:"size:255" json:"box_image_url"`     // 坐标分析图片URL
+	Source          int    `json:"source"`
+	Version         int    `json:"version"`
+
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
 // UserCollection 用户收藏
