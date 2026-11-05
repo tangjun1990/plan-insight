@@ -48,36 +48,62 @@ type SolutionImageGroupExtraV3 struct {
 }
 
 type UserSolutionExtraV3 struct {
-	RefreshCount int                       `json:"refresh_count"`
+	RefreshCount int                         `json:"refresh_count"`
 	Images       []SolutionImageGroupExtraV3 `json:"images"`
 }
 
-func normalizeSolutionImageRelPathV3(path string) string { return strings.TrimPrefix(filepath.ToSlash(path), "./") }
-func getSolutionImageURLV3(path string) string { return fmt.Sprintf("%s/%s", kcfg.GetString("app.global.host"), strings.TrimPrefix(normalizeSolutionImageRelPathV3(path), "/")) }
+func normalizeSolutionImageRelPathV3(path string) string {
+	return strings.TrimPrefix(filepath.ToSlash(path), "./")
+}
+func getSolutionImageURLV3(path string) string {
+	return fmt.Sprintf("%s/%s", kcfg.GetString("app.global.host"), strings.TrimPrefix(normalizeSolutionImageRelPathV3(path), "/"))
+}
 func buildSolutionItemsFromExtraV3(groups []SolutionImageGroupExtraV3) []SolutionItem {
 	rsp := make([]SolutionItem, 0, len(groups))
 	for _, group := range groups {
 		images := make([]string, 0, len(group.Images))
-		for _, image := range group.Images { images = append(images, getSolutionImageURLV3(image)) }
+		for _, image := range group.Images {
+			images = append(images, getSolutionImageURLV3(image))
+		}
 		rsp = append(rsp, SolutionItem{Icon: getSolutionIconV3(group.Num), Images: images})
 	}
 	return rsp
 }
 func getRandomSolutionImageRelPathsV3(boxNum, count int) ([]string, error) {
 	matches, err := filepath.Glob(filepath.Join(".", "solutionv3", "img", fmt.Sprintf("%d-1-*", boxNum)))
-	if err != nil { return nil, err }
-	if len(matches) < count { return nil, fmt.Errorf("box %d 的方案图片不足%d张", boxNum, count) }
+	if err != nil {
+		return nil, err
+	}
+	if len(matches) < count {
+		return nil, fmt.Errorf("box %d 的方案图片不足%d张", boxNum, count)
+	}
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	r.Shuffle(len(matches), func(i, j int) { matches[i], matches[j] = matches[j], matches[i] })
 	rsp := make([]string, 0, count)
-	for _, match := range matches[:count] { rsp = append(rsp, normalizeSolutionImageRelPathV3(match)) }
+	for _, match := range matches[:count] {
+		rsp = append(rsp, normalizeSolutionImageRelPathV3(match))
+	}
 	return rsp, nil
 }
 func buildUserSolutionExtraV3(primaryBoxNum, secondaryBoxNum int) (*UserSolutionExtraV3, error) {
 	groups := make([]SolutionImageGroupExtraV3, 0, 2)
-	if primaryBoxNum > 0 { images, err := getRandomSolutionImageRelPathsV3(primaryBoxNum, 3); if err != nil { return nil, err }; groups = append(groups, SolutionImageGroupExtraV3{Num: primaryBoxNum, Images: images}) }
-	if secondaryBoxNum > 0 && secondaryBoxNum != primaryBoxNum { images, err := getRandomSolutionImageRelPathsV3(secondaryBoxNum, 3); if err != nil { return nil, err }; groups = append(groups, SolutionImageGroupExtraV3{Num: secondaryBoxNum, Images: images}) }
-	if len(groups) == 0 { return nil, fmt.Errorf("未找到可用方案图片") }
+	if primaryBoxNum > 0 {
+		images, err := getRandomSolutionImageRelPathsV3(primaryBoxNum, 3)
+		if err != nil {
+			return nil, err
+		}
+		groups = append(groups, SolutionImageGroupExtraV3{Num: primaryBoxNum, Images: images})
+	}
+	if secondaryBoxNum > 0 && secondaryBoxNum != primaryBoxNum {
+		images, err := getRandomSolutionImageRelPathsV3(secondaryBoxNum, 3)
+		if err != nil {
+			return nil, err
+		}
+		groups = append(groups, SolutionImageGroupExtraV3{Num: secondaryBoxNum, Images: images})
+	}
+	if len(groups) == 0 {
+		return nil, fmt.Errorf("未找到可用方案图片")
+	}
 	return &UserSolutionExtraV3{RefreshCount: 0, Images: groups}, nil
 }
 
@@ -154,32 +180,68 @@ func buildAestheticSummaryV3(likedColors []int, likedColorBars []int, likedAdjec
 	for _, colorNum := range likedColors {
 		for _, colorItem := range globalColor {
 			if colorItem.Num == colorNum {
-				for _, word := range colorItem.Words { wordScores[word]++ }
+				for _, word := range colorItem.Words {
+					wordScores[word]++
+				}
 			}
 		}
-		if boxNum, ok := colorToBoxNumV3[colorNum]; ok { boxScores[boxNum]++ }
+		if boxNum, ok := colorToBoxNumV3[colorNum]; ok {
+			boxScores[boxNum]++
+		}
 	}
 	for _, word := range likedAdjectives {
 		wordScores[word]++
-		if boxNum, ok := wordToBoxNumV3[word]; ok { boxScores[boxNum]++ }
+		if boxNum, ok := wordToBoxNumV3[word]; ok {
+			boxScores[boxNum]++
+		}
 	}
 	for _, imageName := range likedImages {
-		if boxNum := getBoxNumFromImageNameV3(imageName); boxNum > 0 { boxScores[boxNum]++ }
+		if boxNum := getBoxNumFromImageNameV3(imageName); boxNum > 0 {
+			boxScores[boxNum]++
+		}
 	}
 	for _, colorBarNum := range likedColorBars {
-		if boxNum, ok := colorbarToBoxNumV3[colorBarNum]; ok { boxScores[boxNum]++ }
+		if boxNum, ok := colorbarToBoxNumV3[colorBarNum]; ok {
+			boxScores[boxNum]++
+		}
 	}
 	items := make([]boxItemV3, 0, len(boxScores))
-	for boxNum := range boxScores { if box, ok := boxByNumV3[boxNum]; ok { items = append(items, box) } }
-	sort.Slice(items, func(i, j int) bool { if boxScores[items[i].Num] == boxScores[items[j].Num] { return items[i].name < items[j].name }; return boxScores[items[i].Num] > boxScores[items[j].Num] })
+	for boxNum := range boxScores {
+		if box, ok := boxByNumV3[boxNum]; ok {
+			items = append(items, box)
+		}
+	}
+	sort.Slice(items, func(i, j int) bool {
+		if boxScores[items[i].Num] == boxScores[items[j].Num] {
+			return items[i].name < items[j].name
+		}
+		return boxScores[items[i].Num] > boxScores[items[j].Num]
+	})
 	primary, secondary := boxItemV3{}, boxItemV3{}
-	if len(items) > 0 { primary = items[0] }
-	if len(items) > 1 { secondary = items[1] }
+	if len(items) > 0 {
+		primary = items[0]
+	}
+	if len(items) > 1 {
+		secondary = items[1]
+	}
 	words := make([]string, 0, len(wordScores))
-	for word := range wordScores { words = append(words, word) }
-	sort.Slice(words, func(i, j int) bool { if wordScores[words[i]] == wordScores[words[j]] { return words[i] < words[j] }; return wordScores[words[i]] > wordScores[words[j]] })
-	if len(words) > 5 { words = words[:5] }
-	if primary.Num == 0 { return "", primary, secondary, words }
-	if secondary.Num == 0 { return fmt.Sprintf("“ %s派 ”", primary.name), primary, secondary, words }
-	return fmt.Sprintf("“ %s%s派 ”", primary.name, secondary.name), primary, secondary, words
+	for word := range wordScores {
+		words = append(words, word)
+	}
+	sort.Slice(words, func(i, j int) bool {
+		if wordScores[words[i]] == wordScores[words[j]] {
+			return words[i] < words[j]
+		}
+		return wordScores[words[i]] > wordScores[words[j]]
+	})
+	if len(words) > 5 {
+		words = words[:5]
+	}
+	if primary.Num == 0 {
+		return "", primary, secondary, words
+	}
+	if secondary.Num == 0 {
+		return fmt.Sprintf(" %s派 ", primary.name), primary, secondary, words
+	}
+	return fmt.Sprintf(" %s%s派 ", primary.name, secondary.name), primary, secondary, words
 }
