@@ -27,20 +27,8 @@ var globalColorbar = []colorbarItem{
 		"/colorbar/1.png",
 	},
 	{
-		2,
-		"/colorbar/2.png",
-	},
-	{
-		3,
-		"/colorbar/3.png",
-	},
-	{
 		4,
 		"/colorbar/4.png",
-	},
-	{
-		5,
-		"/colorbar/5.png",
 	},
 	{
 		6,
@@ -55,10 +43,6 @@ var globalColorbar = []colorbarItem{
 		"/colorbar/8.png",
 	},
 	{
-		9,
-		"/colorbar/9.png",
-	},
-	{
 		10,
 		"/colorbar/10.png",
 	},
@@ -71,10 +55,6 @@ var globalColorbar = []colorbarItem{
 		"/colorbar/12.png",
 	},
 	{
-		13,
-		"/colorbar/13.png",
-	},
-	{
 		14,
 		"/colorbar/14.png",
 	},
@@ -83,16 +63,8 @@ var globalColorbar = []colorbarItem{
 		"/colorbar/15.png",
 	},
 	{
-		16,
-		"/colorbar/16.png",
-	},
-	{
 		17,
 		"/colorbar/17.png",
-	},
-	{
-		18,
-		"/colorbar/18.png",
 	},
 	{
 		19,
@@ -106,18 +78,12 @@ var globalColorbar = []colorbarItem{
 		21,
 		"/colorbar/21.png",
 	},
-	{
-		22,
-		"/colorbar/22.png",
-	},
+
 	{
 		23,
 		"/colorbar/23.png",
 	},
-	{
-		24,
-		"/colorbar/24.png",
-	},
+
 	{
 		25,
 		"/colorbar/25.png",
@@ -139,24 +105,12 @@ var globalColorbar = []colorbarItem{
 		"/colorbar/29.png",
 	},
 	{
-		30,
-		"/colorbar/30.png",
-	},
-	{
 		31,
 		"/colorbar/31.png",
 	},
 	{
-		32,
-		"/colorbar/32.png",
-	},
-	{
 		33,
 		"/colorbar/33.png",
-	},
-	{
-		34,
-		"/colorbar/34.png",
 	},
 	{
 		35,
@@ -175,10 +129,6 @@ var globalColorbar = []colorbarItem{
 		"/colorbar/38.png",
 	},
 	{
-		39,
-		"/colorbar/39.png",
-	},
-	{
 		40,
 		"/colorbar/40.png",
 	},
@@ -186,26 +136,7 @@ var globalColorbar = []colorbarItem{
 		41,
 		"/colorbar/41.png",
 	},
-	{
-		42,
-		"/colorbar/42.png",
-	},
-	{
-		43,
-		"/colorbar/43.png",
-	},
-	{
-		44,
-		"/colorbar/44.png",
-	},
-	{
-		45,
-		"/colorbar/45.png",
-	},
-	{
-		46,
-		"/colorbar/46.png",
-	},
+
 	{
 		47,
 		"/colorbar/47.png",
@@ -370,7 +301,7 @@ var globalImageV3 = []string{
 
 var globalBoxV3 = []boxItemV3{
 	{
-		1,
+		2,
 		"可爱",
 		250,
 		670,
@@ -383,7 +314,7 @@ var globalBoxV3 = []boxItemV3{
 		"拒绝尖锐，用圆润与甜美拥抱世界。",
 	},
 	{
-		2,
+		1,
 		"闲适",
 		130,
 		1080,
