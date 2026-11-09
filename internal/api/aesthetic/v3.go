@@ -810,7 +810,8 @@ func (s *Service) GetAestheticDataDetailV3(id, userID uint, showSolutionDetal bo
 	background := getBackgroundURLV3(primaryBox.Num)
 	likedColorWords := buildTopColorWordsV3(likedColors, 6)
 	dislikedColorWords := buildTopColorWordsV3(dislikedColors, 6)
-	return &AestheticDataRspV3{AestheticDataRsp: AestheticDataRsp{AestheticData: data, Comment: comment, LikedColorDesc: buildColorDescItemsV3(likedColors), DislikedColorDesc: buildColorDescItemsV3(dislikedColors), LikedAdjectiveDesc: likedAdjectives, LikedLifeImageDesc: likedLifeImageDesc, LikedAreaImageDesc: likedAreaImageDesc, Summary: summary, WordBaseOnColor: resultWord, IsCollection: isCollection, SolutionList: solutionList, TargetSolutionID: targetSolutionID}, Tag: primaryBox.Tag, Attitude: primaryBox.Attitude, ColorBars: getColorBarDetailsV3(primaryBox.ColorBars), Background: background, LikedColorWords: likedColorWords, DislikedColorWords: dislikedColorWords}, nil
+	selectedColorBars := getColorBarDetailsV3(likedColorBars)
+	return &AestheticDataRspV3{AestheticDataRsp: AestheticDataRsp{AestheticData: data, Comment: comment, LikedColorDesc: buildColorDescItemsV3(likedColors), DislikedColorDesc: buildColorDescItemsV3(dislikedColors), LikedAdjectiveDesc: likedAdjectives, LikedLifeImageDesc: likedLifeImageDesc, LikedAreaImageDesc: likedAreaImageDesc, Summary: summary, WordBaseOnColor: resultWord, IsCollection: isCollection, SolutionList: solutionList, TargetSolutionID: targetSolutionID}, Tag: primaryBox.Tag, Attitude: primaryBox.Attitude, ColorBars: selectedColorBars, Background: background, LikedColorWords: likedColorWords, DislikedColorWords: dislikedColorWords}, nil
 }
 
 func getBackgroundURLV3(boxNum int) string {
