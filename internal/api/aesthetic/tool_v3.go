@@ -115,8 +115,8 @@ func buildColorDescItemsV3(colorNums []int) []ColorDescItem {
 				continue
 			}
 			words := item.Words
-			if len(words) > 5 {
-				words = words[:5]
+			if len(words) > 1 {
+				words = words[:1]
 			}
 			rsp = append(rsp, ColorDescItem{Num: cast.ToString(item.Num), Name: item.Name, Words: words, RGB: rgbToHex(uint8(item.R), uint8(item.G), uint8(item.B))})
 		}
