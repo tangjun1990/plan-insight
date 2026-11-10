@@ -2351,12 +2351,12 @@ func (s *Service) GetUserAestheticDataList(userID uint, page, pageSize int) (*Pa
 	var list []AestheticData
 
 	// 计算总数
-	if err := s.db.Model(&AestheticData{}).Where("user_id = ? AND version = ?", userID, 2).Count(&total).Error; err != nil {
+	if err := s.db.Model(&AestheticData{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
 		return nil, err
 	}
 
 	// 分页查询
-	if err := s.db.Where("user_id = ? AND version = ?", userID, 2).
+	if err := s.db.Where("user_id = ?", userID).
 		Order("created_at DESC").
 		Offset((page - 1) * pageSize).
 		Limit(pageSize).
