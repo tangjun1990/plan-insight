@@ -673,8 +673,8 @@ func (s *Service) CreateUserSolutionV3(userID uint, aid uint, source int) (*User
 		return nil, nil, fmt.Errorf("您已经对本报告生成过方案，请前往我的方案页面查看！")
 	}
 	var data AestheticData
-	if err := s.db.Where("id = ? AND user_id = ? AND version = ?", aid, userID, 3).First(&data).Error; err != nil {
-		return nil, nil, fmt.Errorf("未找到对应的v3审美报告")
+	if err := s.db.Where("id = ? AND version = ?", aid, 3).First(&data).Error; err != nil {
+		return nil, nil, fmt.Errorf("未找到对应的审美报告")
 	}
 	likedColors, likedColorBars := []int{}, []int{}
 	likedAdjectives, likedImages := []string{}, []string{}
